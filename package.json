@@ -1,0 +1,22 @@
+{
+  "name": "festival-planner-pro",
+  "private": false,
+  "version": "0.1.0",
+  "description": "Festival Planner Pro · 上传海报 → AI 解析 → 自定义你自己的音乐节日程",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host"
+  },
+  "dependencies": {
+    "html-to-image": "^1.11.13",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.2",
+    "vite": "^8.0.16"
+  }
+}
