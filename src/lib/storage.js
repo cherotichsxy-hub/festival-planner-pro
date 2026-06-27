@@ -15,27 +15,15 @@ const KEYS = {
 
 // 每次 seed 数据有意义改动就 bump 这个版本号，让用户浏览器里的旧缓存自动作废。
 // 不会影响 me:selections（用户的个人标记）—— 只清 community 数据。
-const SEED_VERSION = "2026-fuji-only-v3-complete";
+const SEED_VERSION = "pro-2026-multi-v1";
 
 export function migrateIfStale() {
   if (typeof window === "undefined") return;
   const stored = localStorage.getItem(KEYS.seedVersion);
   if (stored !== SEED_VERSION) {
+    // 多音乐节版本：仅清 community 数据（让 seed 重置），保留用户所有 me:* 偏好
     localStorage.removeItem(KEYS.festivals);
     localStorage.removeItem(KEYS.performances);
-    // 单音乐节版本：清理 me:selections / me:headliners 里非 Fuji Rock 的残留
-    try {
-      const sel = JSON.parse(localStorage.getItem(KEYS.selections) || "{}");
-      const hl = JSON.parse(localStorage.getItem(KEYS.headliners) || "{}");
-      const trimmedSel = sel["fuji-rock-2026"]
-        ? { "fuji-rock-2026": sel["fuji-rock-2026"] }
-        : {};
-      const trimmedHl = hl["fuji-rock-2026"]
-        ? { "fuji-rock-2026": hl["fuji-rock-2026"] }
-        : {};
-      localStorage.setItem(KEYS.selections, JSON.stringify(trimmedSel));
-      localStorage.setItem(KEYS.headliners, JSON.stringify(trimmedHl));
-    } catch (_) {}
     localStorage.setItem(KEYS.seedVersion, SEED_VERSION);
   }
 }

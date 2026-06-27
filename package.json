@@ -5,7 +5,7 @@
   "description": "Festival Planner Pro · 上传海报 → AI 解析 → 自定义你自己的音乐节日程",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite --host --port 5174",
     "build": "vite build",
     "preview": "vite preview --host"
   },

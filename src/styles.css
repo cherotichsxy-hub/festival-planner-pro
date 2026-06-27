@@ -3228,3 +3228,208 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   z-index: 2;
 }
 .share-foot-tag { color: var(--paper-ink); font-weight: 600; }
+
+/* ============================================================ */
+/* Festival Planner Pro · home / profile / upload 多音乐节版样式 */
+/* ============================================================ */
+.home-header,
+.profile-header,
+.upload-header {
+  padding: 28px 16px 16px;
+  background: var(--bg-phone);
+  border-bottom: 1px solid var(--line);
+}
+.home-brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.home-brand-mark {
+  background: var(--text);
+  color: var(--bg-phone);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 14px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.06em;
+}
+.home-title,
+.profile-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.home-title-dot { color: var(--bauhaus-red); }
+.home-sub,
+.profile-sub {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--text-mute);
+}
+.home-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--line);
+}
+.home-search > span {
+  font-size: 10px;
+  color: var(--text-mute);
+}
+.home-search input {
+  flex: 1 1 auto;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  min-width: 0;
+}
+.home-search input::placeholder { color: rgba(0,0,0,0.35); }
+
+.home-rack,
+.profile-section {
+  padding: 16px 16px 100px;
+  background: var(--bg-rack);
+  background-image: var(--noise-bg-soft);
+}
+.profile-section + .profile-section { padding-top: 0; }
+.home-empty,
+.profile-empty,
+.profile-stub {
+  text-align: center;
+  padding: 28px 12px;
+  font-size: 12px;
+  color: var(--text-mute);
+}
+.channel-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.channel-card {
+  width: 100%;
+  text-align: left;
+  background: var(--bg-phone);
+  border: 1.5px solid var(--text);
+  box-shadow: 3px 3px 0 var(--text);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.channel-card:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--text);
+}
+.channel-tag {
+  font-size: 10px;
+  color: var(--text-mute);
+  letter-spacing: 0.08em;
+}
+.channel-tag em { font-style: normal; color: var(--text); font-weight: 800; }
+.channel-name {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+}
+.channel-loc {
+  font-size: 11px;
+  color: var(--text-mute);
+}
+.channel-stats {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-soft);
+  margin-top: 4px;
+}
+.channel-stats em {
+  font-style: normal;
+  font-weight: 800;
+  color: var(--text);
+}
+.channel-marked {
+  color: var(--bauhaus-red) !important;
+  font-weight: 900;
+}
+
+.home-add-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bauhaus-yellow);
+  color: var(--text);
+  border: 1.5px solid var(--text);
+  box-shadow: 3px 3px 0 var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.home-add-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--text);
+}
+.home-add-cross {
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 900;
+}
+.home-add-text { flex: 1 1 auto; }
+.home-add-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 900;
+}
+.home-add-text small {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-soft);
+}
+.home-add-arrow { font-size: 18px; font-weight: 900; }
+
+/* Upload placeholder (stub) */
+.upload-title {
+  margin: 8px 0 4px;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.upload-sub {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-mute);
+}
+.upload-body {
+  padding: 24px 16px;
+  background: var(--bg-rack);
+  background-image: var(--noise-bg-soft);
+  min-height: 60vh;
+}
+.upload-placeholder {
+  text-align: center;
+  padding: 40px 12px;
+  border: 1.5px dashed var(--text);
+  background: var(--bg-phone);
+  font-size: 13px;
+  color: var(--text-mute);
+}
+.upload-placeholder p { margin: 6px 0; }

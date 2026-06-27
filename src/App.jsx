@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import HomeScreen from "./screens/HomeScreen.jsx";
 import FestivalScreen from "./screens/FestivalScreen.jsx";
-import ShareCanvas from "./components/ShareCanvas.jsx";
-import ShareCanvasTimetable from "./components/ShareCanvasTimetable.jsx";
+import ProfileScreen from "./screens/ProfileScreen.jsx";
+import UploadScreen from "./screens/UploadScreen.jsx";
 import { seedFestivals, seedPerformances } from "./data/seed.js";
 import {
   loadFestivals, saveFestivals,
@@ -15,51 +16,12 @@ import {
 // 必须在 useState 初始化之前跑，否则 loadFestivals 会读到旧数据
 migrateIfStale();
 
-const FESTIVAL_ID = "fuji-rock-2026";
-
-// Demo mode：?demo=1 时塞一份示例选择，用于截图/演示
-if (typeof window !== "undefined" && window.location.search.includes("demo=1")) {
-  localStorage.setItem("me:selections", JSON.stringify({
-    [FESTIVAL_ID]: {
-      "fr-d1-g4": "must",   // TURNSTILE
-      "fr-d1-g6": "must",   // The xx
-      "fr-d1-w5": "must",   // ARLO PARKS
-      "fr-d1-w6": "must",   // ASIAN KUNG-FU GENERATION
-      "fr-d1-r3": "must",   // SORRY
-      "fr-d1-h2": "maybe",  // FIELD OF HEAVEN 待定
-      "fr-d2-g4": "must",   // Day 2 GREEN
-      "fr-d2-w5": "must",   // Day 2 WHITE
-      "fr-d3-g4": "must",   // Day 3 GREEN
-    },
-  }));
-  localStorage.setItem("me:headliners", JSON.stringify({
-    [FESTIVAL_ID]: ["fr-d1-g6", "fr-d1-g4", "fr-d1-w6"],
-  }));
-}
-
-// URL state（截图/直链用）：?view=table → 时间表视图；?tab=plan → MY PLAN；?q=xxx → 搜索词
-const URL_PARAMS = typeof window !== "undefined"
-  ? new URLSearchParams(window.location.search)
-  : new URLSearchParams();
-if (typeof window !== "undefined" && URL_PARAMS.get("view")) {
-  localStorage.setItem("me:myplan_view", URL_PARAMS.get("view"));
-}
-// ?full=1 让 phone/fest-body 高度自适应，方便 marketing 截图整页
-if (typeof window !== "undefined" && URL_PARAMS.get("full") === "1") {
-  const s = document.createElement("style");
-  s.textContent = `
-    html, body { background: #fff; height: auto !important; }
-    .phone-frame { min-height: 0 !important; padding: 0 !important; }
-    .phone { height: auto !important; overflow: visible !important; min-height: 0 !important; }
-    .fest-bottom-nav { position: static !important; }
-    .fest-body { overflow: visible !important; }
-  `;
-  document.head.appendChild(s);
-}
-
+// 导航模型：一个 screen stack。
+// 栈底永远是 home 或 profile（底部 nav 的两个根 tab）。
+// festival / upload 通过 push 入栈，可用返回箭头出栈。
 export default function App() {
-  const [festivals] = useState(() => loadFestivals(seedFestivals));
-  const [performances] = useState(() => loadPerformances(seedPerformances));
+  const [festivals, setFestivals] = useState(() => loadFestivals(seedFestivals));
+  const [performances, setPerformances] = useState(() => loadPerformances(seedPerformances));
   useEffect(() => {
     saveFestivals(festivals);
     savePerformances(performances);
@@ -68,13 +30,54 @@ export default function App() {
   const [selections, setSelections] = useState(() => loadSelections());
   const [headliners, setHeadliners] = useState(() => loadHeadliners());
   const [axisChoice, setAxisChoice] = useState(() => loadAxisChoice());
+  const [stack, setStack] = useState([{ name: "home" }]);
 
-  const festival = festivals.find((f) => f.id === FESTIVAL_ID);
-  const festivalPerfs = performances.filter((p) => p.festivalId === FESTIVAL_ID);
+  const screen = stack[stack.length - 1];
+  const rootTab = stack[0].name; // "home" or "profile"
+  const canGoBack = stack.length > 1;
 
-  function setStatus(perfId, status) {
+  function push(next) {
+    setStack((s) => [...s, next]);
+  }
+  function pop() {
+    setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+  }
+  function switchTab(tab) {
+    setStack([{ name: tab }]);
+  }
+
+  function openFestival(festivalId, opts = {}) {
+    push({
+      name: "festival",
+      festivalId,
+      initialTab: opts.initialTab || "lineup",
+    });
+  }
+  function openUpload() {
+    push({ name: "upload" });
+  }
+
+  function publishFestival(newFestival, newPerformances) {
+    setFestivals((prev) => {
+      const next = [...prev, newFestival];
+      saveFestivals(next);
+      return next;
+    });
+    setPerformances((prev) => {
+      const next = [...prev, ...newPerformances];
+      savePerformances(next);
+      return next;
+    });
+    // 弹出 upload 屏，推入新音乐节详情
+    setStack((s) => [
+      ...s.slice(0, -1),
+      { name: "festival", festivalId: newFestival.id, initialTab: "lineup" },
+    ]);
+  }
+
+  function setStatus(festivalId, perfId, status) {
     setSelections((prev) => {
-      const current = prev[FESTIVAL_ID] || {};
+      const current = prev[festivalId] || {};
       const next = { ...current };
       if (status == null) {
         delete next[perfId];
@@ -83,9 +86,9 @@ export default function App() {
       }
       const nextSelections = { ...prev };
       if (Object.keys(next).length === 0) {
-        delete nextSelections[FESTIVAL_ID];
+        delete nextSelections[festivalId];
       } else {
-        nextSelections[FESTIVAL_ID] = next;
+        nextSelections[festivalId] = next;
       }
       saveSelections(nextSelections);
       return nextSelections;
@@ -93,36 +96,34 @@ export default function App() {
     // 取消 must-see → 同步移出 headliner 列表
     if (status !== "must") {
       setHeadliners((prev) => {
-        const list = prev[FESTIVAL_ID] || [];
+        const list = prev[festivalId] || [];
         if (!list.includes(perfId)) return prev;
         const filtered = list.filter((id) => id !== perfId);
         const nextH = { ...prev };
-        if (filtered.length) nextH[FESTIVAL_ID] = filtered;
-        else delete nextH[FESTIVAL_ID];
+        if (filtered.length) nextH[festivalId] = filtered;
+        else delete nextH[festivalId];
         saveHeadliners(nextH);
         return nextH;
       });
     }
   }
 
-  // 撞档时把某个 perf 提到主轴（同冲突组的其它从 axisChoice 移除）
-  function pickAxis(perfId, siblingIds) {
+  function pickAxis(festivalId, perfId, siblingIds) {
     setAxisChoice((prev) => {
-      const cur = prev[FESTIVAL_ID] || {};
+      const cur = prev[festivalId] || {};
       const next = { ...cur };
-      // 清掉同组所有兄弟（包括它自己），再 set 该 perf 为 pinned
       for (const sid of siblingIds) delete next[sid];
       next[perfId] = true;
       const nextChoice = { ...prev };
-      nextChoice[FESTIVAL_ID] = next;
+      nextChoice[festivalId] = next;
       saveAxisChoice(nextChoice);
       return nextChoice;
     });
   }
 
-  function toggleHeadliner(perfId) {
+  function toggleHeadliner(festivalId, perfId) {
     setHeadliners((prev) => {
-      const list = prev[FESTIVAL_ID] || [];
+      const list = prev[festivalId] || [];
       let next;
       if (list.includes(perfId)) {
         next = list.filter((id) => id !== perfId);
@@ -131,59 +132,82 @@ export default function App() {
         next = [...list, perfId];
       }
       const nextH = { ...prev };
-      if (next.length) nextH[FESTIVAL_ID] = next;
-      else delete nextH[FESTIVAL_ID];
+      if (next.length) nextH[festivalId] = next;
+      else delete nextH[festivalId];
       saveHeadliners(nextH);
       return nextH;
     });
   }
 
-  if (!festival) return null;
-
-  // 截图/marketing 用：?show=share-list 或 ?show=share-tt 直接渲染分享卡
-  const showShare = URL_PARAMS.get("show");
-  if (showShare === "share-list" || showShare === "share-tt") {
-    const sel = selections[FESTIVAL_ID] || {};
-    const hl = headliners[FESTIVAL_ID] || [];
-    const ax = axisChoice[FESTIVAL_ID] || {};
-    return (
-      <div style={{ background: "#fff", padding: "24px", display: "inline-block" }}>
-        {showShare === "share-list" ? (
-          <ShareCanvas
-            festival={festival}
-            performances={festivalPerfs}
-            selections={sel}
-            headliners={hl}
-            conflictMap={{}}
-          />
-        ) : (
-          <ShareCanvasTimetable
-            festival={festival}
-            performances={festivalPerfs}
-            selections={sel}
-            headliners={hl}
-            axisChoice={ax}
-          />
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="phone-frame">
       <div className="phone">
-        <FestivalScreen
-          festival={festival}
-          performances={festivalPerfs}
-          selections={selections[FESTIVAL_ID] || {}}
-          headliners={headliners[FESTIVAL_ID] || []}
-          axisChoice={axisChoice[FESTIVAL_ID] || {}}
-          onSetStatus={setStatus}
-          onToggleHeadliner={toggleHeadliner}
-          onPickAxis={pickAxis}
-          initialTab={URL_PARAMS.get("tab") === "plan" ? "plan" : "lineup"}
-          initialQuery={URL_PARAMS.get("q") || ""}
-        />
+        {screen.name === "home" && (
+          <HomeScreen
+            festivals={festivals}
+            performances={performances}
+            selections={selections}
+            onOpenFestival={openFestival}
+            onOpenUpload={openUpload}
+          />
+        )}
+        {screen.name === "festival" && (() => {
+          const festival = festivals.find((f) => f.id === screen.festivalId);
+          if (!festival) return null;
+          const festivalPerfs = performances.filter(
+            (p) => p.festivalId === festival.id,
+          );
+          return (
+            <FestivalScreen
+              festival={festival}
+              performances={festivalPerfs}
+              selections={selections[festival.id] || {}}
+              headliners={headliners[festival.id] || []}
+              axisChoice={axisChoice[festival.id] || {}}
+              onSetStatus={(perfId, status) =>
+                setStatus(festival.id, perfId, status)
+              }
+              onToggleHeadliner={(perfId) =>
+                toggleHeadliner(festival.id, perfId)
+              }
+              onPickAxis={(perfId, siblings) =>
+                pickAxis(festival.id, perfId, siblings)
+              }
+              onBack={pop}
+              initialTab={screen.initialTab}
+            />
+          );
+        })()}
+        {screen.name === "profile" && (
+          <ProfileScreen
+            festivals={festivals}
+            selections={selections}
+            onOpenFestival={(id) => openFestival(id, { initialTab: "plan" })}
+          />
+        )}
+        {screen.name === "upload" && (
+          <UploadScreen onBack={pop} onPublish={publishFestival} />
+        )}
+
+        {/* 全局底部 nav：只有栈底（rootTab）时显示，进入二级页隐藏 */}
+        {!canGoBack && (
+          <nav className="root-nav">
+            <button
+              className={rootTab === "home" ? "active" : ""}
+              onClick={() => switchTab("home")}
+            >
+              <span className="nav-icon">⌂</span>
+              首页
+            </button>
+            <button
+              className={rootTab === "profile" ? "active" : ""}
+              onClick={() => switchTab("profile")}
+            >
+              <span className="nav-icon">◎</span>
+              个人中心
+            </button>
+          </nav>
+        )}
       </div>
     </div>
   );
