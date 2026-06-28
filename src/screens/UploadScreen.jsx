@@ -65,7 +65,10 @@ export default function UploadScreen({ onBack, onPublish }) {
   return (
     <>
       <header className="upload-header">
-        <button className="back-btn" onClick={onBack} aria-label="返回">‹</button>
+        <div className="upload-header-bar">
+          <button className="back-btn" onClick={onBack} aria-label="返回">‹</button>
+          <span className="u-mono upload-header-tag">FESTIVAL · NEW</span>
+        </div>
         <h1 className="upload-title">UPLOAD POSTER.</h1>
         <p className="upload-sub u-mono">
           拍一张海报或选张截图 · AI 自动识别成时间表

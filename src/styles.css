@@ -3634,8 +3634,15 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   cursor: pointer;
 }
 
-/* upload-header 让 back btn 浮在左边 */
-.upload-header { position: relative; }
-.upload-header .back-btn { position: absolute; top: 18px; left: 12px; }
-.upload-header .upload-title { padding-left: 36px; }
-.upload-header .upload-sub { padding-left: 36px; }
+/* upload-header */
+.upload-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.upload-header-tag {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-mute);
+}

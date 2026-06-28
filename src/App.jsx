@@ -16,6 +16,16 @@ import {
 // 必须在 useState 初始化之前跑，否则 loadFestivals 会读到旧数据
 migrateIfStale();
 
+// dev/debug：URL ?screen=upload|profile|home 直接进入指定屏幕
+function initialStack() {
+  if (typeof window === "undefined") return [{ name: "home" }];
+  const params = new URLSearchParams(window.location.search);
+  const screen = params.get("screen");
+  if (screen === "profile") return [{ name: "profile" }];
+  if (screen === "upload") return [{ name: "home" }, { name: "upload" }];
+  return [{ name: "home" }];
+}
+
 // 导航模型：一个 screen stack。
 // 栈底永远是 home 或 profile（底部 nav 的两个根 tab）。
 // festival / upload 通过 push 入栈，可用返回箭头出栈。
@@ -30,7 +40,7 @@ export default function App() {
   const [selections, setSelections] = useState(() => loadSelections());
   const [headliners, setHeadliners] = useState(() => loadHeadliners());
   const [axisChoice, setAxisChoice] = useState(() => loadAxisChoice());
-  const [stack, setStack] = useState([{ name: "home" }]);
+  const [stack, setStack] = useState(() => initialStack());
 
   const screen = stack[stack.length - 1];
   const rootTab = stack[0].name; // "home" or "profile"
