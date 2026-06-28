@@ -3451,3 +3451,216 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   color: var(--text-mute);
   letter-spacing: 0.04em;
 }
+
+/* ============================================================ */
+/* Review 阶段（左原图 + 右可编辑 lineup）                       */
+/* ============================================================ */
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 32px;
+}
+
+/* 海报缩略 + 元数据：手机上是上下，桌面上是左右 */
+.review-poster {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.review-poster img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  background: var(--bg-phone);
+  border: 1.5px solid var(--text);
+  display: block;
+}
+.review-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.review-meta label {
+  font-size: 10px;
+  color: var(--text-mute);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+.review-meta-row {
+  display: flex;
+  gap: 10px;
+}
+@media (min-width: 720px) {
+  .review-poster {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .review-poster img {
+    width: 280px;
+    flex: 0 0 280px;
+    max-height: 380px;
+    position: sticky;
+    top: 12px;
+  }
+  .review-meta { flex: 1 1 auto; }
+}
+
+/* 标签字段 */
+.review-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-phone);
+  border: 1px dashed var(--line-strong);
+}
+.chips-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.chips-field label {
+  font-size: 10px;
+  color: var(--text-mute);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.chips-field-hint {
+  font-size: 9px;
+  color: var(--text-mute);
+  letter-spacing: 0.04em;
+}
+
+/* 演出列表 */
+.review-perfs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.review-perfs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line);
+}
+.review-perfs-head .u-mono {
+  font-size: 11px;
+  color: var(--text-mute);
+  letter-spacing: 0.08em;
+}
+.review-add-row {
+  background: transparent;
+  border: 1.5px solid var(--text);
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  cursor: pointer;
+}
+.review-add-row:hover {
+  background: var(--bauhaus-yellow);
+}
+.review-perf-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.review-perf-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: var(--bg-phone);
+  border: 1px solid var(--line);
+}
+.perf-name { font-weight: 800; }
+.perf-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.perf-meta-row .confirm-input {
+  padding: 6px 8px;
+  font-size: 12px;
+}
+.perf-stage { flex: 1 1 100px; min-width: 80px; }
+.perf-date { flex: 0 0 70px; }
+.perf-time { flex: 0 0 88px; padding: 6px 6px; }
+.perf-dash { font-size: 11px; opacity: 0.55; }
+.perf-remove {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--text-mute);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: auto;
+}
+.perf-remove:hover {
+  background: var(--bauhaus-red);
+  color: #fff;
+  border-color: var(--bauhaus-red);
+}
+
+/* ============================================================ */
+/* Error · raw response                                         */
+/* ============================================================ */
+.upload-error-toggle {
+  margin-top: 6px;
+  background: transparent;
+  border: 1px solid var(--text);
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.upload-error-toggle:hover { background: var(--bauhaus-yellow); }
+.upload-error-raw {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.upload-error-raw details {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+}
+.upload-error-raw summary {
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+}
+.upload-error-raw pre {
+  margin: 8px 0 0;
+  padding: 8px;
+  background: var(--bg-phone);
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.upload-error-hint {
+  font-size: 10px;
+  color: var(--text-mute);
+  letter-spacing: 0.04em;
+  text-align: center;
+}
