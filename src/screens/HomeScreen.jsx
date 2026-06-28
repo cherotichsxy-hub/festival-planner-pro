@@ -1,5 +1,17 @@
 import React, { useMemo, useState } from "react";
 
+// 磁带条配色（按 festival 顺序循环分配），dusty 复古调
+const CASSETTE_COLORS = [
+  { color: "#8b1d1d", ink: "#fbf9f8" }, // crimson
+  { color: "#7e97a8", ink: "#fbf9f8" }, // dusty blue
+  { color: "#ecc12a", ink: "#1e1506" }, // mustard
+  { color: "#5e6a4e", ink: "#fbf9f8" }, // olive
+  { color: "#9b5933", ink: "#fbf9f8" }, // rust
+  { color: "#6a2a2a", ink: "#fbf9f8" }, // wine
+  { color: "#a08542", ink: "#fbf9f8" }, // mustard-dark
+  { color: "#6a7a8a", ink: "#fbf9f8" }, // slate
+];
+
 export default function HomeScreen({
   festivals,
   performances,
@@ -12,7 +24,7 @@ export default function HomeScreen({
 
   const enriched = useMemo(() => {
     return festivals
-      .map((f) => {
+      .map((f, i) => {
         const perfs = performances.filter((p) => p.festivalId === f.id);
         const marked = perfs.filter((p) => selections[f.id]?.[p.id]).length;
         return {
@@ -21,6 +33,7 @@ export default function HomeScreen({
           daysCount: f.dates?.length || 0,
           setsCount: perfs.length,
           markedCount: marked,
+          cassetteIdx: i,
         };
       })
       .filter((f) =>
@@ -31,26 +44,29 @@ export default function HomeScreen({
           : true,
       )
       .sort((a, b) => {
-        // 有标记的优先；同等时按 year 倒序
         if (a.markedCount !== b.markedCount) return b.markedCount - a.markedCount;
         return (b.year || 0) - (a.year || 0);
       });
   }, [festivals, performances, selections, q]);
 
   return (
-    <>
-      <header className="home-header">
-        <div className="home-brand">
-          <span className="home-brand-mark">FP</span>
-          <h1 className="home-title">
-            FESTIVAL<br />PLANNER<span className="home-title-dot">.</span>
-          </h1>
+    <div className="screen-body">
+      <header className="brand-bar">
+        <div className="brand-bar-marker">
+          <span className="brand-mark">FP</span>
+          <span className="u-mono brand-bar-sys">
+            FESTIVAL · PLANNER · PRO
+          </span>
         </div>
-        <p className="home-sub">把海报里的演出 · 变成可复用的日程</p>
+        <h1 className="brand-title">
+          FESTIVAL<br />
+          PLANNER<span className="brand-title-dot">.</span>
+        </h1>
+        <p className="brand-tagline">把海报里的演出 · 变成可复用的日程</p>
       </header>
 
-      <div className="home-search">
-        <span className="u-mono">FIND</span>
+      <div className="search-bar">
+        <span className="u-mono search-label">FIND</span>
         <input
           type="search"
           placeholder="搜音乐节 / 城市 / 年份"
@@ -59,55 +75,76 @@ export default function HomeScreen({
         />
       </div>
 
-      <section className="home-rack">
+      <div className="home-body">
         <header className="rack-title">
           <span className="u-mono">CHANNELS / 频道</span>
           <span className="u-mono rack-count">
             {String(enriched.length).padStart(2, "0")}
           </span>
         </header>
+
         {enriched.length === 0 ? (
-          <p className="home-empty u-mono">— 没找到匹配的音乐节 —</p>
+          <p className="rack-empty u-mono">— 没找到匹配的音乐节 —</p>
         ) : (
-          <ul className="channel-list">
-            {enriched.map((f) => (
-              <li key={f.id}>
-                <button
-                  type="button"
-                  className="channel-card"
-                  onClick={() => onOpenFestival(f.id)}
-                >
-                  <span className="u-mono channel-tag">
-                    FREQ · <em>{f.year}</em>
-                  </span>
-                  <strong className="channel-name">{f.name}</strong>
-                  <span className="u-mono channel-loc">{f.location}</span>
-                  <span className="u-mono channel-stats">
-                    <em>{f.daysCount}</em>D ·{" "}
-                    <em>{f.stagesCount}</em>STAGES ·{" "}
-                    <em>{f.setsCount}</em> SETS
-                    {f.markedCount > 0 && (
-                      <>
-                        {" "}· <em className="channel-marked">●</em>{" "}
-                        <em>{f.markedCount}</em> MARKED
-                      </>
-                    )}
-                  </span>
-                </button>
-              </li>
-            ))}
+          <ul className="cassette-stack">
+            {enriched.map((f) => {
+              const cassette =
+                CASSETTE_COLORS[f.cassetteIdx % CASSETTE_COLORS.length];
+              return (
+                <li key={f.id}>
+                  <button
+                    type="button"
+                    className="cassette-card"
+                    style={{
+                      "--cassette-color": cassette.color,
+                      "--cassette-ink": cassette.ink,
+                    }}
+                    onClick={() => onOpenFestival(f.id)}
+                  >
+                    <div className="cassette-strip">
+                      <span className="cassette-strip-label">
+                        FREQ · {f.year}
+                      </span>
+                      <span className="cassette-strip-reel">
+                        <span />
+                        <span />
+                      </span>
+                    </div>
+                    <div className="cassette-label">
+                      <strong className="cassette-name">{f.name}</strong>
+                      <span className="cassette-loc">{f.location}</span>
+                      <div className="cassette-stats">
+                        <span>
+                          {f.daysCount}D · {f.stagesCount} STAGES ·{" "}
+                          {f.setsCount} SETS
+                        </span>
+                        {f.markedCount > 0 && (
+                          <span className="cassette-marks">
+                            ● {f.markedCount} MARKED
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
 
-        <button className="home-add-btn" type="button" onClick={onOpenUpload}>
-          <span className="home-add-cross">＋</span>
-          <span className="home-add-text">
+        <button
+          type="button"
+          className="upload-rack-btn"
+          onClick={onOpenUpload}
+        >
+          <span className="upload-rack-mark">＋</span>
+          <div className="upload-rack-text">
             <strong>添加新音乐节</strong>
-            <small className="u-mono">UPLOAD · POSTER → SCHEDULE</small>
-          </span>
-          <span className="home-add-arrow">→</span>
+            <span className="u-mono">UPLOAD · POSTER → SCHEDULE</span>
+          </div>
+          <span className="upload-rack-arrow">→</span>
         </button>
-      </section>
-    </>
+      </div>
+    </div>
   );
 }

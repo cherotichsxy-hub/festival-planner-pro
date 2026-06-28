@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import { parseTimetable } from "../lib/parseTimetable.js";
 
 // 三阶段状态机：idle → parsing → confirm → publishing
-//                        ↓
-//                       error
+// idle: 选图
+// parsing: spinner
+// confirm: 校对元数据 + 发布
+// error: 失败提示 + 重试
 
 export default function UploadScreen({ onBack, onPublish }) {
   const [phase, setPhase] = useState("idle"); // idle | parsing | confirm | error
   const [progress, setProgress] = useState("");
   const [parsed, setParsed] = useState(null);
-  const [meta, setMeta] = useState(null); // 用户在 confirm 阶段编辑的 festival 元数据
+  const [meta, setMeta] = useState(null);
   const [error, setError] = useState(null);
 
   function pickFile(e) {
@@ -62,17 +64,26 @@ export default function UploadScreen({ onBack, onPublish }) {
     onPublish(festival, performances);
   }
 
+  const canPublish =
+    phase === "confirm" &&
+    meta?.name?.trim() &&
+    (parsed?.performances?.length || 0) > 0;
+
   return (
-    <>
+    <div className="screen-body">
       <header className="upload-header">
-        <div className="upload-header-bar">
-          <button className="back-btn" onClick={onBack} aria-label="返回">‹</button>
-          <span className="u-mono upload-header-tag">FESTIVAL · NEW</span>
+        <button className="back-btn" onClick={onBack} aria-label="返回">‹</button>
+        <div className="upload-header-main">
+          <span className="u-mono upload-channel">FESTIVAL · NEW</span>
+          <h1 className="upload-title">
+            UPLOAD<br />POSTER<span className="brand-title-dot">.</span>
+          </h1>
         </div>
-        <h1 className="upload-title">UPLOAD POSTER.</h1>
-        <p className="upload-sub u-mono">
-          拍一张海报或选张截图 · AI 自动识别成时间表
-        </p>
+        {canPublish && (
+          <button type="button" className="publish-btn" onClick={publish}>
+            发布<br /><span>PUBLISH ↗</span>
+          </button>
+        )}
       </header>
 
       <main className="upload-body">
@@ -83,132 +94,135 @@ export default function UploadScreen({ onBack, onPublish }) {
             meta={meta}
             setMeta={setMeta}
             parsed={parsed}
-            onPublish={publish}
             onRestart={() => setPhase("idle")}
           />
         )}
         {phase === "error" && (
-          <ErrorView
-            message={error}
-            onRetry={() => setPhase("idle")}
-          />
+          <ErrorView message={error} onRetry={() => setPhase("idle")} />
         )}
       </main>
-    </>
+    </div>
   );
 }
 
 function IdleView({ onPick }) {
   return (
-    <div className="upload-pick">
-      <label className="upload-pick-zone">
+    <>
+      <p className="upload-hint u-mono">
+        把海报或时间表截图喂给 AI · 它会自动整理成结构化数据 · 你再校对一下就能发布
+      </p>
+
+      <label className="dropzone">
+        <span className="dropzone-corner tl" />
+        <span className="dropzone-corner tr" />
+        <span className="dropzone-corner bl" />
+        <span className="dropzone-corner br" />
         <input
           type="file"
           accept="image/*"
           onChange={onPick}
           style={{ display: "none" }}
         />
-        <span className="upload-pick-mark">＋</span>
-        <strong>点这里选海报图片</strong>
-        <small className="u-mono">JPG / PNG / WEBP · 一张就够</small>
+        <span className="dropzone-mark">＋</span>
+        <span className="dropzone-title">点这里选海报</span>
+        <span className="u-mono dropzone-sub">JPG / PNG / WEBP · 一张就够</span>
       </label>
-      <p className="upload-hint u-mono">
-        没填 DeepSeek API key 也能跑 · 会用示例数据演示流程
+
+      <div className="upload-divider u-mono">
+        <span>没填 API KEY 也能跑</span>
+      </div>
+
+      <p className="upload-hint u-mono" style={{ textAlign: "center" }}>
+        没填 DeepSeek API key 时会用 mock 数据演示流程 · 去个人中心配 key 后才能识别真海报
       </p>
-    </div>
+    </>
   );
 }
 
 function ParsingView({ progress }) {
   return (
-    <div className="upload-parsing">
-      <div className="upload-spinner" />
-      <p className="u-mono">{progress || "处理中…"}</p>
-      <small className="u-mono upload-parsing-hint">
-        Vision 直读约 5-15 秒 · OCR 兜底可能要 30 秒+
-      </small>
+    <div className="parsing-view">
+      <div className="parsing-spinner" />
+      <p className="u-mono parsing-status">{progress || "处理中…"}</p>
+      <p className="u-mono parsing-hint">
+        VISION 直读约 5-15 秒 · OCR 兜底可能要 30 秒+
+      </p>
     </div>
   );
 }
 
-function ConfirmView({ meta, setMeta, parsed, onPublish, onRestart }) {
+function ConfirmView({ meta, setMeta, parsed, onRestart }) {
   const set = (k) => (e) => setMeta({ ...meta, [k]: e.target.value });
   const perfCount = parsed.performances?.length || 0;
   return (
-    <div className="upload-confirm">
+    <>
       {parsed._mock && (
         <p className="upload-mock-banner u-mono">
-          ⚠ 示例数据 · 实际发布前请去个人中心填 DeepSeek API key
+          ⚠ 当前是示例数据 · 实际发布前请在个人中心填 DeepSeek API key
         </p>
       )}
 
-      <section className="upload-field">
+      <section className="confirm-field">
         <label className="u-mono">名称</label>
-        <input value={meta.name} onChange={set("name")} />
+        <input className="confirm-input" value={meta.name} onChange={set("name")} />
       </section>
-      <section className="upload-field upload-field-row">
-        <div>
+
+      <section className="confirm-field-row">
+        <div className="confirm-field confirm-field-year">
           <label className="u-mono">年份</label>
           <input
+            className="confirm-input"
             value={meta.year}
             type="number"
             onChange={set("year")}
           />
         </div>
-        <div className="upload-field-grow">
+        <div className="confirm-field confirm-field-grow">
           <label className="u-mono">地点</label>
-          <input value={meta.location || ""} onChange={set("location")} />
+          <input
+            className="confirm-input"
+            value={meta.location || ""}
+            onChange={set("location")}
+          />
         </div>
       </section>
 
-      <section className="upload-field">
-        <label className="u-mono">日期 ({meta.dates?.length || 0} 天)</label>
-        <p className="upload-list-summary">
+      <section className="confirm-field">
+        <label className="u-mono">
+          日期 ({meta.dates?.length || 0} 天)
+        </label>
+        <p className="confirm-summary">
           {meta.dates?.join(" · ") || "未识别"}
         </p>
       </section>
-      <section className="upload-field">
-        <label className="u-mono">舞台 ({meta.stages?.length || 0} 个)</label>
-        <p className="upload-list-summary">
+
+      <section className="confirm-field">
+        <label className="u-mono">
+          舞台 ({meta.stages?.length || 0} 个)
+        </label>
+        <p className="confirm-summary">
           {meta.stages?.join(" · ") || "未识别"}
         </p>
       </section>
 
-      <section className="upload-summary">
+      <section className="confirm-count">
         <strong>{perfCount}</strong>
-        <span className="u-mono">条演出已识别</span>
+        <span className="u-mono">条演出已识别 · 顶部 ↗ 按钮发布</span>
       </section>
 
-      <div className="upload-confirm-actions">
-        <button
-          type="button"
-          className="upload-confirm-cancel"
-          onClick={onRestart}
-        >
-          重新上传
-        </button>
-        <button
-          type="button"
-          className="upload-confirm-publish"
-          onClick={onPublish}
-        >
-          发布 · 加到我的频道
-        </button>
-      </div>
-    </div>
+      <button type="button" className="confirm-restart" onClick={onRestart}>
+        ← 重新选图
+      </button>
+    </>
   );
 }
 
 function ErrorView({ message, onRetry }) {
   return (
-    <div className="upload-error">
-      <p className="u-mono">⚠ 识别失败</p>
+    <div className="upload-error-card">
+      <p className="upload-error-tag u-mono">⚠ 识别失败</p>
       <p className="upload-error-msg">{message}</p>
-      <button
-        type="button"
-        className="upload-error-retry"
-        onClick={onRetry}
-      >
+      <button type="button" className="upload-error-retry" onClick={onRetry}>
         重试
       </button>
     </div>
