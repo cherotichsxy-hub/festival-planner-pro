@@ -1,5 +1,5 @@
-// 种子数据：Fuji Rock 2026 单音乐节版本
-// 仅作为本地默认数据使用，无外部 API 依赖
+// 种子数据：MVP 阶段内置的几个音乐节
+// 全部来自官方海报/时间表识别
 
 export const seedFestivals = [
   {
@@ -27,6 +27,16 @@ export const seedFestivals = [
       "PALACE AREA",
       "PYRAMID GARDEN",
     ],
+  },
+  {
+    id: "youshan-2026",
+    name: "游山音乐节 yóu shān MUSIC FESTIVAL",
+    year: 2026,
+    location: "河北张家口市崇礼区梧桐大道曼松林",
+    source: "官方海报",
+    dates: ["2026-07-17", "2026-07-18", "2026-07-19"],
+    mainStageCount: 2,
+    stages: ["FOREST STAGE", "VALLEY STAGE"],
   },
 ];
 
@@ -356,4 +366,56 @@ export const seedPerformances = [
   { id: "fr-d3-pg6", festivalId: "fuji-rock-2026", displayDate: "2026-07-26", artistName: "蓮沼執太チーム",                    stageName: "PYRAMID GARDEN", startAt: "2026-07-26T22:30:00", endAt: "2026-07-26T23:30:00", confidence: 1, link: "https://en.fujirockfestival.com/artist/detail/6953" },
   { id: "fr-d3-pg7", festivalId: "fuji-rock-2026", displayDate: "2026-07-26", artistName: "TENDRE",                           stageName: "PYRAMID GARDEN", startAt: "2026-07-27T00:20:00", endAt: "2026-07-27T01:20:00", confidence: 1, link: "https://en.fujirockfestival.com/artist/detail/4945" },
 
+  // ============================================================
+  // 游山音乐节 2026 · 河北张家口崇礼 · 7/17-7/19 · 官方海报识别
+  // ============================================================
+  // Day 1 (2026-07-17 FRI) · FOREST STAGE
+  { id: "ys-d1-f1", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Meixing",            stageName: "FOREST STAGE", startAt: "2026-07-17T15:00:00", endAt: "2026-07-17T16:15:00", confidence: 1 },
+  { id: "ys-d1-f2", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Paradice Sinema",    stageName: "FOREST STAGE", startAt: "2026-07-17T16:15:00", endAt: "2026-07-17T17:30:00", confidence: 1 },
+  { id: "ys-d1-f3", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Hanxuhaux (LIVE)",   stageName: "FOREST STAGE", startAt: "2026-07-17T17:30:00", endAt: "2026-07-17T18:30:00", confidence: 1 },
+  { id: "ys-d1-f4", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Yepwatt (LIVE)",     stageName: "FOREST STAGE", startAt: "2026-07-17T18:30:00", endAt: "2026-07-17T19:45:00", confidence: 1 },
+  { id: "ys-d1-f5", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Finascia",           stageName: "FOREST STAGE", startAt: "2026-07-17T19:45:00", endAt: "2026-07-17T21:00:00", confidence: 1 },
+  { id: "ys-d1-f6", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Howell",             stageName: "FOREST STAGE", startAt: "2026-07-17T21:00:00", endAt: "2026-07-17T22:15:00", confidence: 1 },
+  { id: "ys-d1-f7", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Liuyang",            stageName: "FOREST STAGE", startAt: "2026-07-17T22:15:00", endAt: "2026-07-17T23:30:00", confidence: 1 },
+  { id: "ys-d1-f8", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "NYB",                stageName: "FOREST STAGE", startAt: "2026-07-17T23:30:00", endAt: "2026-07-18T00:45:00", confidence: 1 },
+  // Day 1 · VALLEY STAGE
+  { id: "ys-d1-v1", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Bambi",                            stageName: "VALLEY STAGE", startAt: "2026-07-17T18:00:00", endAt: "2026-07-17T19:30:00", confidence: 1 },
+  { id: "ys-d1-v2", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Sunyoung",                         stageName: "VALLEY STAGE", startAt: "2026-07-17T19:30:00", endAt: "2026-07-17T21:00:00", confidence: 1 },
+  { id: "ys-d1-v3", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Lizz [RO]",                        stageName: "VALLEY STAGE", startAt: "2026-07-17T21:00:00", endAt: "2026-07-17T23:00:00", confidence: 1 },
+  { id: "ys-d1-v4", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Oshana [US] Vinyl Set",            stageName: "VALLEY STAGE", startAt: "2026-07-17T23:00:00", endAt: "2026-07-18T01:00:00", confidence: 1 },
+  { id: "ys-d1-v5", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Tobias. (LIVE) [DE]",              stageName: "VALLEY STAGE", startAt: "2026-07-18T01:00:00", endAt: "2026-07-18T03:00:00", confidence: 1 },
+  { id: "ys-d1-v6", festivalId: "youshan-2026", displayDate: "2026-07-17", artistName: "Rrose [US]",                       stageName: "VALLEY STAGE", startAt: "2026-07-18T03:00:00", endAt: "2026-07-18T05:00:00", confidence: 1 },
+
+  // Day 2 (2026-07-18 SAT) · FOREST STAGE
+  { id: "ys-d2-f1", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Shengchou",            stageName: "FOREST STAGE", startAt: "2026-07-18T15:00:00", endAt: "2026-07-18T16:15:00", confidence: 1 },
+  { id: "ys-d2-f2", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "77 Mushrooms",         stageName: "FOREST STAGE", startAt: "2026-07-18T16:15:00", endAt: "2026-07-18T17:30:00", confidence: 1 },
+  { id: "ys-d2-f3", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Cola Ren (LIVE)",      stageName: "FOREST STAGE", startAt: "2026-07-18T17:30:00", endAt: "2026-07-18T18:15:00", confidence: 1 },
+  { id: "ys-d2-f4", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Liuliu",               stageName: "FOREST STAGE", startAt: "2026-07-18T18:15:00", endAt: "2026-07-18T19:30:00", confidence: 1 },
+  { id: "ys-d2-f5", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Rhom Omit",            stageName: "FOREST STAGE", startAt: "2026-07-18T19:30:00", endAt: "2026-07-18T20:45:00", confidence: 1 },
+  { id: "ys-d2-f6", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Thomas Futoso",        stageName: "FOREST STAGE", startAt: "2026-07-18T20:45:00", endAt: "2026-07-18T22:00:00", confidence: 1 },
+  { id: "ys-d2-f7", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Qiuqiu b2b DJ EBP",    stageName: "FOREST STAGE", startAt: "2026-07-18T22:00:00", endAt: "2026-07-19T00:00:00", confidence: 1 },
+  { id: "ys-d2-f8", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Lana Den",             stageName: "FOREST STAGE", startAt: "2026-07-19T00:00:00", endAt: "2026-07-19T01:30:00", confidence: 1 },
+  // Day 2 · VALLEY STAGE
+  { id: "ys-d2-v1", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Mariio",                              stageName: "VALLEY STAGE", startAt: "2026-07-18T17:30:00", endAt: "2026-07-18T19:00:00", confidence: 1 },
+  { id: "ys-d2-v2", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Mihai Pol [RO]",                      stageName: "VALLEY STAGE", startAt: "2026-07-18T19:00:00", endAt: "2026-07-18T21:00:00", confidence: 1 },
+  { id: "ys-d2-v3", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Jorge Caiado [PT] Vinyl Set",         stageName: "VALLEY STAGE", startAt: "2026-07-18T21:00:00", endAt: "2026-07-18T23:00:00", confidence: 1 },
+  { id: "ys-d2-v4", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Giammarco Orsini [IT] Vinyl Set",     stageName: "VALLEY STAGE", startAt: "2026-07-18T23:00:00", endAt: "2026-07-19T01:00:00", confidence: 1 },
+  { id: "ys-d2-v5", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Dan Andrei [RO] Vinyl Set",           stageName: "VALLEY STAGE", startAt: "2026-07-19T01:00:00", endAt: "2026-07-19T03:00:00", confidence: 1 },
+  { id: "ys-d2-v6", festivalId: "youshan-2026", displayDate: "2026-07-18", artistName: "Raphael Carrau [BR] Vinyl Set",       stageName: "VALLEY STAGE", startAt: "2026-07-19T03:00:00", endAt: "2026-07-19T05:00:00", confidence: 1 },
+
+  // Day 3 (2026-07-19 SUN) · FOREST STAGE
+  { id: "ys-d3-f1", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "BingBing",            stageName: "FOREST STAGE", startAt: "2026-07-19T16:30:00", endAt: "2026-07-19T18:00:00", confidence: 1 },
+  { id: "ys-d3-f2", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Cai",                 stageName: "FOREST STAGE", startAt: "2026-07-19T18:00:00", endAt: "2026-07-19T19:30:00", confidence: 1 },
+  { id: "ys-d3-f3", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Darcy",               stageName: "FOREST STAGE", startAt: "2026-07-19T19:30:00", endAt: "2026-07-19T21:00:00", confidence: 1 },
+  { id: "ys-d3-f4", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Chouchou",            stageName: "FOREST STAGE", startAt: "2026-07-19T21:00:00", endAt: "2026-07-19T22:30:00", confidence: 1 },
+  { id: "ys-d3-f5", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Oolong",              stageName: "FOREST STAGE", startAt: "2026-07-19T22:30:00", endAt: "2026-07-20T00:00:00", confidence: 1 },
+  // Day 3 · VALLEY STAGE
+  { id: "ys-d3-v1", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Nigls b2b Kai.f",     stageName: "VALLEY STAGE", startAt: "2026-07-19T15:00:00", endAt: "2026-07-19T17:30:00", confidence: 1 },
+  { id: "ys-d3-v2", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Javis",               stageName: "VALLEY STAGE", startAt: "2026-07-19T17:30:00", endAt: "2026-07-19T19:00:00", confidence: 1 },
+  { id: "ys-d3-v3", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "White+ (LIVE)",       stageName: "VALLEY STAGE", startAt: "2026-07-19T19:00:00", endAt: "2026-07-19T20:00:00", confidence: 1 },
+  { id: "ys-d3-v4", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Jeremy Cheung",       stageName: "VALLEY STAGE", startAt: "2026-07-19T20:00:00", endAt: "2026-07-19T21:30:00", confidence: 1 },
+  { id: "ys-d3-v5", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Mickey Zhang",        stageName: "VALLEY STAGE", startAt: "2026-07-19T21:30:00", endAt: "2026-07-19T23:00:00", confidence: 1 },
+  { id: "ys-d3-v6", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Sam tbd",             stageName: "VALLEY STAGE", startAt: "2026-07-19T23:00:00", endAt: "2026-07-20T01:00:00", confidence: 1 },
+  { id: "ys-d3-v7", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Yang Bing",           stageName: "VALLEY STAGE", startAt: "2026-07-20T01:00:00", endAt: "2026-07-20T03:00:00", confidence: 1 },
+  { id: "ys-d3-v8", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Weng Weng",           stageName: "VALLEY STAGE", startAt: "2026-07-20T03:00:00", endAt: "2026-07-20T05:00:00", confidence: 1 },
 ];
