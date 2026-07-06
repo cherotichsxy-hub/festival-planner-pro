@@ -1,11 +1,21 @@
-import React, { useState } from "react";
-import { parseTimetable } from "../lib/parseTimetable.js";
+import React, { useMemo, useState } from "react";
+import {
+  parseTimetable,
+  getVisionConfig,
+  saveVisionConfig,
+  testConnection,
+  PROVIDERS,
+} from "../lib/parseTimetable.js";
+import { backend } from "../lib/backend.js";
+
+// 许愿邮件收件人（站长人工代录 · 仅本地模式的 mailto 兜底用）
+const WISH_EMAIL = "axisxyxy@gmail.com";
 
 // 五阶段：idle → parsing → review (左原图 + 右可编辑 lineup) → publishing
 //                                ↓
 //                              error (含 raw response)
 
-export default function UploadScreen({ onBack, onPublish }) {
+export default function UploadScreen({ onBack, onPublish, festivals = [], onOpenFestival }) {
   const [phase, setPhase] = useState("idle");
   const [progress, setProgress] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
@@ -54,7 +64,7 @@ export default function UploadScreen({ onBack, onPublish }) {
       name: meta.name.trim(),
       year: Number(meta.year) || new Date().getFullYear(),
       location: meta.location?.trim() || "",
-      source: parsed?._mock ? "示例数据 (mock)" : "AI 解析 + 人工校对",
+      source: "AI 解析 + 人工校对",
       dates: dedup(meta.dates).filter(Boolean),
       stages: dedup(meta.stages).filter(Boolean),
       mainStageCount: dedup(meta.stages).filter(Boolean).length,
@@ -93,7 +103,13 @@ export default function UploadScreen({ onBack, onPublish }) {
       </header>
 
       <main className="upload-body">
-        {phase === "idle" && <IdleView onPick={pickFile} />}
+        {phase === "idle" && (
+          <IdleView
+            onPick={pickFile}
+            festivals={festivals}
+            onOpenFestival={onOpenFestival}
+          />
+        )}
         {phase === "parsing" && <ParsingView progress={progress} />}
         {phase === "review" && (
           <ReviewView
@@ -114,37 +130,388 @@ export default function UploadScreen({ onBack, onPublish }) {
   );
 }
 
-function IdleView({ onPick }) {
+function IdleView({ onPick, festivals, onOpenFestival }) {
+  // API 没配好就锁住上传入口（保存 key 后 ApiConfigSection 会通知刷新）
+  const [, setCfgVersion] = useState(0);
+  const hasKey = !!getVisionConfig().key.trim();
+
   return (
     <>
+      {/* Step 0：先搜一下，别人可能已经传过了 */}
+      <DupSearch festivals={festivals} onOpenFestival={onOpenFestival} />
+
+      <div className="upload-divider u-mono">
+        <span>没有？上传海报识别</span>
+      </div>
+
       <p className="upload-hint u-mono">
         把海报或时间表截图喂给 AI · 自动整理成结构化数据 · 你左右对照逐条校对
       </p>
 
-      <label className="dropzone">
-        <span className="dropzone-corner tl" />
-        <span className="dropzone-corner tr" />
-        <span className="dropzone-corner bl" />
-        <span className="dropzone-corner br" />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={onPick}
-          style={{ display: "none" }}
-        />
-        <span className="dropzone-mark">＋</span>
-        <span className="dropzone-title">点这里选海报</span>
-        <span className="u-mono dropzone-sub">JPG / PNG / WEBP · 一张就够</span>
-      </label>
+      {hasKey ? (
+        <label className="dropzone">
+          <span className="dropzone-corner tl" />
+          <span className="dropzone-corner tr" />
+          <span className="dropzone-corner bl" />
+          <span className="dropzone-corner br" />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={onPick}
+            style={{ display: "none" }}
+          />
+          <span className="dropzone-mark">＋</span>
+          <span className="dropzone-title">点这里选海报</span>
+          <span className="u-mono dropzone-sub">JPG / PNG / WEBP · 一张就够</span>
+        </label>
+      ) : (
+        <div className="dropzone dropzone-locked" aria-disabled="true">
+          <span className="dropzone-mark">🔒</span>
+          <span className="dropzone-title">配好 AI 识别 API 后解锁上传</span>
+          <span className="u-mono dropzone-sub">
+            在下方设置里粘一个 key · 不想配就往下走许愿
+          </span>
+        </div>
+      )}
+
+      {/* API 配置：识别真海报需要，就近放在上传流程里 */}
+      <ApiConfigSection onSaved={() => setCfgVersion((v) => v + 1)} />
 
       <div className="upload-divider u-mono">
-        <span>没填 API KEY 也能跑</span>
+        <span>不想配 API？许个愿</span>
       </div>
 
-      <p className="upload-hint" style={{ textAlign: "center" }}>
-        没填 DeepSeek API key 时会用 mock 数据演示流程 · 去个人中心配 key 后才能识别真海报
-      </p>
+      <WishSection />
     </>
+  );
+}
+
+/* ---------------- Step 0：查重搜索 ---------------- */
+
+function DupSearch({ festivals = [], onOpenFestival }) {
+  const [q, setQ] = useState("");
+  const trimmed = q.trim().toLowerCase();
+  const hits = useMemo(() => {
+    if (!trimmed) return [];
+    return festivals
+      .filter(
+        (f) =>
+          f.name.toLowerCase().includes(trimmed) ||
+          (f.location || "").toLowerCase().includes(trimmed) ||
+          String(f.year || "").includes(trimmed),
+      )
+      .slice(0, 5);
+  }, [festivals, trimmed]);
+
+  return (
+    <section className="dup-search">
+      <p className="upload-hint u-mono">
+        STEP 0 · 先搜一下 — 已经有人传过就不用重复上传了
+      </p>
+      <div className="search-bar dup-search-bar">
+        <span className="u-mono search-label">FIND</span>
+        <input
+          type="search"
+          placeholder="搜音乐节 / 城市 / 年份"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+      </div>
+      {trimmed && hits.length > 0 && (
+        <ul className="dup-search-hits">
+          {hits.map((f) => (
+            <li key={f.id}>
+              <button
+                type="button"
+                className="dup-search-hit"
+                onClick={() => onOpenFestival?.(f.id)}
+              >
+                <strong>{f.name}</strong>
+                <span className="u-mono">
+                  {f.year} · {f.location || "—"} · 已收录 ↗
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {trimmed && hits.length === 0 && (
+        <p className="dup-search-none u-mono">
+          — 还没人传过 · 往下走上传或许愿 —
+        </p>
+      )}
+    </section>
+  );
+}
+
+/* ---------------- API 配置（上传流程内嵌） ---------------- */
+
+function ApiConfigSection({ onSaved }) {
+  const [open, setOpen] = useState(false);
+  const [cfg, setCfg] = useState(() => getVisionConfig());
+  const [savedAt, setSavedAt] = useState(0);
+  const [testState, setTestState] = useState(null); // null | "testing" | {ok, message}
+  const hasKey = cfg.key.trim().length > 0;
+  const isCustom = cfg.provider === "custom";
+  const preset = PROVIDERS.find((p) => p.id === cfg.provider);
+  const providerLabel = preset?.label || "自定义";
+
+  function pickProvider(id) {
+    setCfg((prev) => ({ ...prev, provider: id }));
+    setTestState(null);
+  }
+
+  function save() {
+    saveVisionConfig(cfg);
+    setSavedAt(Date.now());
+    onSaved?.();
+  }
+
+  async function runTest() {
+    // 保存 + 用「保存后实际生效的配置」去测，避免测的和用的不一致
+    saveVisionConfig(cfg);
+    setSavedAt(Date.now());
+    onSaved?.();
+    setTestState("testing");
+    const effective = getVisionConfig();
+    const result = await testConnection(effective);
+    setTestState(result);
+  }
+
+  return (
+    <section className={`api-key-card upload-api-card${hasKey ? " active" : ""}`}>
+      <button
+        type="button"
+        className="upload-api-toggle"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
+        <span className="api-key-head">
+          <span className="dot" />
+          <span>
+            AI 识别 · {hasKey ? `已配置 ${providerLabel}` : "未配置"}
+          </span>
+        </span>
+        <span className="u-mono">{open ? "收起 −" : "设置 +"}</span>
+      </button>
+
+      {open && (
+        <div className="upload-api-body">
+          <p className="api-key-hint u-mono">
+            选好用哪家 · 粘上 key 就行 · key 只存本机 localStorage · 不上传
+          </p>
+          <label className="u-mono">用哪家的 AI</label>
+          <select
+            className="confirm-input"
+            value={cfg.provider}
+            onChange={(e) => pickProvider(e.target.value)}
+          >
+            {PROVIDERS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          {preset && preset.id !== "custom" && (
+            <>
+              <p className="api-key-hint u-mono">
+                ↳ 用 {preset.model} 读图 · key 在 {preset.keyHint} 申请
+              </p>
+              {preset.note && (
+                <p className="api-key-hint u-mono api-key-note">{preset.note}</p>
+              )}
+            </>
+          )}
+
+          {isCustom && (
+            <>
+              <label className="u-mono">API 地址（Base URL）</label>
+              <input
+                className="confirm-input"
+                value={cfg.url}
+                placeholder="https://api.example.com/v1"
+                onChange={(e) => setCfg({ ...cfg, url: e.target.value })}
+              />
+              <p className="api-key-hint u-mono">
+                任何 OpenAI 兼容接口（中转站 / OpenRouter / 自建）· 填到 /v1 即可，
+                会自动补全 /chat/completions
+              </p>
+              <label className="u-mono">模型名</label>
+              <input
+                className="confirm-input"
+                value={cfg.model}
+                placeholder="如 qwen-vl-plus / gpt-4o-mini"
+                onChange={(e) => setCfg({ ...cfg, model: e.target.value })}
+              />
+              <p className="api-key-hint u-mono">
+                必须是能看图的视觉模型 · 名字以服务商的模型列表为准
+              </p>
+            </>
+          )}
+
+          <label className="u-mono">API KEY</label>
+          <div className="api-key-row">
+            <input
+              type="password"
+              placeholder="sk-xxxxxxxxxxxx"
+              value={cfg.key}
+              onChange={(e) => setCfg({ ...cfg, key: e.target.value })}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <button type="button" className="api-key-save" onClick={save}>
+              保存
+            </button>
+            <button
+              type="button"
+              className="api-key-toggle"
+              onClick={runTest}
+              disabled={testState === "testing"}
+            >
+              {testState === "testing" ? "测…" : "测试"}
+            </button>
+          </div>
+          {testState && testState !== "testing" && (
+            <p
+              className="api-key-hint u-mono"
+              style={{ color: testState.ok ? "var(--bauhaus-green, #5e6a4e)" : "var(--bauhaus-red)" }}
+            >
+              {testState.message}
+            </p>
+          )}
+          {savedAt > 0 && !testState && (
+            <p className="api-key-hint u-mono">
+              已保存 · {hasKey ? "现在上传的海报会走真实识别" : "已清空 key"}
+            </p>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------------- 许愿（非技术用户：发邮件让站长代录） ---------------- */
+
+function WishSection() {
+  const cloudOn = backend.mode !== "local";
+  const [name, setName] = useState("");
+  const [year, setYear] = useState(String(new Date().getFullYear()));
+  const [link, setLink] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const [err, setErr] = useState("");
+  const canWish = name.trim().length > 0;
+
+  // 云端模式：表单直接入库，站长后台可见，用户零操作成本
+  async function submit() {
+    // 轻量防连点：一分钟一个愿望
+    const last = Number(localStorage.getItem("me:last_wish") || 0);
+    if (Date.now() - last < 60000) {
+      setErr("收到过啦 · 一分钟后可以再许下一个");
+      return;
+    }
+    setBusy(true);
+    setErr("");
+    try {
+      await backend.wishes.submit({
+        festivalName: name.trim(),
+        year: year.trim(),
+        link: link.trim(),
+      });
+      localStorage.setItem("me:last_wish", String(Date.now()));
+      setDone(true);
+    } catch (e) {
+      setErr(e.message || String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // 本地模式的兜底：mailto
+  const subject = `[FP-WISH] ${name.trim()} ${year.trim()}`.trim();
+  const mailBody = [
+    "想在 Festival Planner 里看到这个音乐节：",
+    "",
+    `音乐节：${name.trim()}`,
+    `年份：${year.trim()}`,
+    `官方链接/购票页：${link.trim() || "（没有）"}`,
+  ].join("\n");
+  const mailtoHref = `mailto:${WISH_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`;
+
+  if (done) {
+    return (
+      <section className="wish-card">
+        <p className="wish-done">
+          ✓ 收到「{name.trim()}」的愿望了！<br />
+          <span className="u-mono">录入后刷新首页就能看到 · 欢迎常回来看看</span>
+        </p>
+        <button
+          type="button"
+          className="wish-again"
+          onClick={() => {
+            setDone(false);
+            setName("");
+            setLink("");
+            setErr("");
+          }}
+        >
+          ＋ 再许一个愿
+        </button>
+      </section>
+    );
+  }
+
+  return (
+    <section className="wish-card">
+      <header className="api-key-head">
+        <span className="dot" />
+        <span>把想要的音乐节告诉我 · 我来帮你录入</span>
+      </header>
+      <div className="wish-fields">
+        <input
+          className="confirm-input"
+          placeholder="音乐节名称 *"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <div className="wish-row">
+          <input
+            className="confirm-input wish-year"
+            type="number"
+            placeholder="年份"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+          />
+          <input
+            className="confirm-input"
+            placeholder="官方链接 / 购票页（选填）"
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+          />
+        </div>
+      </div>
+      {cloudOn ? (
+        <button
+          type="button"
+          className={`wish-send${canWish ? "" : " disabled"}`}
+          disabled={!canWish || busy}
+          onClick={submit}
+        >
+          {busy ? "提交中…" : "🎋 许愿"}
+        </button>
+      ) : (
+        <a
+          className={`wish-send${canWish ? "" : " disabled"}`}
+          href={canWish ? mailtoHref : undefined}
+          onClick={(e) => {
+            if (!canWish) e.preventDefault();
+          }}
+        >
+          ✉ 发送许愿邮件
+        </a>
+      )}
+      {err && <p className="api-key-hint u-mono" style={{ color: "var(--bauhaus-red)" }}>{err}</p>}
+    </section>
   );
 }
 
@@ -199,21 +566,44 @@ function ReviewView({
     ]);
   }
 
+  const [compareOpen, setCompareOpen] = useState(true);
+  const [zoom, setZoom] = useState(1);
+
   return (
     <div className="review">
-      {parsed?._mock && (
-        <p className="upload-mock-banner u-mono">
-          ⚠ 当前是示例数据 · 实际发布前请在个人中心填 DeepSeek API key
-        </p>
+      {/* 原图对照面板：吸顶，改下面条目时随时能看原图 */}
+      {imageUrl && (
+        <section className="review-compare">
+          <div className="review-compare-bar">
+            <span className="u-mono">原图对照</span>
+            <div className="review-compare-btns">
+              {compareOpen && (
+                <>
+                  <button type="button" onClick={() => setZoom((z) => Math.max(1, +(z - 0.5).toFixed(1)))} aria-label="缩小">−</button>
+                  <span className="u-mono review-compare-zoom">{zoom}x</span>
+                  <button type="button" onClick={() => setZoom((z) => Math.min(4, +(z + 0.5).toFixed(1)))} aria-label="放大">＋</button>
+                </>
+              )}
+              <a href={imageUrl} target="_blank" rel="noopener noreferrer">原图 ↗</a>
+              <button type="button" onClick={() => setCompareOpen((v) => !v)}>
+                {compareOpen ? "收起 −" : "展开 +"}
+              </button>
+            </div>
+          </div>
+          {compareOpen && (
+            <div className="review-compare-viewport">
+              <img
+                src={imageUrl}
+                alt="上传的海报"
+                style={{ width: `${zoom * 100}%` }}
+              />
+            </div>
+          )}
+        </section>
       )}
 
-      {/* 海报缩略 + 元数据，紧凑放一起 */}
+      {/* 元数据 */}
       <section className="review-poster">
-        {imageUrl && (
-          <a href={imageUrl} target="_blank" rel="noopener noreferrer">
-            <img src={imageUrl} alt="上传的海报" />
-          </a>
-        )}
         <div className="review-meta">
           <label className="u-mono">名称</label>
           <input

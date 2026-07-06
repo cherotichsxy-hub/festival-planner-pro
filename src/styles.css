@@ -58,6 +58,8 @@
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }
+/* 阻止内部滚动触底后带动整页橡皮筋/触发浏览器下拉刷新 */
+html, body { overscroll-behavior: none; }
 body {
   font-family: -apple-system, "SF Pro Text", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
   background: var(--bg-page);
@@ -81,7 +83,10 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   display: flex;
   flex-direction: column;
   position: relative;
+  /* 手机浏览器的 100vh 含地址栏后面的区域，底部导航会被顶出屏幕；
+     dvh 是动态视口高度，跟随地址栏收展，保证底部始终可见可点 */
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 @media (min-width: 720px) {
@@ -2579,11 +2584,12 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 /* 分享画布（始终 mount via Portal，z-index -1）                */
 /* ========================================================== */
 .share-canvas-mount {
+  /* 生成分享图用的隐藏画布：必须真实渲染（display:none 会让截图变空白），
+     但要移到屏幕外——之前用 z-index:-1 藏在页面正后方，边缘会露出来像 bug */
   position: fixed;
   top: 0;
-  left: 0;
+  left: -30000px;
   pointer-events: none;
-  z-index: -1;
 }
 
 /* ========================================================== */
@@ -3664,3 +3670,533 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   letter-spacing: 0.04em;
   text-align: center;
 }
+
+/* ============================================================ */
+/* Upload · Step 0 查重搜索 / API 配置 / 许愿表单                */
+/* ============================================================ */
+.dup-search { display: flex; flex-direction: column; gap: 8px; }
+.dup-search-bar { margin: 0; }
+.dup-search-hits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dup-search-hit {
+  width: 100%;
+  text-align: left;
+  background: var(--bg-phone);
+  border: 1.5px solid var(--text);
+  box-shadow: 2px 2px 0 var(--text);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.dup-search-hit:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--text); }
+.dup-search-hit strong { font-size: 14px; }
+.dup-search-hit span { font-size: 10px; color: var(--text-mute); }
+.dup-search-none {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-mute);
+  text-align: center;
+}
+
+.upload-api-card { margin-top: 12px; }
+.upload-api-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+.upload-api-toggle > .u-mono { font-size: 10px; color: var(--text-mute); white-space: nowrap; }
+.upload-api-body { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.upload-api-body > label { font-size: 10px; color: var(--text-mute); margin-top: 6px; }
+.upload-api-body .api-key-row { margin-top: 2px; }
+
+.wish-card {
+  border: 1.5px dashed var(--text);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg-phone);
+}
+.wish-fields { display: flex; flex-direction: column; gap: 8px; }
+.wish-row { display: flex; gap: 8px; }
+.wish-year { flex: 0 0 90px; }
+.wish-row .confirm-input:last-child { flex: 1 1 auto; }
+.wish-send {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  background: var(--text);
+  color: var(--bg-phone);
+  font-weight: 700;
+  text-decoration: none;
+  border: 1.5px solid var(--text);
+  box-shadow: 3px 3px 0 var(--bauhaus-red);
+}
+.wish-send:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--bauhaus-red); }
+.wish-send.disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+/* ============================================================ */
+/* Profile · 感兴趣 vs 去过                                      */
+/* ============================================================ */
+.my-fest-card { flex-direction: row; align-items: center; gap: 10px; cursor: default; }
+.my-fest-card.attended { background: var(--bg-soft); }
+.my-fest-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+.attend-toggle {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  background: var(--bg-phone);
+  border: 1.5px solid var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.attend-toggle.on {
+  background: var(--text);
+  color: var(--bg-phone);
+}
+.attended-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.attended-card {
+  border: 1.5px solid var(--text);
+  box-shadow: 3px 3px 0 var(--text);
+  background: var(--bg-phone);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.attended-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.attended-head strong { font-family: var(--font-display); font-size: 16px; font-weight: 900; }
+.attended-head .u-mono { font-size: 10px; color: var(--text-mute); }
+.attended-sub { font-size: 10px; color: var(--text-mute); letter-spacing: 0.05em; }
+.attended-artists { display: flex; flex-wrap: wrap; gap: 6px; }
+.attended-artist {
+  font-size: 11px;
+  padding: 3px 8px;
+  border: 1px solid var(--text);
+  background: var(--bg-soft);
+}
+
+/* ============================================================ */
+/* Review · 原图对照面板（吸顶 + 缩放）                          */
+/* ============================================================ */
+.review-compare {
+  position: sticky;
+  top: -18px; /* 抵消 .upload-body 的 padding-top，贴住顶部 */
+  z-index: 6;
+  background: var(--bg-soft);
+  border: 1.5px solid var(--text);
+  box-shadow: 3px 3px 0 var(--text);
+}
+.review-compare-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-phone);
+  border-bottom: 1px solid var(--line);
+}
+.review-compare-bar > .u-mono {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-mute);
+}
+.review-compare-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.review-compare-btns button,
+.review-compare-btns a {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  background: var(--bg-phone);
+  border: 1.5px solid var(--text);
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.review-compare-btns button:active { transform: translate(1px, 1px); }
+.review-compare-zoom {
+  font-size: 10px;
+  color: var(--text-mute);
+  min-width: 24px;
+  text-align: center;
+}
+.review-compare-viewport {
+  max-height: 260px;
+  overflow: auto;
+  background: var(--bg-phone);
+}
+.review-compare-viewport img {
+  display: block;
+  min-width: 100%;
+}
+
+/* ============================================================ */
+/* Home · 卡片右上角「想看 / 去过」开关（替代原装饰性磁带圆孔）  */
+/* ============================================================ */
+.cassette-card { cursor: pointer; }
+.cassette-strip-actions {
+  display: inline-flex;
+  gap: 6px;
+}
+.cassette-chip {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: var(--cassette-ink, #fff);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cassette-chip.on {
+  background: var(--cassette-ink, #fff);
+  color: var(--cassette-color, var(--bauhaus-red));
+  border-color: var(--cassette-ink, #fff);
+}
+.cassette-chip:active { transform: translateY(1px); }
+/* 黄色磁带条上的深色字变体 */
+.cassette-card[style*="ecc12a"] .cassette-chip {
+  border-color: rgba(0, 0, 0, 0.45);
+  color: var(--paper-ink);
+}
+.cassette-card[style*="ecc12a"] .cassette-chip.on {
+  background: var(--paper-ink);
+  color: #ecc12a;
+}
+
+/* Profile · 看过卡片头部可点击打开 */
+.attended-open {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ============================================================ */
+/* Home · 右上角登录入口                                          */
+/* ============================================================ */
+.login-chip {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--bg-phone);
+  border: 1.5px solid var(--text);
+  box-shadow: 2px 2px 0 var(--text);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.login-chip:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--text); }
+.login-chip.on {
+  background: var(--bg-soft);
+}
+.login-chip-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--bg-phone);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+/* ============================================================ */
+/* 登录弹窗 + 常驻登录按钮                                        */
+/* ============================================================ */
+.login-chip { z-index: 20; } /* 挂在 .phone 上，滚动内容从底下过 */
+
+.sheet-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: rgba(30, 21, 6, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.sheet-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bg-phone);
+  border: 1.5px solid var(--text);
+  box-shadow: 4px 4px 0 var(--text);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sheet-head strong {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 900;
+}
+.sheet-close {
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--text);
+  background: var(--bg-phone);
+  font-size: 13px;
+  line-height: 1;
+}
+.sheet-close:active { transform: translate(1px, 1px); }
+.sheet-steps {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-mute);
+  letter-spacing: 0.04em;
+}
+.sheet-sent {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.sheet-resend {
+  align-self: flex-start;
+  font-size: 11px;
+  color: var(--text-mute);
+  text-decoration: underline;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.sheet-err { color: var(--bauhaus-red); }
+
+/* ============================================================ */
+/* Profile · 个人信息头（豆瓣式）                                 */
+/* ============================================================ */
+.profile-head {
+  background: var(--bg-phone);
+  border: 1.5px solid var(--text);
+  box-shadow: 3px 3px 0 var(--text);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.profile-head-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.profile-avatar {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--bg-phone);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 900;
+}
+.profile-head-id {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.profile-head-name {
+  font-size: 14px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.profile-head-sub {
+  font-size: 10px;
+  color: var(--text-mute);
+  letter-spacing: 0.05em;
+}
+.profile-head-btn {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  background: var(--bg-phone);
+  border: 1.5px solid var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.profile-head-btn.primary {
+  background: var(--text);
+  color: var(--bg-phone);
+  box-shadow: 2px 2px 0 var(--bauhaus-red);
+}
+.profile-head-btn:active { transform: translate(1px, 1px); }
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.profile-stat {
+  padding: 10px 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.profile-stat + .profile-stat { border-left: 1px solid var(--line); }
+.profile-stat strong {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+}
+.profile-stat .u-mono {
+  font-size: 10px;
+  color: var(--text-mute);
+  letter-spacing: 0.15em;
+}
+.profile-head-total {
+  margin: -4px 0 0;
+  font-size: 10px;
+  color: var(--text-mute);
+  text-align: center;
+  letter-spacing: 0.06em;
+}
+.profile-api-sync {
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Upload · OpenAI 等特别提醒 */
+.api-key-note { color: var(--bauhaus-red); }
+
+/* Upload · 未配 API 时锁住上传入口 */
+.dropzone-locked {
+  cursor: default;
+  opacity: 0.65;
+  background: var(--bg-soft);
+}
+.dropzone-locked:hover { background: var(--bg-soft); }
+
+/* Wish · 复制内容保底按钮 */
+.wish-copy {
+  align-self: center;
+  font-size: 11px;
+  color: var(--text-mute);
+  text-decoration: underline;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Profile · 栏目标题加大 */
+.profile-section .rack-title > .u-mono:first-child {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+/* Wish · 提交按钮（button 版）与成功态 */
+button.wish-send { width: 100%; font-family: inherit; cursor: pointer; }
+button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.wish-done {
+  margin: 0;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.9;
+}
+.wish-done .u-mono {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-mute);
+}
+
+/* Wish · 再许一个愿 */
+.wish-again {
+  width: 100%;
+  padding: 9px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  background: var(--bg-phone);
+  border: 1.5px solid var(--text);
+  cursor: pointer;
+}
+.wish-again:active { transform: translate(1px, 1px); }

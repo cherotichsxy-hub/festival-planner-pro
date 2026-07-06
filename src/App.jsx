@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import HomeScreen from "./screens/HomeScreen.jsx";
+import LoginSheet from "./components/LoginSheet.jsx";
 import FestivalScreen from "./screens/FestivalScreen.jsx";
 import ProfileScreen from "./screens/ProfileScreen.jsx";
 import UploadScreen from "./screens/UploadScreen.jsx";
@@ -10,8 +11,27 @@ import {
   loadSelections, saveSelections,
   loadHeadliners, saveHeadliners,
   loadAxisChoice, saveAxisChoice,
+  loadAttended, saveAttended,
+  loadWanted, saveWanted,
   migrateIfStale,
 } from "./lib/storage.js";
+import { backend } from "./lib/backend.js";
+
+// 云端个人数据与本地合并：两边都有时本地优先（本地是用户刚操作过的）
+function mergeNested(cloud = {}, local = {}) {
+  const out = { ...cloud };
+  for (const [festId, val] of Object.entries(local)) {
+    if (Array.isArray(val)) {
+      const merged = Array.from(new Set([...(out[festId] || []), ...val]));
+      out[festId] = merged.slice(0, 3); // headliners 上限 3
+    } else if (val && typeof val === "object") {
+      out[festId] = { ...(out[festId] || {}), ...val };
+    } else {
+      out[festId] = val;
+    }
+  }
+  return out;
+}
 
 // 必须在 useState 初始化之前跑，否则 loadFestivals 会读到旧数据
 migrateIfStale();
@@ -40,7 +60,66 @@ export default function App() {
   const [selections, setSelections] = useState(() => loadSelections());
   const [headliners, setHeadliners] = useState(() => loadHeadliners());
   const [axisChoice, setAxisChoice] = useState(() => loadAxisChoice());
+  const [attended, setAttended] = useState(() => loadAttended());
+  const [wanted, setWanted] = useState(() => loadWanted());
   const [stack, setStack] = useState(() => initialStack());
+  const [session, setSession] = useState(() => backend.auth.getSession());
+  useEffect(() => backend.auth.onChange(setSession), []);
+
+  // 云端：启动时拉取社区共享的音乐节，与本地/内置数据按 id 合并（云端覆盖同名）
+  useEffect(() => {
+    if (backend.mode === "local") return;
+    let cancelled = false;
+    backend.community
+      .fetchAll()
+      .then((rows) => {
+        if (cancelled || rows.length === 0) return;
+        setFestivals((prev) => {
+          const map = new Map(prev.map((f) => [f.id, f]));
+          for (const { festival } of rows) map.set(festival.id, festival);
+          const next = Array.from(map.values());
+          saveFestivals(next);
+          return next;
+        });
+        setPerformances((prev) => {
+          const cloudIds = new Set(rows.map((r) => r.festival.id));
+          const kept = prev.filter((p) => !cloudIds.has(p.festivalId));
+          const next = [...kept, ...rows.flatMap((r) => r.performances)];
+          savePerformances(next);
+          return next;
+        });
+      })
+      .catch((e) => console.warn("[cloud] 拉取共享音乐节失败:", e));
+    return () => { cancelled = true; };
+  }, []); // eslint-disable-line
+
+  // 云端：登录后拉取个人数据合并进本地
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    backend.userData
+      .pull()
+      .then((cloud) => {
+        if (cloud.selections) setSelections((p) => { const m = mergeNested(cloud.selections, p); saveSelections(m); return m; });
+        if (cloud.headliners) setHeadliners((p) => { const m = mergeNested(cloud.headliners, p); saveHeadliners(m); return m; });
+        if (cloud.axisChoice) setAxisChoice((p) => { const m = mergeNested(cloud.axisChoice, p); saveAxisChoice(m); return m; });
+        if (cloud.wanted) setWanted((p) => { const m = { ...cloud.wanted, ...p }; saveWanted(m); return m; });
+        if (cloud.attended) setAttended((p) => { const m = { ...cloud.attended, ...p }; saveAttended(m); return m; });
+      })
+      .catch((e) => console.warn("[cloud] 拉取个人数据失败:", e));
+  }, [session?.user?.id]); // eslint-disable-line
+
+  // 云端：个人标注变化后 2 秒静默推送（防抖）
+  const pushTimer = useRef(null);
+  useEffect(() => {
+    if (backend.mode === "local" || !session?.user?.id) return;
+    clearTimeout(pushTimer.current);
+    pushTimer.current = setTimeout(() => {
+      backend.userData
+        .push({ selections, headliners, axisChoice, wanted, attended })
+        .catch((e) => console.warn("[cloud] 推送个人数据失败:", e));
+    }, 2000);
+    return () => clearTimeout(pushTimer.current);
+  }, [selections, headliners, axisChoice, wanted, attended, session?.user?.id]); // eslint-disable-line
 
   const screen = stack[stack.length - 1];
   const rootTab = stack[0].name; // "home" or "profile"
@@ -66,6 +145,12 @@ export default function App() {
   function openUpload() {
     push({ name: "upload" });
   }
+  // 右上角登录入口：未登录 → 弹登录窗（就地完成）；已登录 → 个人中心账号区（管理/退出）
+  const [showLogin, setShowLogin] = useState(false);
+  function openAccount() {
+    if (session) setStack([{ name: "profile", focusAccount: true }]);
+    else setShowLogin(true);
+  }
 
   function publishFestival(newFestival, newPerformances) {
     setFestivals((prev) => {
@@ -78,6 +163,12 @@ export default function App() {
       savePerformances(next);
       return next;
     });
+    // 已登录 → 同步发布到社区（尽力而为，失败只影响共享不影响本机）
+    if (backend.mode !== "local" && backend.auth.getSession()) {
+      backend.community
+        .publish(newFestival, newPerformances)
+        .catch((e) => console.warn("[cloud] 发布到社区失败:", e));
+    }
     // 弹出 upload 屏，推入新音乐节详情
     setStack((s) => [
       ...s.slice(0, -1),
@@ -131,6 +222,41 @@ export default function App() {
     });
   }
 
+  // 想看 / 去过 互斥：标了"去过"就不再是"想看"，反之亦然
+  function toggleAttended(festivalId) {
+    setAttended((prev) => {
+      const next = { ...prev };
+      if (next[festivalId]) delete next[festivalId];
+      else next[festivalId] = true;
+      saveAttended(next);
+      return next;
+    });
+    setWanted((prev) => {
+      if (!prev[festivalId]) return prev;
+      const next = { ...prev };
+      delete next[festivalId];
+      saveWanted(next);
+      return next;
+    });
+  }
+
+  function toggleWanted(festivalId) {
+    setWanted((prev) => {
+      const next = { ...prev };
+      if (next[festivalId]) delete next[festivalId];
+      else next[festivalId] = true;
+      saveWanted(next);
+      return next;
+    });
+    setAttended((prev) => {
+      if (!prev[festivalId]) return prev;
+      const next = { ...prev };
+      delete next[festivalId];
+      saveAttended(next);
+      return next;
+    });
+  }
+
   function toggleHeadliner(festivalId, perfId) {
     setHeadliners((prev) => {
       const list = prev[festivalId] || [];
@@ -157,6 +283,12 @@ export default function App() {
             festivals={festivals}
             performances={performances}
             selections={selections}
+            wanted={wanted}
+            attended={attended}
+            session={session}
+            onOpenAccount={openAccount}
+            onToggleWanted={toggleWanted}
+            onToggleAttended={toggleAttended}
             onOpenFestival={openFestival}
             onOpenUpload={openUpload}
           />
@@ -191,13 +323,30 @@ export default function App() {
         {screen.name === "profile" && (
           <ProfileScreen
             festivals={festivals}
+            performances={performances}
             selections={selections}
+            attended={attended}
+            wanted={wanted}
+            focusAccount={!!screen.focusAccount}
+            onOpenLogin={() => setShowLogin(true)}
             onOpenFestival={(id) => openFestival(id, { initialTab: "plan" })}
           />
         )}
         {screen.name === "upload" && (
-          <UploadScreen onBack={pop} onPublish={publishFestival} />
+          <UploadScreen
+            onBack={pop}
+            onPublish={publishFestival}
+            festivals={festivals}
+            onOpenFestival={(id) =>
+              setStack((s) => [
+                ...s.slice(0, -1),
+                { name: "festival", festivalId: id, initialTab: "lineup" },
+              ])
+            }
+          />
         )}
+
+        {showLogin && <LoginSheet onClose={() => setShowLogin(false)} />}
 
         {/* 全局底部 nav：只有栈底（rootTab）时显示，进入二级页隐藏 */}
         {!canGoBack && (

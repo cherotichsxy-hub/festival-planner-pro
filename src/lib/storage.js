@@ -10,12 +10,16 @@ const KEYS = {
   headliners: "me:headliners",
   // 用户在主轴/备选撞档冲突中点过的"主轴选择"：{ festivalId: { perfId: true } }
   axisChoice: "me:axisChoice",
+  // 实际去过的音乐节：{ festivalId: true }（区别于"标注感兴趣"）
+  attended: "me:attended",
+  // 想看的音乐节：{ festivalId: true }（还没开始做计划，先收藏）
+  wanted: "me:wanted",
   seedVersion: "community:seed_version",
 };
 
 // 每次 seed 数据有意义改动就 bump 这个版本号，让用户浏览器里的旧缓存自动作废。
 // 不会影响 me:selections（用户的个人标记）—— 只清 community 数据。
-const SEED_VERSION = "pro-2026-multi-v2-youshan";
+const SEED_VERSION = "pro-2026-multi-v3-newsoil";
 
 export function migrateIfStale() {
   if (typeof window === "undefined") return;
@@ -79,4 +83,20 @@ export function loadAxisChoice() {
 
 export function saveAxisChoice(value) {
   save(KEYS.axisChoice, value);
+}
+
+export function loadAttended() {
+  return load(KEYS.attended, {});
+}
+
+export function saveAttended(value) {
+  save(KEYS.attended, value);
+}
+
+export function loadWanted() {
+  return load(KEYS.wanted, {});
+}
+
+export function saveWanted(value) {
+  save(KEYS.wanted, value);
 }

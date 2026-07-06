@@ -16,6 +16,12 @@ export default function HomeScreen({
   festivals,
   performances,
   selections,
+  wanted = {},
+  attended = {},
+  session,
+  onOpenAccount,
+  onToggleWanted,
+  onToggleAttended,
   onOpenFestival,
   onOpenUpload,
 }) {
@@ -29,6 +35,7 @@ export default function HomeScreen({
         const marked = perfs.filter((p) => selections[f.id]?.[p.id]).length;
         return {
           ...f,
+          _perfs: perfs,
           stagesCount: f.stages?.length || 0,
           daysCount: f.dates?.length || 0,
           setsCount: perfs.length,
@@ -40,7 +47,8 @@ export default function HomeScreen({
         q
           ? f.name.toLowerCase().includes(q) ||
             (f.location || "").toLowerCase().includes(q) ||
-            String(f.year || "").includes(q)
+            String(f.year || "").includes(q) ||
+            f._perfs.some((p) => p.artistName.toLowerCase().includes(q))
           : true,
       )
       .sort((a, b) => {
@@ -51,6 +59,25 @@ export default function HomeScreen({
 
   return (
     <div className="screen-body">
+      {/* 登录入口：挂在手机壳层级，滚动时也固定在右上角 */}
+      {onOpenAccount && (
+        <button
+          type="button"
+          className={`login-chip${session ? " on" : ""}`}
+          onClick={onOpenAccount}
+        >
+          {session ? (
+            <>
+              <span className="login-chip-avatar">
+                {(session.user?.email || "?")[0].toUpperCase()}
+              </span>
+              已同步
+            </>
+          ) : (
+            <>◎ 登录</>
+          )}
+        </button>
+      )}
       <header className="brand-bar">
         <div className="brand-bar-marker">
           <span className="brand-mark">FP</span>
@@ -62,14 +89,14 @@ export default function HomeScreen({
           FESTIVAL<br />
           PLANNER<span className="brand-title-dot">.</span>
         </h1>
-        <p className="brand-tagline">把海报里的演出 · 变成可复用的日程</p>
+        <p className="brand-tagline">不错过每一个想看的现场</p>
       </header>
 
       <div className="search-bar">
         <span className="u-mono search-label">FIND</span>
         <input
           type="search"
-          placeholder="搜音乐节 / 城市 / 年份"
+          placeholder="搜演出"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -90,24 +117,50 @@ export default function HomeScreen({
             {enriched.map((f) => {
               const cassette =
                 CASSETTE_COLORS[f.cassetteIdx % CASSETTE_COLORS.length];
+              const isWanted = !!wanted[f.id];
+              const isAttended = !!attended[f.id];
               return (
                 <li key={f.id}>
-                  <button
-                    type="button"
+                  <div
+                    role="button"
+                    tabIndex={0}
                     className="cassette-card"
                     style={{
                       "--cassette-color": cassette.color,
                       "--cassette-ink": cassette.ink,
                     }}
                     onClick={() => onOpenFestival(f.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") onOpenFestival(f.id);
+                    }}
                   >
                     <div className="cassette-strip">
                       <span className="cassette-strip-label">
                         FREQ · {f.year}
                       </span>
-                      <span className="cassette-strip-reel">
-                        <span />
-                        <span />
+                      <span className="cassette-strip-actions">
+                        <button
+                          type="button"
+                          className={`cassette-chip${isWanted ? " on" : ""}`}
+                          aria-pressed={isWanted}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleWanted?.(f.id);
+                          }}
+                        >
+                          {isWanted ? "★ 想看" : "想看"}
+                        </button>
+                        <button
+                          type="button"
+                          className={`cassette-chip${isAttended ? " on" : ""}`}
+                          aria-pressed={isAttended}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleAttended?.(f.id);
+                          }}
+                        >
+                          {isAttended ? "✓ 去过" : "去过"}
+                        </button>
                       </span>
                     </div>
                     <div className="cassette-label">
@@ -125,7 +178,7 @@ export default function HomeScreen({
                         )}
                       </div>
                     </div>
-                  </button>
+                  </div>
                 </li>
               );
             })}
