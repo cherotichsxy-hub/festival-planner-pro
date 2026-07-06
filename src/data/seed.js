@@ -38,6 +38,16 @@ export const seedFestivals = [
     mainStageCount: 2,
     stages: ["FOREST STAGE", "VALLEY STAGE"],
   },
+  {
+    id: "new-soil-2026",
+    name: "新壤音乐节 NEW SOIL MUSIC FESTIVAL",
+    year: 2026,
+    location: "内蒙古锡林郭勒盟锡林浩特市 · 锡林郭勒旅游那达慕风情园",
+    source: "官方海报",
+    dates: ["2026-07-24", "2026-07-25", "2026-07-26"],
+    mainStageCount: 3,
+    stages: ["旷野舞台", "战国舞台", "扑光舞台"],
+  },
 ];
 
 // ============================================================
@@ -418,4 +428,73 @@ export const seedPerformances = [
   { id: "ys-d3-v6", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Sam tbd",             stageName: "VALLEY STAGE", startAt: "2026-07-19T23:00:00", endAt: "2026-07-20T01:00:00", confidence: 1 },
   { id: "ys-d3-v7", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Yang Bing",           stageName: "VALLEY STAGE", startAt: "2026-07-20T01:00:00", endAt: "2026-07-20T03:00:00", confidence: 1 },
   { id: "ys-d3-v8", festivalId: "youshan-2026", displayDate: "2026-07-19", artistName: "Weng Weng",           stageName: "VALLEY STAGE", startAt: "2026-07-20T03:00:00", endAt: "2026-07-20T05:00:00", confidence: 1 },
+
+  // ============================================================
+  // 新壤音乐节 NEW SOIL MUSIC FESTIVAL 2026 · 锡林浩特·那达慕 · 7/24-7/26 · 官方海报识别
+  // ============================================================
+  // Day 1 (2026-07-24 FRI) · 旷野舞台
+  { id: "ns-d1-k1", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "气象限定Quadrant", stageName: "旷野舞台", startAt: "2026-07-24T16:00:00", endAt: "2026-07-24T16:40:00", confidence: 1 },
+  { id: "ns-d1-k2", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "疯医",             stageName: "旷野舞台", startAt: "2026-07-24T17:00:00", endAt: "2026-07-24T17:40:00", confidence: 1 },
+  { id: "ns-d1-k3", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "声音碎片",         stageName: "旷野舞台", startAt: "2026-07-24T18:00:00", endAt: "2026-07-24T18:40:00", confidence: 1 },
+  { id: "ns-d1-k4", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "南青",             stageName: "旷野舞台", startAt: "2026-07-24T19:00:00", endAt: "2026-07-24T19:40:00", confidence: 1 },
+  { id: "ns-d1-k5", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "谢天笑&OK KING",    stageName: "旷野舞台", startAt: "2026-07-24T20:00:00", endAt: "2026-07-24T20:50:00", confidence: 1 },
+  { id: "ns-d1-k6", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "野孩子",           stageName: "旷野舞台", startAt: "2026-07-24T21:10:00", endAt: "2026-07-24T21:50:00", confidence: 1 },
+  // Day 1 · 战国舞台
+  { id: "ns-d1-z1", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "再见日落",         stageName: "战国舞台", startAt: "2026-07-24T15:20:00", endAt: "2026-07-24T16:00:00", confidence: 1 },
+  { id: "ns-d1-z2", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "遁世浮屠",         stageName: "战国舞台", startAt: "2026-07-24T16:20:00", endAt: "2026-07-24T17:00:00", confidence: 1 },
+  { id: "ns-d1-z3", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "瘟疫之骇",         stageName: "战国舞台", startAt: "2026-07-24T17:20:00", endAt: "2026-07-24T18:00:00", confidence: 1 },
+  { id: "ns-d1-z4", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "F.U.N",            stageName: "战国舞台", startAt: "2026-07-24T18:20:00", endAt: "2026-07-24T19:00:00", confidence: 1 },
+  { id: "ns-d1-z5", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "准噶尔",           stageName: "战国舞台", startAt: "2026-07-24T19:20:00", endAt: "2026-07-24T20:10:00", confidence: 1 },
+  { id: "ns-d1-z6", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "九宝",             stageName: "战国舞台", startAt: "2026-07-24T20:30:00", endAt: "2026-07-24T21:10:00", confidence: 1 },
+  // Day 1 · 扑光舞台
+  { id: "ns-d1-p1", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "针叶暗处",         stageName: "扑光舞台", startAt: "2026-07-24T14:00:00", endAt: "2026-07-24T14:40:00", confidence: 1 },
+  { id: "ns-d1-p2", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "沉默橙",           stageName: "扑光舞台", startAt: "2026-07-24T15:10:00", endAt: "2026-07-24T15:50:00", confidence: 1 },
+  { id: "ns-d1-p3", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "因否INFO",         stageName: "扑光舞台", startAt: "2026-07-24T16:20:00", endAt: "2026-07-24T17:00:00", confidence: 1 },
+  { id: "ns-d1-p4", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "C.S.B.Q",          stageName: "扑光舞台", startAt: "2026-07-24T17:20:00", endAt: "2026-07-24T18:00:00", confidence: 1 },
+  { id: "ns-d1-p5", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "赫兹乐队",         stageName: "扑光舞台", startAt: "2026-07-24T18:20:00", endAt: "2026-07-24T19:00:00", confidence: 1 },
+  { id: "ns-d1-p6", festivalId: "new-soil-2026", displayDate: "2026-07-24", artistName: "浅水ShallowEnd",   stageName: "扑光舞台", startAt: "2026-07-24T19:20:00", endAt: "2026-07-24T20:00:00", confidence: 1 },
+
+  // Day 2 (2026-07-25 SAT) · 旷野舞台
+  { id: "ns-d2-k1", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "破碎",             stageName: "旷野舞台", startAt: "2026-07-25T16:00:00", endAt: "2026-07-25T16:40:00", confidence: 1 },
+  { id: "ns-d2-k2", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "王喂马",           stageName: "旷野舞台", startAt: "2026-07-25T17:00:00", endAt: "2026-07-25T17:40:00", confidence: 1 },
+  { id: "ns-d2-k3", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "石岩",             stageName: "旷野舞台", startAt: "2026-07-25T18:00:00", endAt: "2026-07-25T18:40:00", confidence: 1 },
+  { id: "ns-d2-k4", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "岛屿心情",         stageName: "旷野舞台", startAt: "2026-07-25T19:00:00", endAt: "2026-07-25T19:40:00", confidence: 1 },
+  { id: "ns-d2-k5", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "大波浪·Dabo Lang",  stageName: "旷野舞台", startAt: "2026-07-25T20:00:00", endAt: "2026-07-25T20:50:00", confidence: 1 },
+  { id: "ns-d2-k6", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "GALA",             stageName: "旷野舞台", startAt: "2026-07-25T21:10:00", endAt: "2026-07-25T21:50:00", confidence: 1 },
+  // Day 2 · 战国舞台
+  { id: "ns-d2-z1", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "岚之山",           stageName: "战国舞台", startAt: "2026-07-25T15:20:00", endAt: "2026-07-25T16:00:00", confidence: 1 },
+  { id: "ns-d2-z2", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "冻结的月亮",       stageName: "战国舞台", startAt: "2026-07-25T16:20:00", endAt: "2026-07-25T17:00:00", confidence: 1 },
+  { id: "ns-d2-z3", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "痛地铁DIW",        stageName: "战国舞台", startAt: "2026-07-25T17:20:00", endAt: "2026-07-25T18:00:00", confidence: 1 },
+  { id: "ns-d2-z4", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "水树",             stageName: "战国舞台", startAt: "2026-07-25T18:20:00", endAt: "2026-07-25T19:00:00", confidence: 1 },
+  { id: "ns-d2-z5", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "利维坦",           stageName: "战国舞台", startAt: "2026-07-25T19:20:00", endAt: "2026-07-25T20:10:00", confidence: 1 },
+  { id: "ns-d2-z6", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "萨满",             stageName: "战国舞台", startAt: "2026-07-25T20:30:00", endAt: "2026-07-25T21:10:00", confidence: 1 },
+  // Day 2 · 扑光舞台
+  { id: "ns-d2-p1", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "介绍信",           stageName: "扑光舞台", startAt: "2026-07-25T14:00:00", endAt: "2026-07-25T14:40:00", confidence: 1 },
+  { id: "ns-d2-p2", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "佑转德里",         stageName: "扑光舞台", startAt: "2026-07-25T15:10:00", endAt: "2026-07-25T15:50:00", confidence: 1 },
+  { id: "ns-d2-p3", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "Hi Link Channel",  stageName: "扑光舞台", startAt: "2026-07-25T16:20:00", endAt: "2026-07-25T17:00:00", confidence: 1 },
+  { id: "ns-d2-p4", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "UNK焕青",          stageName: "扑光舞台", startAt: "2026-07-25T17:20:00", endAt: "2026-07-25T18:00:00", confidence: 1 },
+  { id: "ns-d2-p5", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "县城朋克ATM",      stageName: "扑光舞台", startAt: "2026-07-25T18:20:00", endAt: "2026-07-25T19:00:00", confidence: 1 },
+  { id: "ns-d2-p6", festivalId: "new-soil-2026", displayDate: "2026-07-25", artistName: "亚细亚报童",       stageName: "扑光舞台", startAt: "2026-07-25T19:20:00", endAt: "2026-07-25T20:00:00", confidence: 1 },
+
+  // Day 3 (2026-07-26 SUN) · 旷野舞台
+  { id: "ns-d3-k1", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "愤怒的奶瓶",             stageName: "旷野舞台", startAt: "2026-07-26T16:00:00", endAt: "2026-07-26T16:40:00", confidence: 1 },
+  { id: "ns-d3-k2", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "葡萄不愤怒",             stageName: "旷野舞台", startAt: "2026-07-26T17:00:00", endAt: "2026-07-26T17:40:00", confidence: 1 },
+  { id: "ns-d3-k3", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "钢心",                   stageName: "旷野舞台", startAt: "2026-07-26T18:00:00", endAt: "2026-07-26T18:40:00", confidence: 1 },
+  { id: "ns-d3-k4", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "Kawa（管乐版特别呈现）", stageName: "旷野舞台", startAt: "2026-07-26T19:00:00", endAt: "2026-07-26T19:40:00", confidence: 1 },
+  { id: "ns-d3-k5", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "丢火车",                 stageName: "旷野舞台", startAt: "2026-07-26T20:00:00", endAt: "2026-07-26T20:50:00", confidence: 1 },
+  { id: "ns-d3-k6", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "五条人",                 stageName: "旷野舞台", startAt: "2026-07-26T21:10:00", endAt: "2026-07-26T21:50:00", confidence: 1 },
+  // Day 3 · 战国舞台
+  { id: "ns-d3-z1", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "最终谬论",         stageName: "战国舞台", startAt: "2026-07-26T15:20:00", endAt: "2026-07-26T16:00:00", confidence: 1 },
+  { id: "ns-d3-z2", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "奉天",             stageName: "战国舞台", startAt: "2026-07-26T16:20:00", endAt: "2026-07-26T17:00:00", confidence: 1 },
+  { id: "ns-d3-z3", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "莫问",             stageName: "战国舞台", startAt: "2026-07-26T17:20:00", endAt: "2026-07-26T18:00:00", confidence: 1 },
+  { id: "ns-d3-z4", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "霜冻前夜",         stageName: "战国舞台", startAt: "2026-07-26T18:20:00", endAt: "2026-07-26T19:00:00", confidence: 1 },
+  { id: "ns-d3-z5", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "黑麒",             stageName: "战国舞台", startAt: "2026-07-26T19:20:00", endAt: "2026-07-26T20:10:00", confidence: 1 },
+  { id: "ns-d3-z6", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "醒山",             stageName: "战国舞台", startAt: "2026-07-26T20:30:00", endAt: "2026-07-26T21:10:00", confidence: 1 },
+  // Day 3 · 扑光舞台
+  { id: "ns-d3-p1", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "小羊快跑",               stageName: "扑光舞台", startAt: "2026-07-26T14:00:00", endAt: "2026-07-26T14:40:00", confidence: 1 },
+  { id: "ns-d3-p2", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "玩具头",                 stageName: "扑光舞台", startAt: "2026-07-26T15:10:00", endAt: "2026-07-26T15:50:00", confidence: 1 },
+  { id: "ns-d3-p3", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "陈念CASEE",              stageName: "扑光舞台", startAt: "2026-07-26T16:20:00", endAt: "2026-07-26T17:00:00", confidence: 1 },
+  { id: "ns-d3-p4", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "迷心",                   stageName: "扑光舞台", startAt: "2026-07-26T17:20:00", endAt: "2026-07-26T18:00:00", confidence: 1 },
+  { id: "ns-d3-p5", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "SinceTMRW始于明天",       stageName: "扑光舞台", startAt: "2026-07-26T18:20:00", endAt: "2026-07-26T19:00:00", confidence: 1 },
+  { id: "ns-d3-p6", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "毛南",                   stageName: "扑光舞台", startAt: "2026-07-26T19:20:00", endAt: "2026-07-26T20:00:00", confidence: 1 },
 ];
