@@ -16,6 +16,7 @@ import {
   migrateIfStale,
 } from "./lib/storage.js";
 import { backend } from "./lib/backend.js";
+import { overlaps } from "./lib/conflicts.js";
 
 // 云端个人数据与本地合并：两边都有时本地优先（本地是用户刚操作过的）
 function mergeNested(cloud = {}, local = {}) {
@@ -66,14 +67,24 @@ export default function App() {
   const [session, setSession] = useState(() => backend.auth.getSession());
   useEffect(() => backend.auth.onChange(setSession), []);
 
-  // 云端：启动时拉取社区共享的音乐节，与本地/内置数据按 id 合并（云端覆盖同名）
-  useEffect(() => {
+  // 轻量操作反馈：底部小黑条，1.8 秒自动消失
+  const [toast, setToast] = useState(null);
+  const toastTimer = useRef(null);
+  function showToast(text) {
+    setToast(text);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 1800);
+  }
+
+  // 云端：拉取社区共享的音乐节，与本地/内置数据按 id 合并（云端覆盖同名）
+  const lastCommunityFetch = useRef(0);
+  function fetchCommunity() {
     if (backend.mode === "local") return;
-    let cancelled = false;
     backend.community
       .fetchAll()
       .then((rows) => {
-        if (cancelled || rows.length === 0) return;
+        lastCommunityFetch.current = Date.now();
+        if (rows.length === 0) return;
         setFestivals((prev) => {
           const map = new Map(prev.map((f) => [f.id, f]));
           for (const { festival } of rows) map.set(festival.id, festival);
@@ -90,7 +101,22 @@ export default function App() {
         });
       })
       .catch((e) => console.warn("[cloud] 拉取共享音乐节失败:", e));
-    return () => { cancelled = true; };
+  }
+  // 启动时拉一次；之后每次切回这个页面（超过 1 分钟）自动再拉，
+  // 别人新发布的内容不用杀掉重开就能看到
+  useEffect(() => {
+    fetchCommunity();
+    const refresh = () => {
+      if (document.hidden) return;
+      if (Date.now() - lastCommunityFetch.current < 60000) return;
+      fetchCommunity();
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, []); // eslint-disable-line
 
   // 云端：登录后拉取个人数据合并进本地
@@ -196,6 +222,28 @@ export default function App() {
   }
 
   function setStatus(festivalId, perfId, status) {
+    // 即时反馈：标记成功 / 标记瞬间就告诉你撞了谁（规则同列表：必看只跟必看撞）
+    if (status == null) {
+      showToast("已取消标记");
+    } else {
+      const me = performances.find((p) => p.id === perfId);
+      const sel = selections[festivalId] || {};
+      const clash =
+        me &&
+        performances.find(
+          (p) =>
+            p.id !== perfId &&
+            p.festivalId === festivalId &&
+            sel[p.id] &&
+            (status !== "must" || sel[p.id] === "must") &&
+            overlaps(me, p),
+        );
+      if (clash) {
+        showToast(`⚠ 和 ${clash.artistName} 撞档了`);
+      } else {
+        showToast(status === "must" ? "★ 必看 +1" : "? 待定 +1");
+      }
+    }
     setSelections((prev) => {
       const current = prev[festivalId] || {};
       const next = { ...current };
@@ -243,6 +291,7 @@ export default function App() {
 
   // 想看 / 去过 互斥：标了"去过"就不再是"想看"，反之亦然
   function toggleAttended(festivalId) {
+    showToast(attended[festivalId] ? "已取消去过" : "✓ 已标去过");
     setAttended((prev) => {
       const next = { ...prev };
       if (next[festivalId]) delete next[festivalId];
@@ -260,6 +309,7 @@ export default function App() {
   }
 
   function toggleWanted(festivalId) {
+    showToast(wanted[festivalId] ? "已取消想看" : "★ 已加想看");
     setWanted((prev) => {
       const next = { ...prev };
       if (next[festivalId]) delete next[festivalId];
@@ -366,6 +416,10 @@ export default function App() {
         )}
 
         {showLogin && <LoginSheet onClose={() => setShowLogin(false)} />}
+
+        {toast && (
+          <div className="toast u-mono" role="status">{toast}</div>
+        )}
 
         {/* 全局底部 Tab：常驻（iOS 惯例），进详情页也不消失。
             点当前 tab = 回到该 tab 根部；中间 ＋ 是「添加新演出」一级入口 */}

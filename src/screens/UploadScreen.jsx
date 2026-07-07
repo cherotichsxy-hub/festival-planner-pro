@@ -542,8 +542,16 @@ function ReviewView({
       return next;
     });
   }
+  // 删除要点两下：第一下变红问"确认?"，2.5 秒不点自动复原——防手滑误删
+  const [confirmDel, setConfirmDel] = useState(null);
+  useEffect(() => {
+    if (confirmDel == null) return;
+    const t = setTimeout(() => setConfirmDel(null), 2500);
+    return () => clearTimeout(t);
+  }, [confirmDel]);
   function removePerf(idx) {
     setPerfs((prev) => prev.filter((_, i) => i !== idx));
+    setConfirmDel(null);
   }
   function addPerf() {
     const firstDate = meta.dates?.[0] || "";
@@ -744,11 +752,13 @@ function ReviewView({
                   />
                   <button
                     type="button"
-                    className="perf-remove"
-                    onClick={() => removePerf(idx)}
-                    aria-label="删除该条"
+                    className={`perf-remove${confirmDel === idx ? " arming" : ""}`}
+                    onClick={() =>
+                      confirmDel === idx ? removePerf(idx) : setConfirmDel(idx)
+                    }
+                    aria-label={confirmDel === idx ? "再点一次确认删除" : "删除该条"}
                   >
-                    ✕
+                    {confirmDel === idx ? "确认?" : "✕"}
                   </button>
                 </div>
               </li>

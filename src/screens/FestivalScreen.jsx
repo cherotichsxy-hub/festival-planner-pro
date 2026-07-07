@@ -33,6 +33,14 @@ export default function FestivalScreen({
   const [showOtherStages, setShowOtherStages] = useState(false);
   // 搜索进行中：让日期胶囊变灰，别让它假装还在起作用
   const [searchActive, setSearchActive] = useState(false);
+
+  // 往下翻列表时收起大标题和日期条，只留返回行 + 视图切换 + 舞台筛选。
+  // 两个阈值（70 收 / 12 展）防止在临界点上下抖动。
+  const [compact, setCompact] = useState(false);
+  function handleBodyScroll(e) {
+    const y = e.currentTarget.scrollTop;
+    setCompact((c) => (c ? y > 12 : y > 70));
+  }
   const mainCount = festival.mainStageCount || festival.stages.length;
   const mainStages = festival.stages.slice(0, mainCount);
   const otherStages = festival.stages.slice(mainCount);
@@ -52,20 +60,24 @@ export default function FestivalScreen({
 
   return (
     <>
-      <header className="fest-header">
+      <header className={`fest-header${compact ? " compact" : ""}`}>
         <div className="fest-header-top">
           {onBack && (
             <button className="back-btn" onClick={onBack} aria-label="返回">‹</button>
           )}
-          <span className="u-mono fest-header-channel">
-            FREQ · {festival.year} · DAY {dayIndex}
+          <span className={`fest-header-channel${compact ? " is-name" : " u-mono"}`}>
+            {compact
+              ? festival.name
+              : `FREQ · ${festival.year} · DAY ${dayIndex}`}
           </span>
         </div>
-        <h1 className="fest-header-name">{festival.name}</h1>
-        <div className="fest-header-rule" />
-        <p className="u-mono fest-header-loc">
-          <span>LOC</span> · {festival.location}
-        </p>
+        <div className="fest-header-full">
+          <h1 className="fest-header-name">{festival.name}</h1>
+          <div className="fest-header-rule" />
+          <p className="u-mono fest-header-loc">
+            <span>LOC</span> · {festival.location}
+          </p>
+        </div>
       </header>
 
       {/* 页面内视图切换：顶部分段控件（iOS 惯例），底部留给全局 Tab */}
@@ -91,7 +103,7 @@ export default function FestivalScreen({
       </div>
 
       {/* 日期紧跟在视图切换下面：两个视图共用，放一起才找得到 */}
-      <div className={`date-bar${searchActive ? " pills-muted" : ""}`}>
+      <div className={`date-bar${searchActive ? " pills-muted" : ""}${compact ? " collapsed" : ""}`}>
         {festival.dates.map((d, i) => (
           <button
             key={d}
@@ -174,7 +186,7 @@ export default function FestivalScreen({
       </div>
       )}
 
-      <main className="fest-body">
+      <main className="fest-body" onScroll={handleBodyScroll}>
         {tab === "lineup" && (
           <LineupList
             festival={festival}
