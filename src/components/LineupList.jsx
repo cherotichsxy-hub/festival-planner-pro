@@ -251,23 +251,6 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
             ⚠ 撞 {conflicts.length} 场 {showConflicts ? "−" : "+"}
           </button>
         )}
-        <button
-          type="button"
-          className={`lineup-card-preview phase-${previewPhase || "idle"}`}
-          onClick={(e) => {
-            e.preventDefault();
-            onTogglePreview?.();
-          }}
-          aria-label={previewPhase === "playing" ? "停止试听" : "试听 30 秒"}
-        >
-          {previewPhase === "loading"
-            ? "···"
-            : previewPhase === "playing"
-              ? "◼ 停止"
-              : previewPhase === "notfound"
-                ? "无试听"
-                : "▶ 试听"}
-        </button>
       </div>
     </>
   );
@@ -300,23 +283,39 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
         <div className="lineup-card-body">{bodyInner}</div>
       )}
       <div className="lineup-card-actions">
+        <div className="act-row">
+          <button
+            type="button"
+            className={`act act-must${status === "must" ? " on" : ""}`}
+            onClick={() => onSetStatus(perf.id, status === "must" ? null : "must")}
+            aria-label={status === "must" ? "取消必看" : "标为必看"}
+            aria-pressed={status === "must"}
+          >
+            ★
+          </button>
+          <button
+            type="button"
+            className={`act act-maybe${status === "maybe" ? " on" : ""}`}
+            onClick={() => onSetStatus(perf.id, status === "maybe" ? null : "maybe")}
+            aria-label={status === "maybe" ? "取消待定" : "标为待定"}
+            aria-pressed={status === "maybe"}
+          >
+            ?
+          </button>
+        </div>
         <button
           type="button"
-          className={`act act-must${status === "must" ? " on" : ""}`}
-          onClick={() => onSetStatus(perf.id, status === "must" ? null : "must")}
-          aria-label={status === "must" ? "取消必看" : "标为必看"}
-          aria-pressed={status === "must"}
+          className={`lineup-card-preview phase-${previewPhase || "idle"}`}
+          onClick={() => onTogglePreview?.()}
+          aria-label={previewPhase === "playing" ? "停止试听" : "试听 30 秒"}
         >
-          ★
-        </button>
-        <button
-          type="button"
-          className={`act act-maybe${status === "maybe" ? " on" : ""}`}
-          onClick={() => onSetStatus(perf.id, status === "maybe" ? null : "maybe")}
-          aria-label={status === "maybe" ? "取消待定" : "标为待定"}
-          aria-pressed={status === "maybe"}
-        >
-          ?
+          {previewPhase === "loading"
+            ? "···"
+            : previewPhase === "playing"
+              ? "◼ 停止"
+              : previewPhase === "notfound"
+                ? "无试听"
+                : "▶ 试听"}
         </button>
       </div>
 

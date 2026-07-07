@@ -1413,9 +1413,15 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 
 .lineup-card-actions {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 6px;
   padding-right: 8px;
+}
+.lineup-card-actions .act-row {
+  display: flex;
+  gap: 4px;
 }
 .lineup-card-actions .act {
   width: 30px;
@@ -4389,23 +4395,21 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   font-size: 11px;
 }
 
-/* 30 秒试听按钮（演出卡 meta 行末尾） */
+/* 30 秒试听按钮（演出卡 actions 列，★/? 下面对齐） */
 .lineup-card-preview {
-  margin-left: auto;
   flex: 0 0 auto;
-  padding: 3px 8px;
+  padding: 4px 6px;
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: var(--text-soft);
   background: var(--bg-soft);
   border: 1px solid var(--line-strong);
   cursor: pointer;
   white-space: nowrap;
-  position: relative;
+  text-align: center;
 }
-.lineup-card-preview::after { content: ""; position: absolute; inset: -8px; }
 .lineup-card-preview.phase-playing {
   color: #fff;
   background: var(--bauhaus-red);
