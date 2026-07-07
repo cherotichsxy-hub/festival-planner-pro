@@ -924,36 +924,49 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 /* ---------- 根级底部导航（Home/Profile）Bauhaus ---------- */
 .root-nav {
   display: flex;
+  align-items: stretch;
+  justify-content: space-between;
   background: var(--bg-phone);
-  border-top: 1px solid var(--line-strong);
+  border-top: 1.5px solid var(--text);
   flex: 0 0 auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .root-nav button {
   flex: 1;
-  padding: 10px 6px 14px;
+  padding: 9px 6px 11px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 3px;
   color: var(--text-mute);
   position: relative;
-  border-right: 1px solid var(--line);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  transition: color 0.15s ease-out;
 }
-.root-nav button:last-child { border-right: none; }
 .root-nav button .nav-icon {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 900;
   line-height: 1;
 }
+/* 选中态：不再整块填色，改成图标变红 + 顶部一条短红杠 */
 .root-nav button.active {
-  color: var(--text);
-  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-red);
+  background: transparent;
+}
+.root-nav button.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 3px;
+  background: var(--bauhaus-red);
 }
 
 /* ========================================================== */
@@ -4137,23 +4150,30 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
 /* ============================================================ */
 /* iOS 化导航：常驻底部 Tab（含中间 ＋）+ 顶部分段控件 + 安全区   */
 /* ============================================================ */
-/* iPhone 底部 Home Indicator 安全区 */
-.root-nav {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-/* 中间的「添加新演出」按钮：方块强调款 */
+/* 中间的「添加新演出」：上浮的红色贴纸方块（硬阴影，呼应磁带/海报语言） */
 .root-nav .root-nav-add {
-  flex: 0 0 72px;
+  flex: 0 0 auto;
+  align-self: center;
+  width: 50px;
+  height: 50px;
+  margin: 0 14px;
+  transform: translateY(-9px);
   justify-content: center;
-  background: var(--text);
+  background: var(--bauhaus-red);
   color: var(--bg-phone);
   font-family: var(--font-display);
-  font-size: 26px;
+  font-size: 27px;
   font-weight: 900;
   line-height: 1;
-  border-right: 1px solid var(--line);
+  border: 1.5px solid var(--text);
+  box-shadow: 3px 3px 0 var(--text);
+  transition: transform 0.08s ease-out;
 }
-.root-nav .root-nav-add:active { opacity: 0.85; }
+.root-nav .root-nav-add::before { content: none; }
+.root-nav .root-nav-add:active {
+  transform: translateY(-8px) translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--text);
+}
 
 /* 音乐节页顶部分段控件（LINEUP / MY PLAN） */
 .seg-bar {
