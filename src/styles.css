@@ -246,11 +246,11 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   font-size: 10px;
   color: var(--text-mute);
   border-bottom: 1px solid var(--line);
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 .rack-count { color: var(--text-mute); }
 .profile-section { padding: 0 16px; }
-.profile-section + .profile-section { margin-top: 20px; }
+.profile-section + .profile-section { margin-top: 28px; }
 .cassette-section + .cassette-section { margin-top: 22px; }
 
 /* ---------- 搜索框（整合到频道架，轻盈线条）---------- */
@@ -289,7 +289,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
 }
 .cassette-card {
   width: 100%;
@@ -1043,7 +1043,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   gap: 8px;
 }
 .stage-chips-label {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--text-mute);
   flex: 0 0 auto;
 }
@@ -1326,7 +1326,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   color: var(--text);
 }
 .lineup-card-end {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--text-mute);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
@@ -1375,7 +1375,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 8px;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.06em;
 }
 .lineup-card-stage {
@@ -3861,7 +3861,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 /* ============================================================ */
 .login-chip {
   position: absolute;
-  top: 16px;
+  top: 18px;
   right: 16px;
   z-index: 3;
   display: inline-flex;
@@ -4154,7 +4154,7 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
 .seg-bar {
   flex: 0 0 auto;
   display: flex;
-  margin: 10px 16px;
+  margin: 12px 16px 6px;
   border: 1.5px solid var(--text);
   background: var(--bg-phone);
   box-shadow: 2px 2px 0 var(--text);
@@ -4270,7 +4270,7 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   flex: 0 0 auto;
   display: flex;
   gap: 6px;
-  margin: 0 16px 10px;
+  margin: 0 16px 14px;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -4288,8 +4288,8 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--text-soft);
-  background: var(--bg-phone);
-  border: 1px solid var(--line-strong);
+  background: transparent;
+  border: 1px solid var(--line);
   cursor: pointer;
   white-space: nowrap;
 }
