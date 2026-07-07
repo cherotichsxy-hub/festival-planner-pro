@@ -5,6 +5,11 @@ import { buildConflictMap } from "../lib/conflicts.js";
 import { formatMonthDay, shortStageName } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
 
+// 本地时区的 YYYY-MM-DD（toISOString 是 UTC，跨时区会差一天）
+function localIsoDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export default function FestivalScreen({
   festival,
   performances,
@@ -18,10 +23,16 @@ export default function FestivalScreen({
   initialTab = "lineup",
   initialQuery = "",
 }) {
-  const [activeDate, setActiveDate] = useState(festival.dates[0]);
+  // 现场模式：如果今天正是演出日，默认打开今天（而不是第一天）
+  const todayIso = localIsoDate(new Date());
+  const [activeDate, setActiveDate] = useState(
+    festival.dates.includes(todayIso) ? todayIso : festival.dates[0],
+  );
   const [tab, setTab] = useState(initialTab);
   const [stageFilter, setStageFilter] = useState("all");
   const [showOtherStages, setShowOtherStages] = useState(false);
+  // 搜索进行中：让日期胶囊变灰，别让它假装还在起作用
+  const [searchActive, setSearchActive] = useState(false);
   const mainCount = festival.mainStageCount || festival.stages.length;
   const mainStages = festival.stages.slice(0, mainCount);
   const otherStages = festival.stages.slice(mainCount);
@@ -49,7 +60,7 @@ export default function FestivalScreen({
           <span className="u-mono fest-header-channel">
             FREQ · {festival.year} · DAY {dayIndex}
           </span>
-          <div className="date-pills">
+          <div className={`date-pills${searchActive ? " pills-muted" : ""}`}>
             {festival.dates.map((d) => (
               <button
                 key={d}
@@ -91,6 +102,8 @@ export default function FestivalScreen({
         </button>
       </div>
 
+      {/* 舞台筛选只属于 LINEUP；MY PLAN 永远显示完整计划，不被它悄悄过滤 */}
+      {tab === "lineup" && (
       <div className="stage-chips-bar">
         <span className="u-mono stage-chips-label">STAGE</span>
         <div className="stage-chips">
@@ -141,7 +154,14 @@ export default function FestivalScreen({
             <button
               type="button"
               className="chip chip-more"
-              onClick={() => setShowOtherStages((v) => !v)}
+              onClick={() => {
+                // 收起时如果选中的正是"更多"里的舞台，重置回 ALL——
+                // 否则筛选还在生效但按钮已经看不见了
+                if (showOtherStages && otherStages.includes(stageFilter)) {
+                  setStageFilter("all");
+                }
+                setShowOtherStages((v) => !v);
+              }}
               aria-expanded={showOtherStages}
             >
               {showOtherStages ? "收起 −" : `更多 +${otherStages.length}`}
@@ -149,6 +169,7 @@ export default function FestivalScreen({
           )}
         </div>
       </div>
+      )}
 
       <main className="fest-body">
         {tab === "lineup" && (
@@ -161,6 +182,8 @@ export default function FestivalScreen({
             conflictMap={conflictMap}
             onSetStatus={onSetStatus}
             initialQuery={initialQuery}
+            isToday={activeDate === todayIso}
+            onSearchingChange={setSearchActive}
           />
         )}
         {tab === "plan" && (
@@ -168,7 +191,7 @@ export default function FestivalScreen({
             festival={festival}
             performances={performances}
             activeDate={activeDate}
-            stageFilter={stageFilter}
+            stageFilter="all"
             selections={festivalSelections}
             headliners={headliners}
             axisChoice={axisChoice || {}}

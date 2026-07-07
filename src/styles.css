@@ -687,27 +687,6 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 }
 
 /* ---------- 解析失败提示 ---------- */
-.parse-error {
-  margin-bottom: 16px;
-  padding: 12px 14px;
-  background: var(--conflict-soft);
-  border-left: 4px solid var(--conflict);
-  font-size: 12px;
-  color: var(--conflict);
-  line-height: 1.5;
-}
-.parse-error strong {
-  display: block;
-  font-size: 10px;
-  margin-bottom: 4px;
-  letter-spacing: 0.08em;
-}
-.parse-error p {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  word-break: break-word;
-}
 
 /* ---------- Parsing 阶段 ---------- */
 .parsing-screen {
@@ -927,57 +906,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 }
 .rows-count { color: var(--text); font-weight: 700; }
 
-.row-cards {
-  list-style: none;
-  margin: 10px 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.row-card {
-  background: var(--bg-phone);
-  border: 1px solid var(--line);
-  padding: 10px 12px 12px;
-  position: relative;
-}
-.row-card.conf-lo {
-  border-color: var(--bauhaus-red);
-  border-left: 4px solid var(--bauhaus-red);
-  background: rgba(216, 58, 50, 0.04);
-}
-.row-card.conf-mid {
-  border-left: 4px solid var(--bauhaus-yellow);
-}
-.row-card.conf-hi {
-  border-left: 4px solid var(--bauhaus-green);
-}
-.row-card-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-.row-card-no { font-size: 10px; color: var(--text-mute); }
-.row-card-conf {
-  font-size: 10px;
-  margin-left: auto;
-  padding: 2px 6px;
-}
-.row-card-conf.conf-lo { background: var(--bauhaus-red); color: #fff; }
-.row-card-conf.conf-mid { background: var(--bauhaus-yellow); color: var(--text); }
-.row-card-conf.conf-hi { color: var(--bauhaus-green); }
 
-.row-card-del {
-  width: 22px;
-  height: 22px;
-  font-size: 13px;
-  color: var(--text-mute);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.row-card-del:hover { background: var(--bauhaus-red); color: #fff; }
 
 .add-row-btn {
   margin-top: 14px;
@@ -2183,7 +2112,6 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   font-size: 9px;
   color: rgba(0, 0, 0, 0.55);
 }
-.row-main { min-width: 0; }
 .row-name {
   display: block;
   font-family: var(--font-display);
@@ -4247,4 +4175,90 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
 .seg-bar .seg.active {
   background: var(--text);
   color: var(--bg-phone);
+}
+
+/* ============================================================ */
+/* 评审修复 · 触控热区 / 冲突明细 / 现场模式 / 搜索态胶囊       */
+/* ============================================================ */
+
+/* 触控热区 ≥44px：视觉尺寸不变，用透明伪元素扩大可点范围 */
+.lineup-card-actions .act,
+.lineup-search-clear,
+.back-btn {
+  position: relative;
+}
+.lineup-card-actions .act::after,
+.lineup-search-clear::after,
+.back-btn::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}
+/* 日期胶囊和舞台 chip 在滚动条里，伪元素会被裁掉——直接加高实体 */
+.date-pills button { padding: 10px 12px; }
+.chip { padding: 9px 12px; }
+
+/* 搜索进行中：日期胶囊变灰（搜索跨天，日期不起作用） */
+.date-pills.pills-muted { opacity: 0.35; }
+
+/* 冲突标签：从静态角标升级为可点按钮 */
+.lineup-card-conflict {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  position: relative;
+}
+.lineup-card-conflict::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}
+/* 冲突明细：横跨整张卡片底部 */
+.conflict-detail {
+  grid-column: 1 / -1;
+  list-style: none;
+  margin: 0 10px 2px 16px;
+  padding: 8px 10px;
+  background: var(--bg-soft);
+  border: 1px dashed var(--conflict);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-soft);
+}
+.conflict-demote {
+  align-self: flex-start;
+  padding: 5px 10px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--bg-phone);
+  border: 1px solid var(--text);
+  cursor: pointer;
+}
+.conflict-demote:active { transform: translate(1px, 1px); }
+
+/* 现场模式：NOW 锚点 + 正在演 + 已演完 */
+.lineup-hour-now {
+  flex: 0 0 auto;
+  margin-left: 8px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #fff;
+  background: var(--bauhaus-red);
+}
+.lineup-card.is-past { opacity: 0.45; }
+.lineup-card.is-live { border-color: var(--bauhaus-red); }
+.lineup-card-livetag {
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #fff;
+  background: var(--bauhaus-red);
 }
