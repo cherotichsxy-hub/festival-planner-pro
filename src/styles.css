@@ -4200,3 +4200,51 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   cursor: pointer;
 }
 .wish-again:active { transform: translate(1px, 1px); }
+
+/* ============================================================ */
+/* iOS 化导航：常驻底部 Tab（含中间 ＋）+ 顶部分段控件 + 安全区   */
+/* ============================================================ */
+/* iPhone 底部 Home Indicator 安全区 */
+.root-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+/* 中间的「添加新演出」按钮：方块强调款 */
+.root-nav .root-nav-add {
+  flex: 0 0 72px;
+  justify-content: center;
+  background: var(--text);
+  color: var(--bg-phone);
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+  border-right: 1px solid var(--line);
+}
+.root-nav .root-nav-add:active { opacity: 0.85; }
+
+/* 音乐节页顶部分段控件（LINEUP / MY PLAN） */
+.seg-bar {
+  flex: 0 0 auto;
+  display: flex;
+  margin: 10px 16px;
+  border: 1.5px solid var(--text);
+  background: var(--bg-phone);
+  box-shadow: 2px 2px 0 var(--text);
+}
+.seg-bar .seg {
+  flex: 1;
+  padding: 9px 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: var(--text-mute);
+  border-right: 1.5px solid var(--text);
+  cursor: pointer;
+}
+.seg-bar .seg:last-child { border-right: none; }
+.seg-bar .seg.active {
+  background: var(--text);
+  color: var(--bg-phone);
+}

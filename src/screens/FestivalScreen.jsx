@@ -69,6 +69,28 @@ export default function FestivalScreen({
         </p>
       </header>
 
+      {/* 页面内视图切换：顶部分段控件（iOS 惯例），底部留给全局 Tab */}
+      <div className="seg-bar" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "lineup"}
+          className={`seg${tab === "lineup" ? " active" : ""}`}
+          onClick={() => setTab("lineup")}
+        >
+          ♬ LINEUP
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "plan"}
+          className={`seg${tab === "plan" ? " active" : ""}`}
+          onClick={() => setTab("plan")}
+        >
+          ★ MY PLAN{markedCount > 0 ? ` (${markedCount})` : ""}
+        </button>
+      </div>
+
       <div className="stage-chips-bar">
         <span className="u-mono stage-chips-label">STAGE</span>
         <div className="stage-chips">
@@ -157,26 +179,6 @@ export default function FestivalScreen({
           />
         )}
       </main>
-
-      <nav className="fest-bottom-nav">
-        <button
-          type="button"
-          className={tab === "lineup" ? "active" : ""}
-          onClick={() => setTab("lineup")}
-        >
-          <span className="nav-glyph">♬</span>
-          <span className="u-mono nav-label">LINEUP</span>
-        </button>
-        <button
-          type="button"
-          className={tab === "plan" ? "active" : ""}
-          onClick={() => setTab("plan")}
-        >
-          <span className="nav-glyph">★</span>
-          <span className="u-mono nav-label">MY PLAN</span>
-          {markedCount > 0 && <span className="nav-badge">{markedCount}</span>}
-        </button>
-      </nav>
     </>
   );
 }

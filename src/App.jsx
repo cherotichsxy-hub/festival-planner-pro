@@ -123,14 +123,33 @@ export default function App() {
 
   const screen = stack[stack.length - 1];
   const rootTab = stack[0].name; // "home" or "profile"
-  const canGoBack = stack.length > 1;
 
+  // ---- 导航与浏览器返回手势整合（iOS 边缘右滑 = 返回） ----
+  // push 屏幕时同步写一条 history 记录；popstate（滑动返回/浏览器后退）→ 页面栈出栈。
+  // 我们自己的 ‹ 返回按钮统一走 history.back()，两条路径行为一致。
   function push(next) {
     setStack((s) => [...s, next]);
+    try { window.history.pushState({ fp: true }, ""); } catch {}
   }
   function pop() {
-    setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+    if (window.history.state?.fp) {
+      window.history.back(); // 触发 popstate → 真正出栈
+    } else {
+      setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+    }
   }
+  useEffect(() => {
+    const onPop = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+  // 直链进入多层栈（如 ?screen=upload）时补齐 history 深度，保证返回手势可用
+  useEffect(() => {
+    for (let i = 1; i < stack.length; i++) {
+      try { window.history.pushState({ fp: true }, ""); } catch {}
+    }
+  }, []); // eslint-disable-line
+
   function switchTab(tab) {
     setStack([{ name: tab }]);
   }
@@ -348,25 +367,33 @@ export default function App() {
 
         {showLogin && <LoginSheet onClose={() => setShowLogin(false)} />}
 
-        {/* 全局底部 nav：只有栈底（rootTab）时显示，进入二级页隐藏 */}
-        {!canGoBack && (
-          <nav className="root-nav">
-            <button
-              className={rootTab === "home" ? "active" : ""}
-              onClick={() => switchTab("home")}
-            >
-              <span className="nav-icon">⌂</span>
-              首页
-            </button>
-            <button
-              className={rootTab === "profile" ? "active" : ""}
-              onClick={() => switchTab("profile")}
-            >
-              <span className="nav-icon">◎</span>
-              个人中心
-            </button>
-          </nav>
-        )}
+        {/* 全局底部 Tab：常驻（iOS 惯例），进详情页也不消失。
+            点当前 tab = 回到该 tab 根部；中间 ＋ 是「添加新演出」一级入口 */}
+        <nav className="root-nav">
+          <button
+            className={rootTab === "home" ? "active" : ""}
+            onClick={() => switchTab("home")}
+          >
+            <span className="nav-icon">⌂</span>
+            首页
+          </button>
+          <button
+            className="root-nav-add"
+            onClick={() => {
+              if (screen.name !== "upload") openUpload();
+            }}
+            aria-label="添加新演出"
+          >
+            ＋
+          </button>
+          <button
+            className={rootTab === "profile" ? "active" : ""}
+            onClick={() => switchTab("profile")}
+          >
+            <span className="nav-icon">◎</span>
+            我的
+          </button>
+        </nav>
       </div>
     </div>
   );
