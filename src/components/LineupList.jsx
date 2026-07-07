@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { formatHM, formatMonthDay } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
+import { searchPreview, playPreview, stopPreview } from "../lib/preview.js";
 
 export default function LineupList({
   festival,
@@ -26,6 +27,33 @@ export default function LineupList({
 
   // 现场模式的"现在"，进页面时取一次
   const now = useMemo(() => new Date(), []);
+
+  // 30 秒试听：记录正在播/加载的是哪一条（同一时间只播一首）
+  const [preview, setPreview] = useState({ id: null, phase: null }); // phase: loading|playing|notfound
+  useEffect(() => () => stopPreview(), []); // 离开列表时停掉
+
+  async function togglePreview(perf) {
+    if (preview.id === perf.id && preview.phase === "playing") {
+      stopPreview();
+      setPreview({ id: null, phase: null });
+      return;
+    }
+    stopPreview();
+    setPreview({ id: perf.id, phase: "loading" });
+    const found = await searchPreview(perf.artistName);
+    if (!found) {
+      setPreview({ id: perf.id, phase: "notfound" });
+      setTimeout(
+        () => setPreview((p) => (p.id === perf.id ? { id: null, phase: null } : p)),
+        1800,
+      );
+      return;
+    }
+    setPreview({ id: perf.id, phase: "playing" });
+    playPreview(found.previewUrl, () =>
+      setPreview((p) => (p.id === perf.id ? { id: null, phase: null } : p)),
+    );
+  }
 
   const visible = useMemo(() => {
     let pool = performances;
@@ -141,6 +169,8 @@ export default function LineupList({
               conflicts={relevantConflicts(p)}
               onSetStatus={onSetStatus}
               now={isToday ? now : null}
+              previewPhase={preview.id === p.id ? preview.phase : null}
+              onTogglePreview={() => togglePreview(p)}
               showDate
             />
           ))}
@@ -173,6 +203,8 @@ export default function LineupList({
                   conflicts={relevantConflicts(p)}
                   onSetStatus={onSetStatus}
                   now={isToday ? now : null}
+                  previewPhase={preview.id === p.id ? preview.phase : null}
+                  onTogglePreview={() => togglePreview(p)}
                 />
               ))}
             </ul>
@@ -183,7 +215,7 @@ export default function LineupList({
   );
 }
 
-function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, showDate }) {
+function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previewPhase, onTogglePreview, showDate }) {
   const color = getStageColor(festival, perf.stageName);
   const hasConflict = conflicts.length > 0;
   // 点冲突标签展开：撞了谁、几点、哪个台
@@ -219,6 +251,23 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, showD
             ⚠ 撞 {conflicts.length} 场 {showConflicts ? "−" : "+"}
           </button>
         )}
+        <button
+          type="button"
+          className={`lineup-card-preview phase-${previewPhase || "idle"}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onTogglePreview?.();
+          }}
+          aria-label={previewPhase === "playing" ? "停止试听" : "试听 30 秒"}
+        >
+          {previewPhase === "loading"
+            ? "···"
+            : previewPhase === "playing"
+              ? "◼ 停止"
+              : previewPhase === "notfound"
+                ? "无试听"
+                : "▶ 试听"}
+        </button>
       </div>
     </>
   );
