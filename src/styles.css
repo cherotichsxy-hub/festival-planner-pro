@@ -4262,3 +4262,46 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   color: #fff;
   background: var(--bauhaus-red);
 }
+
+/* ============================================================ */
+/* 日期条：从头部右上角移到 LINEUP/MY PLAN 切换条正下方          */
+/* ============================================================ */
+.date-bar {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+  margin: 0 16px 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.date-bar::-webkit-scrollbar { display: none; }
+.date-bar button {
+  flex: 1 0 auto;
+  min-width: 72px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-soft);
+  background: var(--bg-phone);
+  border: 1px solid var(--line-strong);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.date-bar button .date-bar-day {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-mute);
+}
+.date-bar button.active {
+  background: var(--text);
+  color: var(--bg-phone);
+  border-color: var(--text);
+}
+.date-bar button.active .date-bar-day { color: var(--bg-phone); opacity: 0.7; }
+.date-bar.pills-muted { opacity: 0.35; }

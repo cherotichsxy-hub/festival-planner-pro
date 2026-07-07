@@ -60,18 +60,6 @@ export default function FestivalScreen({
           <span className="u-mono fest-header-channel">
             FREQ · {festival.year} · DAY {dayIndex}
           </span>
-          <div className={`date-pills${searchActive ? " pills-muted" : ""}`}>
-            {festival.dates.map((d) => (
-              <button
-                key={d}
-                type="button"
-                className={activeDate === d ? "active" : ""}
-                onClick={() => setActiveDate(d)}
-              >
-                {formatMonthDay(d)}
-              </button>
-            ))}
-          </div>
         </div>
         <h1 className="fest-header-name">{festival.name}</h1>
         <div className="fest-header-rule" />
@@ -100,6 +88,21 @@ export default function FestivalScreen({
         >
           ★ MY PLAN{markedCount > 0 ? ` (${markedCount})` : ""}
         </button>
+      </div>
+
+      {/* 日期紧跟在视图切换下面：两个视图共用，放一起才找得到 */}
+      <div className={`date-bar${searchActive ? " pills-muted" : ""}`}>
+        {festival.dates.map((d, i) => (
+          <button
+            key={d}
+            type="button"
+            className={activeDate === d ? "active" : ""}
+            onClick={() => setActiveDate(d)}
+          >
+            <span className="u-mono date-bar-day">D{i + 1}</span>
+            {formatMonthDay(d)}
+          </button>
+        ))}
       </div>
 
       {/* 舞台筛选只属于 LINEUP；MY PLAN 永远显示完整计划，不被它悄悄过滤 */}
