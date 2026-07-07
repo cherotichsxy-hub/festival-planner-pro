@@ -10,7 +10,7 @@ let audio = null;
 let currentUrl = null;
 
 // 清洗艺人名：去掉 [US] (LIVE) (DJ) Vinyl Set / DJ Set / b2b 另一位 / feat. 等演出修饰
-function cleanArtistName(raw) {
+export function cleanArtistName(raw) {
   let s = String(raw || "");
   s = s.replace(/[\[（(].*?[\])）]/g, " "); // [US] (LIVE) （管乐版）
   s = s.replace(/\bb2b\b.*$/i, " ");         // b2b 后面是第二个 DJ，只搜第一个

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { formatHM, formatMonthDay } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
 import { searchPreview, playPreview, stopPreview } from "../lib/preview.js";
+import { artistLink, isOfficialLink } from "../lib/artistLink.js";
 
 export default function LineupList({
   festival,
@@ -227,11 +228,19 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
     ? new Date(perf.startAt) <= now && now <= new Date(perf.endAt)
     : false;
 
+  // 艺人跳转：有官方页用官方，否则跳网易云搜索
+  const href = artistLink(perf);
+  const official = isOfficialLink(perf);
+
   const bodyInner = (
     <>
       <strong className="lineup-card-name">
         {perf.artistName}
-        {perf.link && <span className="lineup-card-link-mark" aria-hidden>↗</span>}
+        {href && (
+          <span className="lineup-card-link-mark" aria-hidden>
+            {official ? "↗" : "♪"}
+          </span>
+        )}
       </strong>
       <div className="lineup-card-meta u-mono">
         <span className="lineup-card-stage">
@@ -270,10 +279,10 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
         <span className="lineup-card-start">{formatHM(perf.startAt)}</span>
         <span className="lineup-card-end u-mono">→ {formatHM(perf.endAt)}</span>
       </div>
-      {perf.link ? (
+      {href ? (
         <a
           className="lineup-card-body lineup-card-body-link"
-          href={perf.link}
+          href={href}
           target="_blank"
           rel="noopener noreferrer"
         >
