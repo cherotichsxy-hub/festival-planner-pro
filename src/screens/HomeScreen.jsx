@@ -192,7 +192,7 @@ export default function HomeScreen({
         >
           <span className="upload-rack-mark">＋</span>
           <div className="upload-rack-text">
-            <strong>添加新音乐节</strong>
+            <strong>添加新演出</strong>
             <span className="u-mono">UPLOAD · POSTER → SCHEDULE</span>
           </div>
           <span className="upload-rack-arrow">→</span>

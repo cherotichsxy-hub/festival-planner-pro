@@ -144,10 +144,6 @@ function IdleView({ onPick, festivals, onOpenFestival }) {
         <span>没有？上传海报识别</span>
       </div>
 
-      <p className="upload-hint u-mono">
-        把海报或时间表截图喂给 AI · 自动整理成结构化数据 · 你左右对照逐条校对
-      </p>
-
       {hasKey ? (
         <label className="dropzone">
           <span className="dropzone-corner tl" />
@@ -167,19 +163,15 @@ function IdleView({ onPick, festivals, onOpenFestival }) {
       ) : (
         <div className="dropzone dropzone-locked" aria-disabled="true">
           <span className="dropzone-mark">🔒</span>
-          <span className="dropzone-title">配好 AI 识别 API 后解锁上传</span>
+          <span className="dropzone-title">配好 API 后，AI 自动解析演出信息</span>
           <span className="u-mono dropzone-sub">
-            在下方设置里粘一个 key · 不想配就往下走许愿
+            在下方配置你的 API Key，快速生成演出 Lineup
           </span>
         </div>
       )}
 
       {/* API 配置：识别真海报需要，就近放在上传流程里 */}
       <ApiConfigSection onSaved={() => setCfgVersion((v) => v + 1)} />
-
-      <div className="upload-divider u-mono">
-        <span>不想配 API？许个愿</span>
-      </div>
 
       <WishSection />
     </>
@@ -212,7 +204,7 @@ function DupSearch({ festivals = [], onOpenFestival }) {
         <span className="u-mono search-label">FIND</span>
         <input
           type="search"
-          placeholder="搜音乐节 / 城市 / 年份"
+          placeholder="搜演出"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
@@ -442,8 +434,8 @@ function WishSection() {
     return (
       <section className="wish-card">
         <p className="wish-done">
-          ✓ 收到「{name.trim()}」的愿望了！<br />
-          <span className="u-mono">录入后刷新首页就能看到 · 欢迎常回来看看</span>
+          ✓ 已收到「{name.trim()}」！<br />
+          <span className="u-mono">我们会尽快解析录入 · 完成后刷新首页就能看到</span>
         </p>
         <button
           type="button"
@@ -455,7 +447,7 @@ function WishSection() {
             setErr("");
           }}
         >
-          ＋ 再许一个愿
+          ＋ 再提交一个
         </button>
       </section>
     );
@@ -465,7 +457,7 @@ function WishSection() {
     <section className="wish-card">
       <header className="api-key-head">
         <span className="dot" />
-        <span>把想要的音乐节告诉我 · 我来帮你录入</span>
+        <span>不会配 API 可以联系我们代为解析（但可能会比较慢，请耐心等候）🌹</span>
       </header>
       <div className="wish-fields">
         <input
@@ -497,7 +489,7 @@ function WishSection() {
           disabled={!canWish || busy}
           onClick={submit}
         >
-          {busy ? "提交中…" : "🎋 许愿"}
+          {busy ? "提交中…" : "提交"}
         </button>
       ) : (
         <a
