@@ -173,6 +173,10 @@ function IdleView({ onPick, festivals, onOpenFestival }) {
       {/* API 配置：识别真海报需要，就近放在上传流程里 */}
       <ApiConfigSection onSaved={() => setCfgVersion((v) => v + 1)} />
 
+      <div className="upload-divider u-mono">
+        <span>不会配 API？</span>
+      </div>
+
       <WishSection />
     </>
   );
@@ -281,7 +285,7 @@ function ApiConfigSection({ onSaved }) {
         <span className="api-key-head">
           <span className="dot" />
           <span>
-            AI 识别 · {hasKey ? `已配置 ${providerLabel}` : "未配置"}
+            配置 API Key · {hasKey ? `已配置 ${providerLabel}` : "未配置"}
           </span>
         </span>
         <span className="u-mono">{open ? "收起 −" : "设置 +"}</span>
@@ -455,10 +459,9 @@ function WishSection() {
 
   return (
     <section className="wish-card">
-      <header className="api-key-head">
-        <span className="dot" />
-        <span>不会配 API 可以联系我们代为解析（但可能会比较慢，请耐心等候）🌹</span>
-      </header>
+      <p className="api-key-hint u-mono" style={{ margin: 0 }}>
+        可以联系我们代为解析（但可能会比较慢，请耐心等候）🌹
+      </p>
       <div className="wish-fields">
         <input
           className="confirm-input"
