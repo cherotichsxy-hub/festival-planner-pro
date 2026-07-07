@@ -103,6 +103,19 @@ export default function HomeScreen({
       </div>
 
       <div className="home-body">
+        <button
+          type="button"
+          className="upload-rack-btn"
+          onClick={onOpenUpload}
+        >
+          <span className="upload-rack-mark">＋</span>
+          <div className="upload-rack-text">
+            <strong>添加新演出</strong>
+            <span className="u-mono">UPLOAD · POSTER → SCHEDULE</span>
+          </div>
+          <span className="upload-rack-arrow">→</span>
+        </button>
+
         <header className="rack-title">
           <span className="u-mono">CHANNELS / 频道</span>
           <span className="u-mono rack-count">
@@ -184,19 +197,6 @@ export default function HomeScreen({
             })}
           </ul>
         )}
-
-        <button
-          type="button"
-          className="upload-rack-btn"
-          onClick={onOpenUpload}
-        >
-          <span className="upload-rack-mark">＋</span>
-          <div className="upload-rack-text">
-            <strong>添加新演出</strong>
-            <span className="u-mono">UPLOAD · POSTER → SCHEDULE</span>
-          </div>
-          <span className="upload-rack-arrow">→</span>
-        </button>
       </div>
     </div>
   );

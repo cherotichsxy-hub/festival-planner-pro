@@ -420,7 +420,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 /* ---------- 上传按钮（cassette stack 末尾，不再悬浮）---------- */
 .upload-rack-btn {
   width: 100%;
-  margin-top: 16px;
+  margin-bottom: 22px;
   background: var(--bauhaus-yellow);
   color: var(--text);
   border: 1.5px solid var(--text);
@@ -4302,12 +4302,11 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
 .date-bar::-webkit-scrollbar { display: none; }
 .date-bar button {
   flex: 1 0 auto;
-  min-width: 72px;
-  padding: 8px 10px;
+  min-width: 64px;
+  padding: 6px 10px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1px;
+  justify-content: center;
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 700;
@@ -4318,17 +4317,11 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   cursor: pointer;
   white-space: nowrap;
 }
-.date-bar button .date-bar-day {
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  color: var(--text-mute);
-}
 .date-bar button.active {
   background: var(--text);
   color: var(--bg-phone);
   border-color: var(--text);
 }
-.date-bar button.active .date-bar-day { color: var(--bg-phone); opacity: 0.7; }
 .date-bar.pills-muted { opacity: 0.35; }
 
 /* ============================================================ */
@@ -4357,20 +4350,8 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   white-space: nowrap;
   flex: 1 1 auto;
 }
-.date-bar {
-  max-height: 60px;
-  transition: max-height 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease-out, margin 0.22s;
-}
-.date-bar.collapsed {
-  max-height: 0;
-  opacity: 0;
-  margin-top: 0;
-  margin-bottom: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
 @media (prefers-reduced-motion: reduce) {
-  .fest-header-full, .date-bar { transition: none; }
+  .fest-header-full { transition: none; }
 }
 
 /* 操作反馈 toast：底部导航上方的小黑条 */

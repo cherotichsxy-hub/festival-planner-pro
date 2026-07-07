@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import HomeScreen from "./screens/HomeScreen.jsx";
-import LoginSheet from "./components/LoginSheet.jsx";
 import FestivalScreen from "./screens/FestivalScreen.jsx";
 import ProfileScreen from "./screens/ProfileScreen.jsx";
 import UploadScreen from "./screens/UploadScreen.jsx";
@@ -15,24 +14,6 @@ import {
   loadWanted, saveWanted,
   migrateIfStale,
 } from "./lib/storage.js";
-import { backend } from "./lib/backend.js";
-import { overlaps } from "./lib/conflicts.js";
-
-// 云端个人数据与本地合并：两边都有时本地优先（本地是用户刚操作过的）
-function mergeNested(cloud = {}, local = {}) {
-  const out = { ...cloud };
-  for (const [festId, val] of Object.entries(local)) {
-    if (Array.isArray(val)) {
-      const merged = Array.from(new Set([...(out[festId] || []), ...val]));
-      out[festId] = merged.slice(0, 3); // headliners 上限 3
-    } else if (val && typeof val === "object") {
-      out[festId] = { ...(out[festId] || {}), ...val };
-    } else {
-      out[festId] = val;
-    }
-  }
-  return out;
-}
 
 // 必须在 useState 初始化之前跑，否则 loadFestivals 会读到旧数据
 migrateIfStale();
@@ -64,118 +45,17 @@ export default function App() {
   const [attended, setAttended] = useState(() => loadAttended());
   const [wanted, setWanted] = useState(() => loadWanted());
   const [stack, setStack] = useState(() => initialStack());
-  const [session, setSession] = useState(() => backend.auth.getSession());
-  useEffect(() => backend.auth.onChange(setSession), []);
-
-  // 轻量操作反馈：底部小黑条，1.8 秒自动消失
-  const [toast, setToast] = useState(null);
-  const toastTimer = useRef(null);
-  function showToast(text) {
-    setToast(text);
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 1800);
-  }
-
-  // 云端：拉取社区共享的音乐节，与本地/内置数据按 id 合并（云端覆盖同名）
-  const lastCommunityFetch = useRef(0);
-  function fetchCommunity() {
-    if (backend.mode === "local") return;
-    backend.community
-      .fetchAll()
-      .then((rows) => {
-        lastCommunityFetch.current = Date.now();
-        if (rows.length === 0) return;
-        setFestivals((prev) => {
-          const map = new Map(prev.map((f) => [f.id, f]));
-          for (const { festival } of rows) map.set(festival.id, festival);
-          const next = Array.from(map.values());
-          saveFestivals(next);
-          return next;
-        });
-        setPerformances((prev) => {
-          const cloudIds = new Set(rows.map((r) => r.festival.id));
-          const kept = prev.filter((p) => !cloudIds.has(p.festivalId));
-          const next = [...kept, ...rows.flatMap((r) => r.performances)];
-          savePerformances(next);
-          return next;
-        });
-      })
-      .catch((e) => console.warn("[cloud] 拉取共享音乐节失败:", e));
-  }
-  // 启动时拉一次；之后每次切回这个页面（超过 1 分钟）自动再拉，
-  // 别人新发布的内容不用杀掉重开就能看到
-  useEffect(() => {
-    fetchCommunity();
-    const refresh = () => {
-      if (document.hidden) return;
-      if (Date.now() - lastCommunityFetch.current < 60000) return;
-      fetchCommunity();
-    };
-    window.addEventListener("focus", refresh);
-    document.addEventListener("visibilitychange", refresh);
-    return () => {
-      window.removeEventListener("focus", refresh);
-      document.removeEventListener("visibilitychange", refresh);
-    };
-  }, []); // eslint-disable-line
-
-  // 云端：登录后拉取个人数据合并进本地
-  useEffect(() => {
-    if (!session?.user?.id) return;
-    backend.userData
-      .pull()
-      .then((cloud) => {
-        if (cloud.selections) setSelections((p) => { const m = mergeNested(cloud.selections, p); saveSelections(m); return m; });
-        if (cloud.headliners) setHeadliners((p) => { const m = mergeNested(cloud.headliners, p); saveHeadliners(m); return m; });
-        if (cloud.axisChoice) setAxisChoice((p) => { const m = mergeNested(cloud.axisChoice, p); saveAxisChoice(m); return m; });
-        if (cloud.wanted) setWanted((p) => { const m = { ...cloud.wanted, ...p }; saveWanted(m); return m; });
-        if (cloud.attended) setAttended((p) => { const m = { ...cloud.attended, ...p }; saveAttended(m); return m; });
-      })
-      .catch((e) => console.warn("[cloud] 拉取个人数据失败:", e));
-  }, [session?.user?.id]); // eslint-disable-line
-
-  // 云端：个人标注变化后 2 秒静默推送（防抖）
-  const pushTimer = useRef(null);
-  useEffect(() => {
-    if (backend.mode === "local" || !session?.user?.id) return;
-    clearTimeout(pushTimer.current);
-    pushTimer.current = setTimeout(() => {
-      backend.userData
-        .push({ selections, headliners, axisChoice, wanted, attended })
-        .catch((e) => console.warn("[cloud] 推送个人数据失败:", e));
-    }, 2000);
-    return () => clearTimeout(pushTimer.current);
-  }, [selections, headliners, axisChoice, wanted, attended, session?.user?.id]); // eslint-disable-line
 
   const screen = stack[stack.length - 1];
   const rootTab = stack[0].name; // "home" or "profile"
+  const canGoBack = stack.length > 1;
 
-  // ---- 导航与浏览器返回手势整合（iOS 边缘右滑 = 返回） ----
-  // push 屏幕时同步写一条 history 记录；popstate（滑动返回/浏览器后退）→ 页面栈出栈。
-  // 我们自己的 ‹ 返回按钮统一走 history.back()，两条路径行为一致。
   function push(next) {
     setStack((s) => [...s, next]);
-    try { window.history.pushState({ fp: true }, ""); } catch {}
   }
   function pop() {
-    if (window.history.state?.fp) {
-      window.history.back(); // 触发 popstate → 真正出栈
-    } else {
-      setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
-    }
+    setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
   }
-  useEffect(() => {
-    const onPop = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-  }, []);
-  // 直链进入多层栈（如 ?screen=upload）时补齐 history 深度，保证返回手势可用
-  useEffect(() => {
-    for (let i = 1; i < stack.length; i++) {
-      try { window.history.pushState({ fp: true }, ""); } catch {}
-    }
-  }, []); // eslint-disable-line
-
   function switchTab(tab) {
     setStack([{ name: tab }]);
   }
@@ -190,12 +70,6 @@ export default function App() {
   function openUpload() {
     push({ name: "upload" });
   }
-  // 右上角登录入口：未登录 → 弹登录窗（就地完成）；已登录 → 个人中心账号区（管理/退出）
-  const [showLogin, setShowLogin] = useState(false);
-  function openAccount() {
-    if (session) setStack([{ name: "profile", focusAccount: true }]);
-    else setShowLogin(true);
-  }
 
   function publishFestival(newFestival, newPerformances) {
     setFestivals((prev) => {
@@ -208,12 +82,6 @@ export default function App() {
       savePerformances(next);
       return next;
     });
-    // 已登录 → 同步发布到社区（尽力而为，失败只影响共享不影响本机）
-    if (backend.mode !== "local" && backend.auth.getSession()) {
-      backend.community
-        .publish(newFestival, newPerformances)
-        .catch((e) => console.warn("[cloud] 发布到社区失败:", e));
-    }
     // 弹出 upload 屏，推入新音乐节详情
     setStack((s) => [
       ...s.slice(0, -1),
@@ -222,28 +90,6 @@ export default function App() {
   }
 
   function setStatus(festivalId, perfId, status) {
-    // 即时反馈：标记成功 / 标记瞬间就告诉你撞了谁（规则同列表：必看只跟必看撞）
-    if (status == null) {
-      showToast("已取消标记");
-    } else {
-      const me = performances.find((p) => p.id === perfId);
-      const sel = selections[festivalId] || {};
-      const clash =
-        me &&
-        performances.find(
-          (p) =>
-            p.id !== perfId &&
-            p.festivalId === festivalId &&
-            sel[p.id] &&
-            (status !== "must" || sel[p.id] === "must") &&
-            overlaps(me, p),
-        );
-      if (clash) {
-        showToast(`⚠ 和 ${clash.artistName} 撞档了`);
-      } else {
-        showToast(status === "must" ? "★ 必看 +1" : "? 待定 +1");
-      }
-    }
     setSelections((prev) => {
       const current = prev[festivalId] || {};
       const next = { ...current };
@@ -291,7 +137,6 @@ export default function App() {
 
   // 想看 / 去过 互斥：标了"去过"就不再是"想看"，反之亦然
   function toggleAttended(festivalId) {
-    showToast(attended[festivalId] ? "已取消去过" : "✓ 已标去过");
     setAttended((prev) => {
       const next = { ...prev };
       if (next[festivalId]) delete next[festivalId];
@@ -309,7 +154,6 @@ export default function App() {
   }
 
   function toggleWanted(festivalId) {
-    showToast(wanted[festivalId] ? "已取消想看" : "★ 已加想看");
     setWanted((prev) => {
       const next = { ...prev };
       if (next[festivalId]) delete next[festivalId];
@@ -354,8 +198,6 @@ export default function App() {
             selections={selections}
             wanted={wanted}
             attended={attended}
-            session={session}
-            onOpenAccount={openAccount}
             onToggleWanted={toggleWanted}
             onToggleAttended={toggleAttended}
             onOpenFestival={openFestival}
@@ -396,8 +238,6 @@ export default function App() {
             selections={selections}
             attended={attended}
             wanted={wanted}
-            focusAccount={!!screen.focusAccount}
-            onOpenLogin={() => setShowLogin(true)}
             onOpenFestival={(id) => openFestival(id, { initialTab: "plan" })}
           />
         )}
@@ -415,31 +255,25 @@ export default function App() {
           />
         )}
 
-        {showLogin && <LoginSheet onClose={() => setShowLogin(false)} />}
-
-        {toast && (
-          <div className="toast u-mono" role="status">{toast}</div>
+        {/* 全局底部 nav：只有栈底（rootTab）时显示，进入二级页隐藏 */}
+        {!canGoBack && (
+          <nav className="root-nav">
+            <button
+              className={rootTab === "home" ? "active" : ""}
+              onClick={() => switchTab("home")}
+            >
+              <span className="nav-icon">⌂</span>
+              首页
+            </button>
+            <button
+              className={rootTab === "profile" ? "active" : ""}
+              onClick={() => switchTab("profile")}
+            >
+              <span className="nav-icon">◎</span>
+              个人中心
+            </button>
+          </nav>
         )}
-
-        {/* 全局底部 Tab：常驻（iOS 惯例），进详情页也不消失。
-            点当前 tab = 回到该 tab 根部。「添加新演出」不在这里——
-            它是首页里的一个动作，不该抬到和"规划/我的"平级 */}
-        <nav className="root-nav">
-          <button
-            className={rootTab === "home" ? "active" : ""}
-            onClick={() => switchTab("home")}
-          >
-            <span className="nav-icon">⌂</span>
-            首页
-          </button>
-          <button
-            className={rootTab === "profile" ? "active" : ""}
-            onClick={() => switchTab("profile")}
-          >
-            <span className="nav-icon">◎</span>
-            我的
-          </button>
-        </nav>
       </div>
     </div>
   );
