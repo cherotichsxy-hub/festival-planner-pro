@@ -204,16 +204,6 @@ const DICT = {
   "share.main": { zh: "主看", en: "Main" },
   "share.legendTop": { zh: "最想看", en: "Top pick" },
 
-  // ---------- 官方 lineup 海报 ----------
-  "poster.share": { zh: "分享官方海报", en: "Share poster" },
-  "poster.official": { zh: "OFFICIAL TIMETABLE", en: "OFFICIAL TIMETABLE" },
-  "poster.downloadDay": { zh: "下载本日", en: "This day" },
-  "poster.downloadAll": { zh: "下载整届", en: "All days" },
-  "poster.stages": { zh: "{n} 舞台", en: "{n} stages" },
-  "poster.sets": { zh: "{n} 场", en: "{n} sets" },
-  "poster.dayOf": { zh: "第 {i} 天 / 共 {n} 天", en: "DAY {i} OF {n}" },
-  "poster.rendering": { zh: "生成海报…", en: "Rendering poster…" },
-  "poster.fail": { zh: "生成失败", en: "Render failed" },
 
   "tt.emptyTitle": { zh: "— EMPTY · 还没有标记任何演出 —", en: "— EMPTY · nothing marked yet —" },
   "tt.emptyHint": { zh: "先去 Lineup 标几个必看 / 待定，再来这里看时间表", en: "Mark some ★ / ? in Lineup, then check the timetable" },

@@ -3,7 +3,6 @@ import { formatHM, formatMonthDay } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
 import { searchPreview, playPreview, stopPreview } from "../lib/preview.js";
 import { artistLink, isOfficialLink } from "../lib/artistLink.js";
-import LineupShareButton from "./ShareLineupPoster.jsx";
 import { useI18n } from "../lib/i18n.js";
 
 export default function LineupList({
@@ -151,15 +150,8 @@ export default function LineupList({
 
       {!searching && (
         <div className="lineup-legend">
-          <span className="lineup-legend-marks">
-            <span><strong>★</strong> {t("lineup.must")}</span>
-            <span><strong>?</strong> {t("lineup.maybe")}</span>
-          </span>
-          <LineupShareButton
-            festival={festival}
-            performances={performances}
-            activeDate={activeDate}
-          />
+          <span><strong>★</strong> {t("lineup.must")}</span>
+          <span><strong>?</strong> {t("lineup.maybe")}</span>
         </div>
       )}
 

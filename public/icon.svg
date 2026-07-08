@@ -1,0 +1,28 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- 深朱红满底（首页 Fuji Rock 磁带卡片色）；iOS 会自动切圆角 -->
+  <rect width="512" height="512" fill="#8b1d1d"/>
+
+  <!-- 磁带盒 -->
+  <rect x="72" y="156" width="368" height="232" rx="22" fill="#fbf9f8" stroke="#1e1506" stroke-width="13"/>
+
+  <!-- 顶部 dusty-blue 标签条（呼应磁带卡片的彩色条） -->
+  <path d="M72 178 a22 22 0 0 1 22 -22 h324 a22 22 0 0 1 22 22 v30 h-368 z" fill="#7e97a8"/>
+  <circle cx="150" cy="193" r="6" fill="#1e1506" opacity="0.45"/>
+  <circle cx="362" cy="193" r="6" fill="#1e1506" opacity="0.45"/>
+
+  <!-- 两个卷盘 -->
+  <circle cx="198" cy="300" r="52" fill="#f3f1ee" stroke="#1e1506" stroke-width="13"/>
+  <circle cx="198" cy="300" r="15" fill="#8b1d1d"/>
+  <circle cx="314" cy="300" r="52" fill="#f3f1ee" stroke="#1e1506" stroke-width="13"/>
+  <circle cx="314" cy="300" r="15" fill="#8b1d1d"/>
+
+  <!-- 卷盘之间的磁带 -->
+  <path d="M198 352 h116" stroke="#1e1506" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- 右上角一枚音符（cream） -->
+  <g fill="#fbf9f8">
+    <rect x="356" y="70" width="11" height="74" rx="3"/>
+    <path d="M356 70 q34 -10 44 16 q-20 -16 -44 -3 z"/>
+    <ellipse cx="349" cy="146" rx="20" ry="16" transform="rotate(-18 349 146)"/>
+  </g>
+</svg>
