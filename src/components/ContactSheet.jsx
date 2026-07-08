@@ -1,6 +1,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import { useI18n } from "../lib/i18n.js";
+import BrandMark from "./BrandMark.jsx";
 
 // 联系 / 关于作者：底部滑出 sheet。作者标识 + 邮箱 / 小红书 / GitHub 链接。
 const LINKS = [
@@ -19,9 +20,9 @@ export default function ContactSheet({ onClose }) {
         </header>
 
         <div className="contact-brand">
-          <span className="brand-mark contact-brand-mark">FP</span>
+          <BrandMark className="contact-brand-mark" />
           <div>
-            <div className="contact-brand-name">Festival Planner<span className="brand-title-dot">.</span></div>
+            <div className="contact-brand-name">Encore<span className="brand-title-dot">.</span></div>
             <p className="contact-intro">{t("contact.intro")}</p>
           </div>
         </div>

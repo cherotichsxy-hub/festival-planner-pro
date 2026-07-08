@@ -1,0 +1,20 @@
+<svg viewBox="0 0 1060 300" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(6,30) scale(0.469)">
+    <rect x="52" y="52" width="436" height="436" fill="#1e1506"/>
+    <rect x="24" y="24" width="436" height="436" fill="#fbf9f8" stroke="#1e1506" stroke-width="12"/>
+    <path d="M127.8 252.7 A126 126 0 0 1 356.2 252.7" fill="none" stroke="#1e1506" stroke-width="13"/>
+    <path d="M101.2 218 A166 166 0 0 1 382.8 218" fill="none" stroke="#1e1506" stroke-width="13"/>
+    <path d="M81.9 176.4 A206 206 0 0 1 402.1 176.4" fill="none" stroke="#1e1506" stroke-width="13"/>
+    <path d="M152 306 A90 90 0 0 1 332 306 Z" fill="#8b1d1d"/>
+    <line x1="70" y1="306" x2="414" y2="306" stroke="#1e1506" stroke-width="10"/>
+    <circle cx="82" cy="360" r="24" fill="#1e1506"/>
+    <circle cx="162" cy="360" r="24" fill="#1e1506"/>
+    <circle cx="242" cy="360" r="24" fill="#1e1506"/>
+    <circle cx="322" cy="360" r="24" fill="#7e97a8"/>
+    <circle cx="402" cy="360" r="24" fill="#1e1506"/>
+  </g>
+  <text x="300" y="172" font-family="-apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif"
+        font-weight="900" font-size="152" letter-spacing="-4" fill="#1e1506">ENCORE<tspan fill="#8b1d1d">.</tspan></text>
+  <text x="304" y="232" font-family="'SF Mono', Menlo, ui-monospace, monospace"
+        font-size="26" letter-spacing="3.5" fill="#847362">LIFE BRINGS PEOPLE TOGETHER</text>
+</svg>

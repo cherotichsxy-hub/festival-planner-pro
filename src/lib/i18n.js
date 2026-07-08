@@ -228,12 +228,12 @@ const DICT = {
   "upload.sourceParsed": { zh: "AI 解析 + 人工校对", en: "AI parsed + human reviewed" },
 
   // ---------- 许愿邮件正文（本地兜底 mailto） ----------
-  "upload.wishBodyIntro": { zh: "想在 Festival Planner 里看到这个音乐节：", en: "I’d love to see this festival in Festival Planner:" },
+  "upload.wishBodyIntro": { zh: "想在 Encore 里看到这个音乐节：", en: "I’d love to see this festival in Encore:" },
   "upload.wishBodyName": { zh: "音乐节", en: "Festival" },
   "upload.wishBodyYear": { zh: "年份", en: "Year" },
   "upload.wishBodyLink": { zh: "官方链接/购票页", en: "Official / ticket link" },
   "upload.wishBodyNone": { zh: "（没有）", en: "(none)" },
-  "upload.wishBodyFrom": { zh: "—— 来自 Festival Planner 许愿表单", en: "—— via the Festival Planner request form" },
+  "upload.wishBodyFrom": { zh: "—— 来自 Encore 许愿表单", en: "—— via the Encore request form" },
 
   // ---------- 无障碍标签 ----------
   "aria.back": { zh: "返回", en: "Back" },

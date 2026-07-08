@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useI18n } from "../lib/i18n.js";
 import ContactSheet from "../components/ContactSheet.jsx";
+import BrandMark from "../components/BrandMark.jsx";
 
 // 磁带条配色（按 festival 顺序循环分配），dusty 复古调
 const CASSETTE_COLORS = [
@@ -102,11 +103,10 @@ export default function HomeScreen({
       </div>
       <header className="brand-bar">
         <div className="brand-bar-marker">
-          <span className="brand-mark">FP</span>
+          <BrandMark />
         </div>
         <h1 className="brand-title">
-          FESTIVAL<br />
-          PLANNER<span className="brand-title-dot">.</span>
+          ENCORE<span className="brand-title-dot">.</span>
         </h1>
         <p className="brand-tagline">{t("home.tagline")}</p>
       </header>

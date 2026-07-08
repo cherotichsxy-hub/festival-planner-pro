@@ -250,7 +250,7 @@ export default function MyPlanList({
         <div className="myplan-paper-foot">
           <div className="myplan-paper-divider dashed" />
           <div className="myplan-paper-stamp">
-            <span className="u-mono">FP · {festival.name} · {activeDate.replace(/-/g, ".")}</span>
+            <span className="u-mono">ENCORE · {festival.name} · {activeDate.replace(/-/g, ".")}</span>
             <span className="u-mono myplan-paper-barcode">|||‖|‖||‖‖|||‖|‖||</span>
           </div>
         </div>

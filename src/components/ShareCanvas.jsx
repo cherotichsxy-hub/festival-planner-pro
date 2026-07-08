@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { formatHM } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
+import ShareWatermark from "./ShareWatermark.jsx";
 
 /**
  * 分享专用画布：横版多日。
@@ -107,6 +108,7 @@ export default function ShareCanvas({
         <span className="share-foot-tag">
           {festival.name} · {String(totalMarks).padStart(2, "0")} SETS · {festival.year}
         </span>
+        <ShareWatermark style={{ position: "absolute", right: 0, bottom: 0 }} />
       </footer>
     </div>
   );

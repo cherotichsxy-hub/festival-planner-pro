@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { useI18n } from "../lib/i18n.js";
+import ShareWatermark from "./ShareWatermark.jsx";
 
 /**
  * 时间表式分享卡 v4 · 3 天合一张图。
@@ -286,7 +287,11 @@ export default function ShareCanvasTimetable({
       )}
 
       <footer className="share-tt-foot u-mono">
-        <span className="share-tt-foot-tag">
+        <span
+          className="share-tt-foot-tag"
+          style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}
+        >
+          <ShareWatermark />
           {festival.name} · {festival.year}
         </span>
         <span className="share-tt-foot-legend">
