@@ -118,7 +118,7 @@ const DICT = {
   // ---------- 联系 / 关于作者 ----------
   "contact.entry": { zh: "联系作者", en: "Contact" },
   "contact.title": { zh: "联系 / 关于", en: "Contact" },
-  "contact.intro": { zh: "这个产品由我一个人做的 · 有想法欢迎找我聊 🌹", en: "A solo project · feel free to reach out 🌹" },
+  "contact.intro": { zh: "欢迎 reach out 🌹", en: "欢迎 reach out 🌹" },
   "contact.email": { zh: "邮箱", en: "Email" },
   "contact.xhs": { zh: "小红书", en: "RED · 小红书" },
 
