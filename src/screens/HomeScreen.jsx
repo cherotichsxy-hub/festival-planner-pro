@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useI18n } from "../lib/i18n.js";
+import ContactSheet from "../components/ContactSheet.jsx";
 
 // 磁带条配色（按 festival 顺序循环分配），dusty 复古调
 const CASSETTE_COLORS = [
@@ -28,6 +29,7 @@ export default function HomeScreen({
 }) {
   const { t, lang, setLang } = useI18n();
   const [query, setQuery] = useState("");
+  const [contactOpen, setContactOpen] = useState(false);
   const q = query.trim().toLowerCase();
 
   const enriched = useMemo(() => {
@@ -61,7 +63,7 @@ export default function HomeScreen({
 
   return (
     <div className="screen-body">
-      {/* 右上角常驻：语言切换 + 登录入口 */}
+      {/* 右上角常驻：语言切换 + 登录入口 + 联系 */}
       <div className="top-chips">
         <button
           type="button"
@@ -89,13 +91,18 @@ export default function HomeScreen({
             )}
           </button>
         )}
+        <button
+          type="button"
+          className="contact-chip"
+          onClick={() => setContactOpen(true)}
+          aria-label={t("contact.title")}
+        >
+          ✉
+        </button>
       </div>
       <header className="brand-bar">
         <div className="brand-bar-marker">
           <span className="brand-mark">FP</span>
-          <span className="u-mono brand-bar-sys">
-            FESTIVAL · PLANNER · PRO
-          </span>
         </div>
         <h1 className="brand-title">
           FESTIVAL<br />
@@ -103,6 +110,8 @@ export default function HomeScreen({
         </h1>
         <p className="brand-tagline">{t("home.tagline")}</p>
       </header>
+
+      {contactOpen && <ContactSheet onClose={() => setContactOpen(false)} />}
 
       <div className="search-bar">
         <span className="u-mono search-label">FIND</span>

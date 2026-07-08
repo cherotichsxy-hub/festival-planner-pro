@@ -115,6 +115,13 @@ const DICT = {
   "login.submit": { zh: "登录", en: "Sign in" },
   "login.close": { zh: "关闭", en: "Close" },
 
+  // ---------- 联系 / 关于作者 ----------
+  "contact.entry": { zh: "联系作者", en: "Contact" },
+  "contact.title": { zh: "联系 / 关于", en: "Contact" },
+  "contact.intro": { zh: "这个产品由我一个人做的 · 有想法欢迎找我聊 🌹", en: "A solo project · feel free to reach out 🌹" },
+  "contact.email": { zh: "邮箱", en: "Email" },
+  "contact.xhs": { zh: "小红书", en: "RED · 小红书" },
+
   // ---------- Toast ----------
   "toast.mustAdded": { zh: "★ 必看 +1", en: "★ Must +1" },
   "toast.maybeAdded": { zh: "? 待定 +1", en: "? Maybe +1" },
