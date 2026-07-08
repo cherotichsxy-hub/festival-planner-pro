@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { backend } from "../lib/backend.js";
+import { useI18n } from "../lib/i18n.js";
 
 // 个人中心（豆瓣式布局）：
 //   顶部 = 个人信息头（头像 + 邮箱 + 想看/待看/看过 统计 + 登录/退出）
@@ -19,6 +20,7 @@ export default function ProfileScreen({
   onOpenLogin,
   onOpenFestival,
 }) {
+  const { t } = useI18n();
   const hasMarks = (f) =>
     selections[f.id] && Object.keys(selections[f.id]).length > 0;
 
@@ -52,7 +54,7 @@ export default function ProfileScreen({
         <h1 className="brand-title">
           MY<br />PLANNER<span className="brand-title-dot">.</span>
         </h1>
-        <p className="brand-tagline">想看 · 待看 · 看过</p>
+        <p className="brand-tagline">{t("profile.sub")}</p>
       </header>
 
       <div className="home-body">
@@ -69,14 +71,14 @@ export default function ProfileScreen({
 
         <section className="profile-section">
           <header className="rack-title">
-            <span className="u-mono">WANT / 想看</span>
+            <span className="u-mono">{t("profile.want")}</span>
             <span className="u-mono rack-count">
               {String(wantedFestivals.length).padStart(2, "0")}
             </span>
           </header>
           {wantedFestivals.length === 0 ? (
             <p className="rack-empty u-mono">
-              — 在首页卡片右上角点「想看」收藏 —
+              {t("profile.wantEmpty")}
             </p>
           ) : (
             <ul className="my-fest-list">
@@ -100,14 +102,14 @@ export default function ProfileScreen({
 
         <section className="profile-section">
           <header className="rack-title">
-            <span className="u-mono">PLANNED / 待看计划</span>
+            <span className="u-mono">{t("profile.planned")}</span>
             <span className="u-mono rack-count">
               {String(plannedFestivals.length).padStart(2, "0")}
             </span>
           </header>
           {plannedFestivals.length === 0 ? (
             <p className="rack-empty u-mono">
-              — 进音乐节标 ★ 必看 / ? 待定 · 计划会出现在这里 —
+              {t("profile.plannedEmpty")}
             </p>
           ) : (
             <ul className="my-fest-list">
@@ -137,14 +139,14 @@ export default function ProfileScreen({
 
         <section className="profile-section">
           <header className="rack-title">
-            <span className="u-mono">ATTENDED / 看过</span>
+            <span className="u-mono">{t("profile.attended")}</span>
             <span className="u-mono rack-count">
               {String(seenFestivals.length).padStart(2, "0")}
             </span>
           </header>
           {seenFestivals.length === 0 ? (
             <p className="rack-empty u-mono">
-              — 去过哪场就在首页点「去过」· 这里会长出你的现场履历 —
+              {t("profile.attendedEmpty")}
             </p>
           ) : (
             <ul className="attended-list">
@@ -165,7 +167,7 @@ export default function ProfileScreen({
                     {artists.length > 0 ? (
                       <>
                         <span className="u-mono attended-sub">
-                          ● {artists.length} 组艺人
+                          ● {t("profile.artistsSeen", { n: artists.length })}
                         </span>
                         <div className="attended-artists">
                           {artists.map((a) => (
@@ -175,7 +177,7 @@ export default function ProfileScreen({
                       </>
                     ) : (
                       <span className="u-mono attended-sub">
-                        没标过必看 · 去时间表里补标 ★ 就会出现在这里
+                        {t("profile.noMustSeen")}
                       </span>
                     )}
                   </li>
@@ -192,16 +194,17 @@ export default function ProfileScreen({
 /* ---------------- 个人信息头（豆瓣式：头像 + 身份 + 统计） ---------------- */
 
 function ProfileHead({ autoFocus = false, onOpenLogin, stats }) {
+  const { t } = useI18n();
   const [session, setSession] = useState(() => backend.auth.getSession());
   useEffect(() => backend.auth.onChange(setSession), []);
 
   const rootRef = useRef(null);
   useEffect(() => {
     if (!autoFocus) return;
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       rootRef.current?.scrollIntoView({ block: "start" });
     }, 60);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [autoFocus]);
 
   const [msg, setMsg] = useState(null); // { ok, text }
@@ -221,16 +224,14 @@ function ProfileHead({ autoFocus = false, onOpenLogin, stats }) {
               <>
                 <strong className="profile-head-name">{email}</strong>
                 <span className="u-mono profile-head-sub">
-                  ● 已登录 · 标注自动同步
+                  {t("profile.loginSynced")}
                 </span>
               </>
             ) : (
               <>
-                <strong className="profile-head-name">未登录</strong>
+                <strong className="profile-head-name">{t("profile.notLoggedIn")}</strong>
                 <span className="u-mono profile-head-sub">
-                  {cloudOff
-                    ? "云端未配置 · 数据仅存本机"
-                    : "数据仅存本机 · 登录后跨设备同步"}
+                  {cloudOff ? t("profile.cloudOff") : t("profile.localOnly")}
                 </span>
               </>
             )}
@@ -242,10 +243,10 @@ function ProfileHead({ autoFocus = false, onOpenLogin, stats }) {
                 className="profile-head-btn"
                 onClick={async () => {
                   await backend.auth.signOut();
-                  setMsg({ ok: true, text: "已退出 · 本机数据保留" });
+                  setMsg({ ok: true, text: t("profile.signedOut") });
                 }}
               >
-                退出
+                {t("profile.signOut")}
               </button>
             ) : (
               <button
@@ -253,7 +254,7 @@ function ProfileHead({ autoFocus = false, onOpenLogin, stats }) {
                 className="profile-head-btn primary"
                 onClick={onOpenLogin}
               >
-                ◎ 登录
+                ◎ {t("home.login")}
               </button>
             ))}
         </div>
@@ -261,19 +262,19 @@ function ProfileHead({ autoFocus = false, onOpenLogin, stats }) {
         <div className="profile-stats">
           <div className="profile-stat">
             <strong>{stats.wanted}</strong>
-            <span className="u-mono">想看</span>
+            <span className="u-mono">{t("profile.statWant")}</span>
           </div>
           <div className="profile-stat">
             <strong>{stats.planned}</strong>
-            <span className="u-mono">待看</span>
+            <span className="u-mono">{t("profile.statPlan")}</span>
           </div>
           <div className="profile-stat">
             <strong>{stats.seen}</strong>
-            <span className="u-mono">看过</span>
+            <span className="u-mono">{t("profile.statSeen")}</span>
           </div>
         </div>
         <p className="u-mono profile-head-total">
-          共标记 {stats.totalMarks} 场演出
+          {t("profile.totalMarks", { n: stats.totalMarks })}
         </p>
 
         {msg && (

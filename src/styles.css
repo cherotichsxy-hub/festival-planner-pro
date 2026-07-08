@@ -3878,11 +3878,34 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 /* ============================================================ */
 /* Home · 右上角登录入口                                          */
 /* ============================================================ */
-.login-chip {
+/* 右上角常驻容器：语言切换 + 登录 */
+.top-chips {
   position: absolute;
   top: 18px;
   right: 16px;
-  z-index: 3;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lang-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--bg-phone);
+  border: 1.5px solid var(--text);
+  box-shadow: 2px 2px 0 var(--text);
+  color: var(--text);
+  cursor: pointer;
+}
+.lang-chip:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--text); }
+.login-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -3917,7 +3940,6 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 /* ============================================================ */
 /* 登录弹窗 + 常驻登录按钮                                        */
 /* ============================================================ */
-.login-chip { z-index: 20; } /* 挂在 .phone 上，滚动内容从底下过 */
 
 .sheet-overlay {
   position: absolute;

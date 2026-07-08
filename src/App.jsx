@@ -17,6 +17,7 @@ import {
 } from "./lib/storage.js";
 import { backend } from "./lib/backend.js";
 import { overlaps } from "./lib/conflicts.js";
+import { useI18n } from "./lib/i18n.js";
 
 // 云端个人数据与本地合并：两边都有时本地优先（本地是用户刚操作过的）
 function mergeNested(cloud = {}, local = {}) {
@@ -66,6 +67,8 @@ export default function App() {
   const [stack, setStack] = useState(() => initialStack());
   const [session, setSession] = useState(() => backend.auth.getSession());
   useEffect(() => backend.auth.onChange(setSession), []);
+
+  const { t } = useI18n();
 
   // 轻量操作反馈：底部小黑条，1.8 秒自动消失
   const [toast, setToast] = useState(null);
@@ -224,7 +227,7 @@ export default function App() {
   function setStatus(festivalId, perfId, status) {
     // 即时反馈：标记成功 / 标记瞬间就告诉你撞了谁（规则同列表：必看只跟必看撞）
     if (status == null) {
-      showToast("已取消标记");
+      showToast(t("toast.unmarked"));
     } else {
       const me = performances.find((p) => p.id === perfId);
       const sel = selections[festivalId] || {};
@@ -239,9 +242,9 @@ export default function App() {
             overlaps(me, p),
         );
       if (clash) {
-        showToast(`⚠ 和 ${clash.artistName} 撞档了`);
+        showToast(t("toast.clash", { name: clash.artistName }));
       } else {
-        showToast(status === "must" ? "★ 必看 +1" : "? 待定 +1");
+        showToast(status === "must" ? t("toast.mustAdded") : t("toast.maybeAdded"));
       }
     }
     setSelections((prev) => {
@@ -291,7 +294,7 @@ export default function App() {
 
   // 想看 / 去过 互斥：标了"去过"就不再是"想看"，反之亦然
   function toggleAttended(festivalId) {
-    showToast(attended[festivalId] ? "已取消去过" : "✓ 已标去过");
+    showToast(attended[festivalId] ? t("toast.beenOff") : t("toast.beenOn"));
     setAttended((prev) => {
       const next = { ...prev };
       if (next[festivalId]) delete next[festivalId];
@@ -309,7 +312,7 @@ export default function App() {
   }
 
   function toggleWanted(festivalId) {
-    showToast(wanted[festivalId] ? "已取消想看" : "★ 已加想看");
+    showToast(wanted[festivalId] ? t("toast.wantOff") : t("toast.wantOn"));
     setWanted((prev) => {
       const next = { ...prev };
       if (next[festivalId]) delete next[festivalId];
@@ -430,14 +433,14 @@ export default function App() {
             onClick={() => switchTab("home")}
           >
             <span className="nav-icon">⌂</span>
-            首页
+            {t("nav.home")}
           </button>
           <button
             className={rootTab === "profile" ? "active" : ""}
             onClick={() => switchTab("profile")}
           >
             <span className="nav-icon">◎</span>
-            我的
+            {t("nav.mine")}
           </button>
         </nav>
       </div>

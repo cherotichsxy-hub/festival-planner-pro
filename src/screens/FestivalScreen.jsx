@@ -4,6 +4,7 @@ import MyPlanList from "../components/MyPlanList.jsx";
 import { buildConflictMap } from "../lib/conflicts.js";
 import { formatMonthDay, shortStageName } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
+import { useI18n } from "../lib/i18n.js";
 
 // 本地时区的 YYYY-MM-DD（toISOString 是 UTC，跨时区会差一天）
 function localIsoDate(d) {
@@ -23,6 +24,7 @@ export default function FestivalScreen({
   initialTab = "lineup",
   initialQuery = "",
 }) {
+  const { t } = useI18n();
   // 现场模式：如果今天正是演出日，默认打开今天（而不是第一天）
   const todayIso = localIsoDate(new Date());
   const [activeDate, setActiveDate] = useState(
@@ -63,7 +65,7 @@ export default function FestivalScreen({
       <header className={`fest-header${compact ? " compact" : ""}`}>
         <div className="fest-header-top">
           {onBack && (
-            <button className="back-btn" onClick={onBack} aria-label="返回">‹</button>
+            <button className="back-btn" onClick={onBack} aria-label={t("login.close")}>‹</button>
           )}
           <span className={`fest-header-channel${compact ? " is-name" : " u-mono"}`}>
             {compact
@@ -179,7 +181,7 @@ export default function FestivalScreen({
               }}
               aria-expanded={showOtherStages}
             >
-              {showOtherStages ? "收起 −" : `更多 +${otherStages.length}`}
+              {showOtherStages ? t("fest.collapse") : t("fest.more", { n: otherStages.length })}
             </button>
           )}
         </div>

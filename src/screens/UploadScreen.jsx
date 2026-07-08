@@ -7,6 +7,7 @@ import {
   PROVIDERS,
 } from "../lib/parseTimetable.js";
 import { backend } from "../lib/backend.js";
+import { useI18n } from "../lib/i18n.js";
 
 // 许愿邮件收件人（站长人工代录 · 仅本地模式的 mailto 兜底用）
 const WISH_EMAIL = "axisxyxy@gmail.com";
@@ -16,6 +17,7 @@ const WISH_EMAIL = "axisxyxy@gmail.com";
 //                              error (含 raw response)
 
 export default function UploadScreen({ onBack, onPublish, festivals = [], onOpenFestival }) {
+  const { t } = useI18n();
   const [phase, setPhase] = useState("idle");
   const [progress, setProgress] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
@@ -31,7 +33,7 @@ export default function UploadScreen({ onBack, onPublish, festivals = [], onOpen
     setImageUrl(url);
     setPhase("parsing");
     setError(null);
-    setProgress("准备图片…");
+    setProgress(t("parse.ready"));
     try {
       const result = await parseTimetable(file, { onProgress: setProgress });
       setParsed(result);
@@ -88,7 +90,7 @@ export default function UploadScreen({ onBack, onPublish, festivals = [], onOpen
   return (
     <div className="screen-body">
       <header className="upload-header">
-        <button className="back-btn" onClick={onBack} aria-label="返回">‹</button>
+        <button className="back-btn" onClick={onBack} aria-label={t("login.close")}>‹</button>
         <div className="upload-header-main">
           <span className="u-mono upload-channel">FESTIVAL · NEW</span>
           <h1 className="upload-title">
@@ -97,7 +99,7 @@ export default function UploadScreen({ onBack, onPublish, festivals = [], onOpen
         </div>
         {canPublish && (
           <button type="button" className="publish-btn" onClick={publish}>
-            发布<br /><span>PUBLISH ↗</span>
+            {t("upload.publish")}<br /><span>PUBLISH ↗</span>
           </button>
         )}
       </header>
@@ -131,6 +133,7 @@ export default function UploadScreen({ onBack, onPublish, festivals = [], onOpen
 }
 
 function IdleView({ onPick, festivals, onOpenFestival }) {
+  const { t } = useI18n();
   // API 没配好就锁住上传入口（保存 key 后 ApiConfigSection 会通知刷新）
   const [, setCfgVersion] = useState(0);
   const hasKey = !!getVisionConfig().key.trim();
@@ -141,7 +144,7 @@ function IdleView({ onPick, festivals, onOpenFestival }) {
       <DupSearch festivals={festivals} onOpenFestival={onOpenFestival} />
 
       <div className="upload-divider u-mono">
-        <span>没有？上传海报识别</span>
+        <span>{t("upload.orUpload")}</span>
       </div>
 
       {hasKey ? (
@@ -157,15 +160,15 @@ function IdleView({ onPick, festivals, onOpenFestival }) {
             style={{ display: "none" }}
           />
           <span className="dropzone-mark">＋</span>
-          <span className="dropzone-title">点这里选海报</span>
-          <span className="u-mono dropzone-sub">JPG / PNG / WEBP · 一张就够</span>
+          <span className="dropzone-title">{t("upload.pickPoster")}</span>
+          <span className="u-mono dropzone-sub">{t("upload.posterHint")}</span>
         </label>
       ) : (
         <div className="dropzone dropzone-locked" aria-disabled="true">
           <span className="dropzone-mark">🔒</span>
-          <span className="dropzone-title">配好 API 后，AI 自动解析演出信息</span>
+          <span className="dropzone-title">{t("upload.lockedTitle")}</span>
           <span className="u-mono dropzone-sub">
-            在下方配置你的 API Key，快速生成演出 Lineup
+            {t("upload.lockedSub")}
           </span>
         </div>
       )}
@@ -174,7 +177,7 @@ function IdleView({ onPick, festivals, onOpenFestival }) {
       <ApiConfigSection onSaved={() => setCfgVersion((v) => v + 1)} />
 
       <div className="upload-divider u-mono">
-        <span>不会配 API？</span>
+        <span>{t("upload.cantConfig")}</span>
       </div>
 
       <WishSection />
@@ -185,6 +188,7 @@ function IdleView({ onPick, festivals, onOpenFestival }) {
 /* ---------------- Step 0：查重搜索 ---------------- */
 
 function DupSearch({ festivals = [], onOpenFestival }) {
+  const { t } = useI18n();
   const [q, setQ] = useState("");
   const trimmed = q.trim().toLowerCase();
   const hits = useMemo(() => {
@@ -202,13 +206,13 @@ function DupSearch({ festivals = [], onOpenFestival }) {
   return (
     <section className="dup-search">
       <p className="upload-hint u-mono">
-        STEP 0 · 先搜一下 — 已经有人传过就不用重复上传了
+        {t("upload.step0")}
       </p>
       <div className="search-bar dup-search-bar">
         <span className="u-mono search-label">FIND</span>
         <input
           type="search"
-          placeholder="搜演出"
+          placeholder={t("home.search")}
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
@@ -224,7 +228,7 @@ function DupSearch({ festivals = [], onOpenFestival }) {
               >
                 <strong>{f.name}</strong>
                 <span className="u-mono">
-                  {f.year} · {f.location || "—"} · 已收录 ↗
+                  {f.year} · {f.location || "—"} · {t("upload.added")}
                 </span>
               </button>
             </li>
@@ -233,7 +237,7 @@ function DupSearch({ festivals = [], onOpenFestival }) {
       )}
       {trimmed && hits.length === 0 && (
         <p className="dup-search-none u-mono">
-          — 还没人传过 · 往下走上传或许愿 —
+          {t("upload.dupNone")}
         </p>
       )}
     </section>
@@ -243,6 +247,7 @@ function DupSearch({ festivals = [], onOpenFestival }) {
 /* ---------------- API 配置（上传流程内嵌） ---------------- */
 
 function ApiConfigSection({ onSaved }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [cfg, setCfg] = useState(() => getVisionConfig());
   const [savedAt, setSavedAt] = useState(0);
@@ -285,18 +290,18 @@ function ApiConfigSection({ onSaved }) {
         <span className="api-key-head">
           <span className="dot" />
           <span>
-            配置 API Key · {hasKey ? `已配置 ${providerLabel}` : "未配置"}
+            {t("upload.apiConfig")} · {hasKey ? t("upload.configured", { name: providerLabel }) : t("upload.notConfigured")}
           </span>
         </span>
-        <span className="u-mono">{open ? "收起 −" : "设置 +"}</span>
+        <span className="u-mono">{open ? t("upload.collapse2") : t("upload.set")}</span>
       </button>
 
       {open && (
         <div className="upload-api-body">
           <p className="api-key-hint u-mono">
-            选好用哪家 · 粘上 key 就行 · key 只存本机 localStorage · 不上传
+            {t("upload.apiIntro")}
           </p>
-          <label className="u-mono">用哪家的 AI</label>
+          <label className="u-mono">{t("upload.whichAi")}</label>
           <select
             className="confirm-input"
             value={cfg.provider}
@@ -311,7 +316,7 @@ function ApiConfigSection({ onSaved }) {
           {preset && preset.id !== "custom" && (
             <>
               <p className="api-key-hint u-mono">
-                ↳ 用 {preset.model} 读图 · key 在 {preset.keyHint} 申请
+                {t("upload.readImgWith", { model: preset.model, where: preset.keyHint })}
               </p>
               {preset.note && (
                 <p className="api-key-hint u-mono api-key-note">{preset.note}</p>
@@ -321,7 +326,7 @@ function ApiConfigSection({ onSaved }) {
 
           {isCustom && (
             <>
-              <label className="u-mono">API 地址（Base URL）</label>
+              <label className="u-mono">{t("upload.baseUrl")}</label>
               <input
                 className="confirm-input"
                 value={cfg.url}
@@ -329,18 +334,17 @@ function ApiConfigSection({ onSaved }) {
                 onChange={(e) => setCfg({ ...cfg, url: e.target.value })}
               />
               <p className="api-key-hint u-mono">
-                任何 OpenAI 兼容接口（中转站 / OpenRouter / 自建）· 填到 /v1 即可，
-                会自动补全 /chat/completions
+                {t("upload.baseUrlHint")}
               </p>
-              <label className="u-mono">模型名</label>
+              <label className="u-mono">{t("upload.modelName")}</label>
               <input
                 className="confirm-input"
                 value={cfg.model}
-                placeholder="如 qwen-vl-plus / gpt-4o-mini"
+                placeholder="qwen-vl-plus / gpt-4o-mini"
                 onChange={(e) => setCfg({ ...cfg, model: e.target.value })}
               />
               <p className="api-key-hint u-mono">
-                必须是能看图的视觉模型 · 名字以服务商的模型列表为准
+                {t("upload.modelHint")}
               </p>
             </>
           )}
@@ -356,7 +360,7 @@ function ApiConfigSection({ onSaved }) {
               spellCheck={false}
             />
             <button type="button" className="api-key-save" onClick={save}>
-              保存
+              {t("upload.save")}
             </button>
             <button
               type="button"
@@ -364,7 +368,7 @@ function ApiConfigSection({ onSaved }) {
               onClick={runTest}
               disabled={testState === "testing"}
             >
-              {testState === "testing" ? "测…" : "测试"}
+              {testState === "testing" ? t("upload.testing") : t("upload.test")}
             </button>
           </div>
           {testState && testState !== "testing" && (
@@ -377,7 +381,7 @@ function ApiConfigSection({ onSaved }) {
           )}
           {savedAt > 0 && !testState && (
             <p className="api-key-hint u-mono">
-              已保存 · {hasKey ? "现在上传的海报会走真实识别" : "已清空 key"}
+              {t("upload.saved", { msg: hasKey ? t("upload.savedOn") : t("upload.savedOff") })}
             </p>
           )}
         </div>
@@ -389,6 +393,7 @@ function ApiConfigSection({ onSaved }) {
 /* ---------------- 许愿（非技术用户：发邮件让站长代录） ---------------- */
 
 function WishSection() {
+  const { t } = useI18n();
   const cloudOn = backend.mode !== "local";
   const [name, setName] = useState("");
   const [year, setYear] = useState(String(new Date().getFullYear()));
@@ -403,7 +408,7 @@ function WishSection() {
     // 轻量防连点：一分钟一个愿望
     const last = Number(localStorage.getItem("me:last_wish") || 0);
     if (Date.now() - last < 60000) {
-      setErr("收到过啦 · 一分钟后可以再许下一个");
+      setErr(t("upload.wishTooSoon"));
       return;
     }
     setBusy(true);
@@ -438,8 +443,8 @@ function WishSection() {
     return (
       <section className="wish-card">
         <p className="wish-done">
-          ✓ 已收到「{name.trim()}」！<br />
-          <span className="u-mono">我们会尽快解析录入 · 完成后刷新首页就能看到</span>
+          {t("upload.wishDone", { name: name.trim() })}<br />
+          <span className="u-mono">{t("upload.wishDoneSub")}</span>
         </p>
         <button
           type="button"
@@ -451,7 +456,7 @@ function WishSection() {
             setErr("");
           }}
         >
-          ＋ 再提交一个
+          {t("upload.wishAgain")}
         </button>
       </section>
     );
@@ -460,12 +465,12 @@ function WishSection() {
   return (
     <section className="wish-card">
       <p className="api-key-hint u-mono" style={{ margin: 0 }}>
-        可以联系我们代为解析（但可能会比较慢，请耐心等候）🌹
+        {t("upload.wishHint")}
       </p>
       <div className="wish-fields">
         <input
           className="confirm-input"
-          placeholder="音乐节名称 *"
+          placeholder={t("upload.wishName")}
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -473,13 +478,13 @@ function WishSection() {
           <input
             className="confirm-input wish-year"
             type="number"
-            placeholder="年份"
+            placeholder={t("upload.wishYear")}
             value={year}
             onChange={(e) => setYear(e.target.value)}
           />
           <input
             className="confirm-input"
-            placeholder="官方链接 / 购票页（选填）"
+            placeholder={t("upload.wishLink")}
             value={link}
             onChange={(e) => setLink(e.target.value)}
           />
@@ -492,7 +497,7 @@ function WishSection() {
           disabled={!canWish || busy}
           onClick={submit}
         >
-          {busy ? "提交中…" : "提交"}
+          {busy ? t("upload.wishSubmitting") : t("upload.wishSubmit")}
         </button>
       ) : (
         <a
@@ -502,7 +507,7 @@ function WishSection() {
             if (!canWish) e.preventDefault();
           }}
         >
-          ✉ 发送许愿邮件
+          {t("upload.wishMail")}
         </a>
       )}
       {err && <p className="api-key-hint u-mono" style={{ color: "var(--bauhaus-red)" }}>{err}</p>}
@@ -511,12 +516,13 @@ function WishSection() {
 }
 
 function ParsingView({ progress }) {
+  const { t } = useI18n();
   return (
     <div className="parsing-view">
       <div className="parsing-spinner" />
-      <p className="u-mono parsing-status">{progress || "处理中…"}</p>
+      <p className="u-mono parsing-status">{progress || t("parse.parsing")}</p>
       <p className="u-mono parsing-hint">
-        VISION 直读约 5-15 秒 · OCR 兜底可能要 30 秒+
+        {t("parse.parsingHint")}
       </p>
     </div>
   );
@@ -533,6 +539,7 @@ function ReviewView({
   parsed,
   onRestart,
 }) {
+  const { t } = useI18n();
   const setMetaField = (k) => (e) => setMeta({ ...meta, [k]: e.target.value });
 
   function setPerfField(idx, key, value) {
@@ -546,8 +553,8 @@ function ReviewView({
   const [confirmDel, setConfirmDel] = useState(null);
   useEffect(() => {
     if (confirmDel == null) return;
-    const t = setTimeout(() => setConfirmDel(null), 2500);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setConfirmDel(null), 2500);
+    return () => clearTimeout(timer);
   }, [confirmDel]);
   function removePerf(idx) {
     setPerfs((prev) => prev.filter((_, i) => i !== idx));
@@ -578,18 +585,18 @@ function ReviewView({
       {imageUrl && (
         <section className="review-compare">
           <div className="review-compare-bar">
-            <span className="u-mono">原图对照</span>
+            <span className="u-mono">{t("review.compare")}</span>
             <div className="review-compare-btns">
               {compareOpen && (
                 <>
-                  <button type="button" onClick={() => setZoom((z) => Math.max(1, +(z - 0.5).toFixed(1)))} aria-label="缩小">−</button>
+                  <button type="button" onClick={() => setZoom((z) => Math.max(1, +(z - 0.5).toFixed(1)))} aria-label={t("review.compareShrink")}>−</button>
                   <span className="u-mono review-compare-zoom">{zoom}x</span>
-                  <button type="button" onClick={() => setZoom((z) => Math.min(4, +(z + 0.5).toFixed(1)))} aria-label="放大">＋</button>
+                  <button type="button" onClick={() => setZoom((z) => Math.min(4, +(z + 0.5).toFixed(1)))} aria-label={t("review.compareZoom")}>＋</button>
                 </>
               )}
-              <a href={imageUrl} target="_blank" rel="noopener noreferrer">原图 ↗</a>
+              <a href={imageUrl} target="_blank" rel="noopener noreferrer">{t("review.viewOriginal")}</a>
               <button type="button" onClick={() => setCompareOpen((v) => !v)}>
-                {compareOpen ? "收起 −" : "展开 +"}
+                {compareOpen ? t("review.collapse") : t("review.expand")}
               </button>
             </div>
           </div>
@@ -597,7 +604,7 @@ function ReviewView({
             <div className="review-compare-viewport">
               <img
                 src={imageUrl}
-                alt="上传的海报"
+                alt={t("review.posterAlt")}
                 style={{ width: `${zoom * 100}%` }}
               />
             </div>
@@ -608,16 +615,16 @@ function ReviewView({
       {/* 元数据 */}
       <section className="review-poster">
         <div className="review-meta">
-          <label className="u-mono">名称</label>
+          <label className="u-mono">{t("review.name")}</label>
           <input
             className="confirm-input"
             value={meta.name}
             onChange={setMetaField("name")}
-            placeholder="音乐节名称"
+            placeholder={t("review.namePh")}
           />
           <div className="review-meta-row">
             <div style={{ flex: "0 0 90px" }}>
-              <label className="u-mono">年份</label>
+              <label className="u-mono">{t("review.year")}</label>
               <input
                 className="confirm-input"
                 value={meta.year}
@@ -626,12 +633,12 @@ function ReviewView({
               />
             </div>
             <div style={{ flex: "1 1 auto" }}>
-              <label className="u-mono">地点</label>
+              <label className="u-mono">{t("review.location")}</label>
               <input
                 className="confirm-input"
                 value={meta.location || ""}
                 onChange={setMetaField("location")}
-                placeholder="城市 · 场地"
+                placeholder="City · Venue"
               />
             </div>
           </div>
@@ -641,15 +648,15 @@ function ReviewView({
       {/* 日期 / 舞台编辑（逗号分隔的简易行） */}
       <section className="review-tags">
         <ChipsField
-          label={`日期 (${meta.dates?.length || 0} 天)`}
+          label={t("review.dates", { n: meta.dates?.length || 0 })}
           values={meta.dates}
           placeholder="YYYY-MM-DD"
           onChange={(arr) => setMeta({ ...meta, dates: arr })}
         />
         <ChipsField
-          label={`舞台 (${meta.stages?.length || 0} 个)`}
+          label={t("review.stages", { n: meta.stages?.length || 0 })}
           values={meta.stages}
-          placeholder="主舞台 名"
+          placeholder={t("review.stagePh")}
           onChange={(arr) => setMeta({ ...meta, stages: arr })}
         />
       </section>
@@ -658,20 +665,20 @@ function ReviewView({
       <section className="review-perfs">
         <header className="review-perfs-head">
           <span className="u-mono">
-            演出列表 · {perfs.length} 条
+            {t("review.perfs", { n: perfs.length })}
           </span>
           <button
             type="button"
             className="review-add-row"
             onClick={addPerf}
           >
-            ＋ 加一条
+            {t("review.addRow")}
           </button>
         </header>
 
         {perfs.length === 0 ? (
           <p className="rack-empty u-mono">
-            — 一条都没识别出来 · 点 ＋ 加一条 或重新上传 —
+            {t("review.emptyPerfs")}
           </p>
         ) : (
           <ul className="review-perf-list">
@@ -680,7 +687,7 @@ function ReviewView({
                 <input
                   className="confirm-input perf-name"
                   value={p.artistName || ""}
-                  placeholder="艺人"
+                  placeholder={t("review.artist")}
                   onChange={(e) =>
                     setPerfField(idx, "artistName", e.target.value)
                   }
@@ -693,7 +700,7 @@ function ReviewView({
                       setPerfField(idx, "stageName", e.target.value)
                     }
                   >
-                    <option value="">舞台</option>
+                    <option value="">{t("review.stagePh")}</option>
                     {meta.stages?.map((s) => (
                       <option key={s} value={s}>
                         {s}
@@ -718,7 +725,7 @@ function ReviewView({
                       });
                     }}
                   >
-                    <option value="">日期</option>
+                    <option value="">{t("review.datePh")}</option>
                     {meta.dates?.map((d) => (
                       <option key={d} value={d}>
                         {d.slice(5)}
@@ -756,9 +763,9 @@ function ReviewView({
                     onClick={() =>
                       confirmDel === idx ? removePerf(idx) : setConfirmDel(idx)
                     }
-                    aria-label={confirmDel === idx ? "再点一次确认删除" : "删除该条"}
+                    aria-label={confirmDel === idx ? t("review.confirmDel") : t("plan.unmark")}
                   >
-                    {confirmDel === idx ? "确认?" : "✕"}
+                    {confirmDel === idx ? t("review.confirmDel") : "✕"}
                   </button>
                 </div>
               </li>
@@ -768,13 +775,14 @@ function ReviewView({
       </section>
 
       <button type="button" className="confirm-restart" onClick={onRestart}>
-        ← 重新选图
+        {t("review.restart")}
       </button>
     </div>
   );
 }
 
 function ChipsField({ label, values = [], placeholder, onChange }) {
+  const { t } = useI18n();
   const [text, setText] = useState(values.join(", "));
   function commit() {
     const arr = text
@@ -794,7 +802,7 @@ function ChipsField({ label, values = [], placeholder, onChange }) {
         onBlur={commit}
       />
       <small className="u-mono chips-field-hint">
-        用逗号分隔多项 · 失焦自动保存
+        {t("review.chipsHint")}
       </small>
     </div>
   );
@@ -803,10 +811,11 @@ function ChipsField({ label, values = [], placeholder, onChange }) {
 /* ---------------- Error (raw response 显示) ---------------- */
 
 function ErrorView({ error, onRetry }) {
+  const { t } = useI18n();
   const [showRaw, setShowRaw] = useState(false);
   return (
     <div className="upload-error-card">
-      <p className="upload-error-tag u-mono">⚠ 识别失败</p>
+      <p className="upload-error-tag u-mono">⚠ {t("parse.parseFail")}</p>
       <p className="upload-error-msg">{error?.message || String(error)}</p>
 
       {(error?.vision || error?.ocrChat) && (
@@ -852,7 +861,7 @@ function ErrorView({ error, onRetry }) {
         className="upload-error-retry"
         onClick={onRetry}
       >
-        重试
+        {t("plan.retry")}
       </button>
     </div>
   );

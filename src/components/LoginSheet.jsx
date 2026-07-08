@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { backend } from "../lib/backend.js";
+import { useI18n } from "../lib/i18n.js";
 
 // 登录弹窗：邮箱 + 验证码两行，无多余文字。
 // 发送后按钮进入 60 秒倒计时，倒计时结束变「重发」。
 // 登录成功（本页填码 或 其他标签页完成）自动关闭。
 export default function LoginSheet({ onClose }) {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [sent, setSent] = useState(false);
@@ -56,17 +58,17 @@ export default function LoginSheet({ onClose }) {
   const emailOk = email.includes("@");
 
   return (
-    <div className="sheet-overlay" onClick={onClose} role="dialog" aria-label="登录">
+    <div className="sheet-overlay" onClick={onClose} role="dialog" aria-label={t("login.title")}>
       <div className="sheet-card" onClick={(e) => e.stopPropagation()}>
         <header className="sheet-head">
-          <strong>登录 / 同步</strong>
-          <button type="button" className="sheet-close" onClick={onClose} aria-label="关闭">✕</button>
+          <strong>{t("login.title")}</strong>
+          <button type="button" className="sheet-close" onClick={onClose} aria-label={t("login.close")}>✕</button>
         </header>
 
         <div className="api-key-row">
           <input
             type="email"
-            placeholder="邮箱"
+            placeholder={t("login.email")}
             value={email}
             autoFocus
             onChange={(e) => setEmail(e.target.value)}
@@ -81,7 +83,7 @@ export default function LoginSheet({ onClose }) {
             disabled={busy || !emailOk || cooldown > 0}
             onClick={send}
           >
-            {cooldown > 0 ? `${cooldown}s` : sent ? "重发" : "发验证码"}
+            {cooldown > 0 ? `${cooldown}s` : sent ? t("login.resend") : t("login.sendCode")}
           </button>
         </div>
 
@@ -89,7 +91,7 @@ export default function LoginSheet({ onClose }) {
           <input
             type="text"
             inputMode="numeric"
-            placeholder="验证码"
+            placeholder={t("login.code")}
             value={code}
             onChange={(e) => setCode(e.target.value)}
             onKeyDown={(e) => {
@@ -102,7 +104,7 @@ export default function LoginSheet({ onClose }) {
             disabled={busy || code.trim().length < 6}
             onClick={verify}
           >
-            登录
+            {t("login.submit")}
           </button>
         </div>
 

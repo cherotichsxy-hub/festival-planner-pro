@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useI18n } from "../lib/i18n.js";
 
 // 磁带条配色（按 festival 顺序循环分配），dusty 复古调
 const CASSETTE_COLORS = [
@@ -25,6 +26,7 @@ export default function HomeScreen({
   onOpenFestival,
   onOpenUpload,
 }) {
+  const { t, lang, setLang } = useI18n();
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
 
@@ -59,25 +61,35 @@ export default function HomeScreen({
 
   return (
     <div className="screen-body">
-      {/* 登录入口：挂在手机壳层级，滚动时也固定在右上角 */}
-      {onOpenAccount && (
+      {/* 右上角常驻：语言切换 + 登录入口 */}
+      <div className="top-chips">
         <button
           type="button"
-          className={`login-chip${session ? " on" : ""}`}
-          onClick={onOpenAccount}
+          className="lang-chip"
+          onClick={() => setLang(lang === "zh" ? "en" : "zh")}
+          aria-label="switch language"
         >
-          {session ? (
-            <>
-              <span className="login-chip-avatar">
-                {(session.user?.email || "?")[0].toUpperCase()}
-              </span>
-              已同步
-            </>
-          ) : (
-            <>◎ 登录</>
-          )}
+          {lang === "zh" ? "EN" : "中"}
         </button>
-      )}
+        {onOpenAccount && (
+          <button
+            type="button"
+            className={`login-chip${session ? " on" : ""}`}
+            onClick={onOpenAccount}
+          >
+            {session ? (
+              <>
+                <span className="login-chip-avatar">
+                  {(session.user?.email || "?")[0].toUpperCase()}
+                </span>
+                {t("home.synced")}
+              </>
+            ) : (
+              <>◎ {t("home.login")}</>
+            )}
+          </button>
+        )}
+      </div>
       <header className="brand-bar">
         <div className="brand-bar-marker">
           <span className="brand-mark">FP</span>
@@ -89,14 +101,14 @@ export default function HomeScreen({
           FESTIVAL<br />
           PLANNER<span className="brand-title-dot">.</span>
         </h1>
-        <p className="brand-tagline">不错过每一个想看的现场</p>
+        <p className="brand-tagline">{t("home.tagline")}</p>
       </header>
 
       <div className="search-bar">
         <span className="u-mono search-label">FIND</span>
         <input
           type="search"
-          placeholder="搜演出"
+          placeholder={t("home.search")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -110,21 +122,21 @@ export default function HomeScreen({
         >
           <span className="upload-rack-mark">＋</span>
           <div className="upload-rack-text">
-            <strong>添加新演出</strong>
+            <strong>{t("home.addNew")}</strong>
             <span className="u-mono">UPLOAD · POSTER → SCHEDULE</span>
           </div>
           <span className="upload-rack-arrow">→</span>
         </button>
 
         <header className="rack-title">
-          <span className="u-mono">CHANNELS / 频道</span>
+          <span className="u-mono">CHANNELS{lang === "zh" ? " / 频道" : ""}</span>
           <span className="u-mono rack-count">
             {String(enriched.length).padStart(2, "0")}
           </span>
         </header>
 
         {enriched.length === 0 ? (
-          <p className="rack-empty u-mono">— 没找到匹配的音乐节 —</p>
+          <p className="rack-empty u-mono">{t("home.noMatch")}</p>
         ) : (
           <ul className="cassette-stack">
             {enriched.map((f) => {
@@ -161,7 +173,7 @@ export default function HomeScreen({
                             onToggleWanted?.(f.id);
                           }}
                         >
-                          {isWanted ? "★ 想看" : "想看"}
+                          {isWanted ? t("home.wantOn") : t("home.want")}
                         </button>
                         <button
                           type="button"
@@ -172,7 +184,7 @@ export default function HomeScreen({
                             onToggleAttended?.(f.id);
                           }}
                         >
-                          {isAttended ? "✓ 去过" : "去过"}
+                          {isAttended ? t("home.beenOn") : t("home.been")}
                         </button>
                       </span>
                     </div>

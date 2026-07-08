@@ -1,11 +1,12 @@
 import React, { useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toBlob } from "html-to-image";
-import { formatHM, formatChineseMonthDay } from "../lib/time.js";
+import { formatHM, formatChineseMonthDay, formatMonthDay } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
 import ShareCanvas from "./ShareCanvas.jsx";
 import ShareCanvasTimetable from "./ShareCanvasTimetable.jsx";
 import TimetableView from "./TimetableView.jsx";
+import { useI18n } from "../lib/i18n.js";
 
 // headliner 色块色板（5 种 dusty 变体轮换）
 const HEADLINER_COLORS = ["#8b1d1d", "#7e97a8", "#1e1506", "#b76060", "#afc0cd"];
@@ -23,6 +24,7 @@ export default function MyPlanList({
   onToggleHeadliner,
   onPickAxis,
 }) {
+  const { t, lang } = useI18n();
   const [pickerOpen, setPickerOpen] = useState(false);
   const paperRef = useRef(null);
   const shareCanvasRef = useRef(null);
@@ -175,7 +177,7 @@ export default function MyPlanList({
             MY<br />PLAN<span className="myplan-paper-dot">.</span>
           </h2>
           <div className="myplan-paper-meta u-mono">
-            <span>{formatChineseMonthDay(activeDate)} · DAY {dayIndex}</span>
+            <span>{lang === "en" ? formatMonthDay(activeDate) : formatChineseMonthDay(activeDate)} · DAY {dayIndex}</span>
             <span>SET CT · {String(visible.length).padStart(2, "0")}</span>
           </div>
         </header>
@@ -199,7 +201,7 @@ export default function MyPlanList({
             className={view === "list" ? "active" : ""}
             onClick={() => switchView("list")}
           >
-            列表
+            {t("plan.list")}
           </button>
           <button
             type="button"
@@ -208,7 +210,7 @@ export default function MyPlanList({
             className={view === "table" ? "active" : ""}
             onClick={() => switchView("table")}
           >
-            时间表
+            {t("plan.timetable")}
           </button>
         </div>
 
@@ -217,7 +219,7 @@ export default function MyPlanList({
         {visible.length === 0 ? (
           <div className="myplan-paper-empty">
             <p className="u-mono">— NO SETS QUEUED FOR THIS DAY —</p>
-            <p>到「演出列表」点 <strong>★</strong> 或 <strong>?</strong> 标记演出</p>
+            <p>{t("plan.goMarkFull")}</p>
           </div>
         ) : view === "table" ? (
           <TimetableView
@@ -264,10 +266,10 @@ export default function MyPlanList({
           >
             <span className="myplan-share-arrow">↗</span>
             <span>
-              {shareState === "working" && "生成图片…"}
-              {shareState === "done" && "已保存"}
-              {shareState === "error" && "失败，重试"}
-              {(shareState === "idle" || shareState === "preview") && "分享 Share"}
+              {shareState === "working" && t("plan.rendering")}
+              {shareState === "done" && t("plan.saved")}
+              {shareState === "error" && t("plan.shareRetry")}
+              {(shareState === "idle" || shareState === "preview") && t("plan.shareBtn")}
             </span>
           </button>
           {shareState === "error" && shareError && (
@@ -318,7 +320,7 @@ export default function MyPlanList({
                 type="button"
                 className="share-preview-close"
                 onClick={closePreview}
-                aria-label="关闭"
+                aria-label={t("plan.close")}
               >
                 ✕
               </button>
@@ -331,7 +333,7 @@ export default function MyPlanList({
                   onClick={() => handleShare("list")}
                   disabled={shareState === "working"}
                 >
-                  行程式
+                  {t("plan.shareModeList")}
                 </button>
                 <button
                   type="button"
@@ -341,20 +343,20 @@ export default function MyPlanList({
                   onClick={() => handleShare("timetable")}
                   disabled={shareState === "working"}
                 >
-                  时间表式
+                  {t("plan.shareModeTable")}
                 </button>
               </div>
               <div className="share-preview-img-wrap">
                 {shareState === "working" ? (
                   <div className="share-preview-loading">
                     <div className="share-preview-spinner" />
-                    <p className="u-mono">生成中…</p>
+                    <p className="u-mono">{t("plan.renderingShort")}</p>
                   </div>
                 ) : (
                   <img
                     className="share-preview-img"
                     src={previewUrl}
-                    alt="分享图"
+                    alt={t("plan.shareImg")}
                   />
                 )}
               </div>
@@ -364,7 +366,7 @@ export default function MyPlanList({
                   className="share-preview-cancel"
                   onClick={closePreview}
                 >
-                  取消
+                  {t("plan.cancel")}
                 </button>
                 <button
                   type="button"
@@ -372,7 +374,7 @@ export default function MyPlanList({
                   onClick={confirmDownload}
                   disabled={shareState !== "preview"}
                 >
-                  ↗ 下载 / 分享
+                  {t("plan.download")}
                 </button>
               </div>
             </div>
@@ -396,6 +398,7 @@ export default function MyPlanList({
 /* ---------- Headliner Rack & Picker ---------- */
 
 function HeadlinerRack({ festival, slots, onOpenPicker, onRemove }) {
+  const { t } = useI18n();
   const filled = slots.filter(Boolean).length;
   return (
     <div className="headliner-rack">
@@ -426,7 +429,7 @@ function HeadlinerRack({ festival, slots, onOpenPicker, onRemove }) {
               className="headliner-slot filled"
               style={{ "--headliner-color": color }}
               onClick={() => onRemove(perf.id)}
-              title="再点取消"
+              title={t("plan.removeConfirm")}
             >
               <strong className="headliner-name">{perf.artistName}</strong>
               <small className="u-mono headliner-meta">
@@ -441,6 +444,7 @@ function HeadlinerRack({ festival, slots, onOpenPicker, onRemove }) {
 }
 
 function HeadlinerPicker({ festival, mustSeePerfs, headlinerList, onPick, onClose }) {
+  const { t } = useI18n();
   const remaining = 3 - headlinerList.length;
   return (
     <>
@@ -450,21 +454,21 @@ function HeadlinerPicker({ festival, mustSeePerfs, headlinerList, onPick, onClos
           type="button"
           className="headliner-picker-close"
           onClick={onClose}
-          aria-label="关闭"
+          aria-label={t("plan.close")}
         >
           ✕
         </button>
         <div className="headliner-picker-handle" />
         <div className="headliner-picker-head">
-          <h3>最想看的三组音乐人</h3>
+          <h3>{t("plan.topPickTitle")}</h3>
           <small className="u-mono">
             {remaining > 0
-              ? `还能挑 ${remaining} 个 · 从必看里选`
-              : "已满 3 个 · 点已选项可取消"}
+              ? t("plan.topPickHint", { n: remaining })
+              : t("plan.topPickFull")}
           </small>
         </div>
         {mustSeePerfs.length === 0 ? (
-          <p className="headliner-picker-empty">先去 Lineup 标几个必看再来</p>
+          <p className="headliner-picker-empty">{t("plan.topPickEmpty")}</p>
         ) : (
           <ul className="headliner-picker-list">
             {mustSeePerfs.map((p) => {
@@ -490,7 +494,7 @@ function HeadlinerPicker({ festival, mustSeePerfs, headlinerList, onPick, onClos
           </ul>
         )}
         <button type="button" className="headliner-picker-done" onClick={onClose}>
-          完成
+          {t("plan.done")}
         </button>
       </div>
     </>
@@ -505,6 +509,7 @@ function shouldShowConflict(perf, status, conflictMap, selections) {
 }
 
 function MyPlanRow({ perf, festival, status, showConflict, onClear }) {
+  const { t } = useI18n();
   const color = getStageColor(festival, perf.stageName);
   const style = {
     "--stage-solid": color.solid,
@@ -529,14 +534,14 @@ function MyPlanRow({ perf, festival, status, showConflict, onClear }) {
             <span className="dot" />{perf.stageName}
           </span>
           {showConflict && (
-            <span className="row-conflict">⚠ MUST × MUST 冲突</span>
+            <span className="row-conflict">{t("plan.clashMustMust")}</span>
           )}
         </div>
         <button
           type="button"
           className="row-remove"
           onClick={onClear}
-          aria-label="取消标记"
+          aria-label={t("plan.unmark")}
         >
           ✕
         </button>
@@ -556,12 +561,12 @@ function MyPlanRow({ perf, festival, status, showConflict, onClear }) {
       <span className="maybe-stage">
         <span className="dot" />{perf.stageName}
       </span>
-      {showConflict && <span className="maybe-conflict">⚠ 撞 MUST</span>}
+      {showConflict && <span className="maybe-conflict">{t("plan.clashMust")}</span>}
       <button
         type="button"
         className="row-remove"
         onClick={onClear}
-        aria-label="取消标记"
+        aria-label={t("plan.unmark")}
       >
         ✕
       </button>

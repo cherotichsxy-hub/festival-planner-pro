@@ -3,6 +3,7 @@ import { formatHM, formatMonthDay } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
 import { searchPreview, playPreview, stopPreview } from "../lib/preview.js";
 import { artistLink, isOfficialLink } from "../lib/artistLink.js";
+import { useI18n } from "../lib/i18n.js";
 
 export default function LineupList({
   festival,
@@ -16,6 +17,7 @@ export default function LineupList({
   isToday = false,
   onSearchingChange,
 }) {
+  const { t } = useI18n();
   const [query, setQuery] = useState(initialQuery);
   const trimmedQ = query.trim().toLowerCase();
   const searching = trimmedQ.length > 0;
@@ -121,10 +123,10 @@ export default function LineupList({
           type="search"
           enterKeyHint="search"
           className="lineup-search-input"
-          placeholder="搜艺人 / 演出"
+          placeholder={t("lineup.search")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          aria-label="搜索演出"
+          aria-label={t("lineup.search")}
         />
         {query && (
           <button
@@ -141,21 +143,21 @@ export default function LineupList({
       {searching && (
         <div className="lineup-search-meta u-mono">
           {visible.length > 0
-            ? `跨 ${festival.dates.length} 天找到 ${visible.length} 条`
-            : "没有结果"}
+            ? t("lineup.foundAcross", { n: festival.dates.length, c: visible.length })
+            : t("lineup.noResult")}
         </div>
       )}
 
       {!searching && (
         <div className="lineup-legend">
-          <span><strong>★</strong> 必看</span>
-          <span><strong>?</strong> 待定</span>
+          <span><strong>★</strong> {t("lineup.must")}</span>
+          <span><strong>?</strong> {t("lineup.maybe")}</span>
         </div>
       )}
 
       {visible.length === 0 && !searching && (
         <div className="lineup-empty">
-          <p className="u-mono">— NO SETS · 该筛选下无演出 —</p>
+          <p className="u-mono">{t("lineup.noSets")}</p>
         </div>
       )}
 
@@ -217,6 +219,7 @@ export default function LineupList({
 }
 
 function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previewPhase, onTogglePreview, showDate }) {
+  const { t } = useI18n();
   const color = getStageColor(festival, perf.stageName);
   const hasConflict = conflicts.length > 0;
   // 点冲突标签展开：撞了谁、几点、哪个台
@@ -257,7 +260,7 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
             }}
             aria-expanded={showConflicts}
           >
-            ⚠ 撞 {conflicts.length} 场 {showConflicts ? "−" : "+"}
+            {t("lineup.clash", { n: conflicts.length })} {showConflicts ? "−" : "+"}
           </button>
         )}
       </div>
@@ -316,15 +319,15 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
           type="button"
           className={`lineup-card-preview phase-${previewPhase || "idle"}`}
           onClick={() => onTogglePreview?.()}
-          aria-label={previewPhase === "playing" ? "停止试听" : "试听 30 秒"}
+          aria-label={previewPhase === "playing" ? t("lineup.previewStop") : t("lineup.preview")}
         >
           {previewPhase === "loading"
             ? "···"
             : previewPhase === "playing"
-              ? "◼ 停止"
+              ? t("lineup.previewStop")
               : previewPhase === "notfound"
-                ? "无试听"
-                : "▶ 试听"}
+                ? t("lineup.previewNone")
+                : t("lineup.preview")}
         </button>
       </div>
 
@@ -343,7 +346,7 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
                 className="conflict-demote"
                 onClick={() => onSetStatus(perf.id, "maybe")}
               >
-                把本场改为 ? 待定
+                {t("lineup.demote")}
               </button>
             </li>
           )}
