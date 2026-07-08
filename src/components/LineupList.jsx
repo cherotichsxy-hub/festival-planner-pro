@@ -1,7 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { formatHM, formatMonthDay } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
-import { searchPreview, playPreview, stopPreview } from "../lib/preview.js";
+import {
+  searchPreview,
+  playPreview,
+  stopPreview,
+  getCachedPreview,
+  prefetchPreviews,
+} from "../lib/preview.js";
 import { artistLink, isOfficialLink } from "../lib/artistLink.js";
 import { useI18n } from "../lib/i18n.js";
 
@@ -32,7 +38,7 @@ export default function LineupList({
   const now = useMemo(() => new Date(), []);
 
   // 30 秒试听：记录正在播/加载的是哪一条（同一时间只播一首）
-  const [preview, setPreview] = useState({ id: null, phase: null }); // phase: loading|playing|notfound
+  const [preview, setPreview] = useState({ id: null, phase: null }); // phase: loading|playing|error
   useEffect(() => () => stopPreview(), []); // 离开列表时停掉
 
   async function togglePreview(perf) {
@@ -45,11 +51,17 @@ export default function LineupList({
     setPreview({ id: perf.id, phase: "loading" });
     const found = await searchPreview(perf.artistName);
     if (!found) {
-      setPreview({ id: perf.id, phase: "notfound" });
-      setTimeout(
-        () => setPreview((p) => (p.id === perf.id ? { id: null, phase: null } : p)),
-        1800,
-      );
+      if (getCachedPreview(perf.artistName) === null) {
+        // 确认无试听：清掉临时态，交给缓存渲染成常驻灰标签
+        setPreview({ id: null, phase: null });
+      } else {
+        // 接口没查成（多半是被限流）：如实提示"稍后再试"，按钮保留
+        setPreview({ id: perf.id, phase: "error" });
+        setTimeout(
+          () => setPreview((p) => (p.id === perf.id ? { id: null, phase: null } : p)),
+          1800,
+        );
+      }
       return;
     }
     setPreview({ id: perf.id, phase: "playing" });
@@ -73,6 +85,15 @@ export default function LineupList({
       )
       .sort((a, b) => new Date(a.startAt) - new Date(b.startAt));
   }, [performances, activeDate, stageFilter, searching, trimmedQ]);
+
+  // 后台预查可见艺人有没有试听：查到"无试听"的卡片直接灰掉，不用白点
+  const [, setPreviewTick] = useState(0);
+  useEffect(() => {
+    return prefetchPreviews(
+      visible.map((p) => p.artistName),
+      () => setPreviewTick((v) => v + 1),
+    );
+  }, [visible]);
 
   // 冲突提示规则（和 MY PLAN 一致）：
   // 必看只在撞必看时报警；待定撞任何已标记的都提示（备选本来就允许重叠，但值得知道）
@@ -173,6 +194,7 @@ export default function LineupList({
               onSetStatus={onSetStatus}
               now={isToday ? now : null}
               previewPhase={preview.id === p.id ? preview.phase : null}
+              previewUnavailable={getCachedPreview(p.artistName) === null}
               onTogglePreview={() => togglePreview(p)}
               showDate
             />
@@ -207,6 +229,7 @@ export default function LineupList({
                   onSetStatus={onSetStatus}
                   now={isToday ? now : null}
                   previewPhase={preview.id === p.id ? preview.phase : null}
+                  previewUnavailable={getCachedPreview(p.artistName) === null}
                   onTogglePreview={() => togglePreview(p)}
                 />
               ))}
@@ -218,7 +241,7 @@ export default function LineupList({
   );
 }
 
-function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previewPhase, onTogglePreview, showDate }) {
+function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previewPhase, previewUnavailable, onTogglePreview, showDate }) {
   const { t } = useI18n();
   const color = getStageColor(festival, perf.stageName);
   const hasConflict = conflicts.length > 0;
@@ -315,20 +338,27 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
             ?
           </button>
         </div>
-        <button
-          type="button"
-          className={`lineup-card-preview phase-${previewPhase || "idle"}`}
-          onClick={() => onTogglePreview?.()}
-          aria-label={previewPhase === "playing" ? t("lineup.previewStop") : t("lineup.preview")}
-        >
-          {previewPhase === "loading"
-            ? "···"
-            : previewPhase === "playing"
-              ? t("lineup.previewStop")
-              : previewPhase === "notfound"
-                ? t("lineup.previewNone")
-                : t("lineup.preview")}
-        </button>
+        {previewUnavailable ? (
+          // 确认无试听：常驻灰标签，不可点，省得用户白点一次
+          <span className="lineup-card-preview phase-none" aria-disabled="true">
+            {t("lineup.previewNone")}
+          </span>
+        ) : (
+          <button
+            type="button"
+            className={`lineup-card-preview phase-${previewPhase || "idle"}`}
+            onClick={() => onTogglePreview?.()}
+            aria-label={previewPhase === "playing" ? t("lineup.previewStop") : t("lineup.preview")}
+          >
+            {previewPhase === "loading"
+              ? "···"
+              : previewPhase === "playing"
+                ? t("lineup.previewStop")
+                : previewPhase === "error"
+                  ? t("lineup.previewRetry")
+                  : t("lineup.preview")}
+          </button>
+        )}
       </div>
 
       {/* 展开后的冲突明细：撞了谁 + 一键把本场降为待定 */}

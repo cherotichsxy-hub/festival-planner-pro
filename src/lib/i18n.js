@@ -42,6 +42,7 @@ const DICT = {
   "lineup.preview": { zh: "▶ 试听", en: "▶ Play" },
   "lineup.previewStop": { zh: "◼ 停止", en: "◼ Stop" },
   "lineup.previewNone": { zh: "无试听", en: "No preview" },
+  "lineup.previewRetry": { zh: "稍后再试", en: "Try later" },
   "lineup.demote": { zh: "把本场改为 ? 待定", en: "Set this to ? Maybe" },
   "lineup.now": { zh: "● NOW", en: "● NOW" },
   "lineup.sets": { zh: "SETS", en: "SETS" },

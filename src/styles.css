@@ -4444,7 +4444,14 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   border-color: var(--bauhaus-red);
 }
 .lineup-card-preview.phase-loading { opacity: 0.6; }
-.lineup-card-preview.phase-notfound { opacity: 0.5; }
+.lineup-card-preview.phase-error { opacity: 0.5; }
+/* 确认无试听：常驻灰标签，不可点 */
+.lineup-card-preview.phase-none {
+  opacity: 0.45;
+  cursor: default;
+  border-style: dashed;
+  font-weight: 400;
+}
 
 /* ============================================================ */
 /* 联系 / 关于作者：首页 slogan 下方入口 + 底部 sheet          */
