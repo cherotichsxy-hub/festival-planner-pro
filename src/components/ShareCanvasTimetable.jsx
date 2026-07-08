@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { useI18n } from "../lib/i18n.js";
 
 /**
  * 时间表式分享卡 v4 · 3 天合一张图。
@@ -19,6 +20,7 @@ export default function ShareCanvasTimetable({
   headliners = [],
   axisChoice = {},
 }) {
+  const { t } = useI18n();
   const dates = festival.dates;
 
   // 每天计算 slots（沿用 TimetableView 的 sweep-line 算法）
@@ -162,7 +164,7 @@ export default function ShareCanvasTimetable({
             <div />
             {daysData.map((d) => (
               <React.Fragment key={d.date}>
-                <div className="share-tt-sub-head">主看</div>
+                <div className="share-tt-sub-head">{t("share.main")}</div>
                 <div />
               </React.Fragment>
             ))}
@@ -288,9 +290,9 @@ export default function ShareCanvasTimetable({
           {festival.name} · {festival.year}
         </span>
         <span className="share-tt-foot-legend">
-          <span className="legend-h" />★ 最想看
-          <span className="legend-must" /> 必看
-          <span className="legend-maybe" /> 待定
+          <span className="legend-h" />★ {t("share.legendTop")}
+          <span className="legend-must" /> {t("lineup.must")}
+          <span className="legend-maybe" /> {t("lineup.maybe")}
         </span>
       </footer>
     </div>

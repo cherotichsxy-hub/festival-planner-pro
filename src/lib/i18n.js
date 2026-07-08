@@ -198,6 +198,58 @@ const DICT = {
   "review.namePh": { zh: "音乐节名称", en: "Festival name" },
   "review.chipsHint": { zh: "用逗号分隔多项 · 失焦自动保存", en: "Comma-separated · saves on blur" },
   "review.posterAlt": { zh: "上传的海报", en: "Uploaded poster" },
+
+  // ---------- 分享图 / 时间表 ----------
+  "share.slogan": { zh: "保存你的观演计划，呼朋唤友一起去看演出吧！", en: "Save your lineup — round up your crew and go!" },
+  "share.main": { zh: "主看", en: "Main" },
+  "share.legendTop": { zh: "最想看", en: "Top pick" },
+
+  // ---------- 官方 lineup 海报 ----------
+  "poster.share": { zh: "分享官方海报", en: "Share poster" },
+  "poster.official": { zh: "OFFICIAL TIMETABLE", en: "OFFICIAL TIMETABLE" },
+  "poster.downloadDay": { zh: "下载本日", en: "This day" },
+  "poster.downloadAll": { zh: "下载整届", en: "All days" },
+  "poster.stages": { zh: "{n} 舞台", en: "{n} stages" },
+  "poster.sets": { zh: "{n} 场", en: "{n} sets" },
+  "poster.dayOf": { zh: "第 {i} 天 / 共 {n} 天", en: "DAY {i} OF {n}" },
+  "poster.rendering": { zh: "生成海报…", en: "Rendering poster…" },
+  "poster.fail": { zh: "生成失败", en: "Render failed" },
+
+  "tt.emptyTitle": { zh: "— EMPTY · 还没有标记任何演出 —", en: "— EMPTY · nothing marked yet —" },
+  "tt.emptyHint": { zh: "先去 Lineup 标几个必看 / 待定，再来这里看时间表", en: "Mark some ★ / ? in Lineup, then check the timetable" },
+  "tt.promote": { zh: "点击 → 提到主轴", en: "Tap → make it main" },
+
+  // ---------- 上传错误页 ----------
+  "upload.errTag": { zh: "识别失败", en: "Recognition failed" },
+  "upload.errShowRaw": { zh: "展开 原始 API 返回", en: "Show raw API response" },
+  "upload.errHideRaw": { zh: "收起 原始 API 返回", en: "Hide raw API response" },
+  "upload.errVisionPath": { zh: "Vision 路径", en: "Vision path" },
+  "upload.errOcrPath": { zh: "OCR + Chat 路径", en: "OCR + Chat path" },
+  "upload.errNoBody": { zh: "(无 body)", en: "(no body)" },
+  "upload.errDeepseek": { zh: "💡 DeepSeek 的 deepseek-chat 是纯文本模型，不接收图片 · 视觉模型走 SiliconFlow 等第三方", en: "💡 DeepSeek’s deepseek-chat is text-only and can’t read images · use a vision model (SiliconFlow etc.)" },
+  "upload.errRetry": { zh: "重试", en: "Retry" },
+  "upload.sourceParsed": { zh: "AI 解析 + 人工校对", en: "AI parsed + human reviewed" },
+
+  // ---------- 许愿邮件正文（本地兜底 mailto） ----------
+  "upload.wishBodyIntro": { zh: "想在 Festival Planner 里看到这个音乐节：", en: "I’d love to see this festival in Festival Planner:" },
+  "upload.wishBodyName": { zh: "音乐节", en: "Festival" },
+  "upload.wishBodyYear": { zh: "年份", en: "Year" },
+  "upload.wishBodyLink": { zh: "官方链接/购票页", en: "Official / ticket link" },
+  "upload.wishBodyNone": { zh: "（没有）", en: "(none)" },
+  "upload.wishBodyFrom": { zh: "—— 来自 Festival Planner 许愿表单", en: "—— via the Festival Planner request form" },
+
+  // ---------- 无障碍标签 ----------
+  "aria.back": { zh: "返回", en: "Back" },
+  "aria.clearSearch": { zh: "清空搜索", en: "Clear search" },
+  "aria.markMust": { zh: "标为必看", en: "Mark as must-see" },
+  "aria.unmarkMust": { zh: "取消必看", en: "Remove must-see" },
+  "aria.markMaybe": { zh: "标为待定", en: "Mark as maybe" },
+  "aria.unmarkMaybe": { zh: "取消待定", en: "Remove maybe" },
+  "aria.previewPlay": { zh: "试听 30 秒", en: "Play 30s preview" },
+  "aria.previewStop": { zh: "停止试听", en: "Stop preview" },
+  "aria.delRow": { zh: "删除该条", en: "Delete row" },
+  "aria.delConfirm": { zh: "再点一次确认删除", en: "Tap again to confirm" },
+  "aria.addFestival": { zh: "添加新演出", en: "Add a festival" },
 };
 
 function interpolate(str, vars) {

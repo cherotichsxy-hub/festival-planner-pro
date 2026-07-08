@@ -56,7 +56,7 @@ export default function MyPlanList({
         mode === "timetable"
           ? shareTimetableRef.current?.querySelector(".share-tt-canvas")
           : shareCanvasRef.current?.querySelector(".share-canvas");
-      if (!target) throw new Error("share canvas 未就绪");
+      if (!target) throw new Error(t("plan.shareFail"));
       // 等字体加载完，避免抓到无字体的画
       if (document.fonts && document.fonts.ready) {
         try { await document.fonts.ready; } catch (_) {}
@@ -79,13 +79,13 @@ export default function MyPlanList({
       } finally {
         target.style.backgroundImage = prevBgImage;
       }
-      if (!blob) throw new Error("生成图片失败（返回空 blob）");
+      if (!blob) throw new Error(t("plan.shareFail"));
       setPreviewBlob(blob);
       setPreviewUrl(URL.createObjectURL(blob));
       setShareState("preview");
     } catch (err) {
       console.error("[share] failed:", err);
-      const msg = err?.message || String(err) || "未知错误";
+      const msg = err?.message || String(err) || t("plan.shareFail");
       setShareError(msg.length > 120 ? msg.slice(0, 120) + "…" : msg);
       setShareState("error");
       // error 状态不再自动消失，让用户能看到信息
@@ -278,7 +278,7 @@ export default function MyPlanList({
             </p>
           )}
           <p className="myplan-share-hint">
-            保存你的观演计划，呼朋唤友一起去看演出吧！
+            {t("share.slogan")}
           </p>
         </div>
       )}

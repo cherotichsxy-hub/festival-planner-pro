@@ -13,14 +13,14 @@ const DEFAULT_MODEL = "deepseek-chat";
 // maxTokens = 请求里显式给的输出上限（有些家默认值很小，不给会截断 JSON）。
 // keyHint = key 去哪申请；note = 选中时展示的特别提醒。
 export const PROVIDERS = [
-  { id: "kimi",      label: "Kimi 国内版", url: "https://api.moonshot.cn/v1/chat/completions",  model: "moonshot-v1-32k-vision-preview", vision: true, maxTokens: 8192, keyHint: "platform.moonshot.cn" },
-  { id: "kimi-intl", label: "Kimi 国际版", url: "https://api.moonshot.ai/v1/chat/completions",  model: "moonshot-v1-32k-vision-preview", vision: true, maxTokens: 8192, keyHint: "platform.moonshot.ai" },
+  { id: "kimi",      label: "Kimi (CN)",   url: "https://api.moonshot.cn/v1/chat/completions",  model: "moonshot-v1-32k-vision-preview", vision: true, maxTokens: 8192, keyHint: "platform.moonshot.cn" },
+  { id: "kimi-intl", label: "Kimi (Intl)", url: "https://api.moonshot.ai/v1/chat/completions",  model: "moonshot-v1-32k-vision-preview", vision: true, maxTokens: 8192, keyHint: "platform.moonshot.ai" },
   { id: "claude",    label: "Anthropic",   url: "https://api.anthropic.com/v1/chat/completions", model: "claude-sonnet-5",               vision: true, maxTokens: 8192, keyHint: "console.anthropic.com" },
   { id: "openai",    label: "OpenAI",      url: "https://api.openai.com/v1/chat/completions",   model: "gpt-4o-mini",                    vision: true, maxTokens: 8192, keyHint: "platform.openai.com",
     note: "⚠ OpenAI 官方接口不允许浏览器直连，直填大概率连不通；有中转地址的话请选「自定义」" },
   { id: "glm",       label: "GLM",         url: "https://open.bigmodel.cn/api/paas/v4/chat/completions",              model: "glm-4v-plus",  vision: true, maxTokens: 1024, keyHint: "open.bigmodel.cn" },
   { id: "qwen",      label: "QWEN",        url: "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions", model: "qwen-vl-plus", vision: true, maxTokens: 1500, keyHint: "阿里云百炼控制台" },
-  { id: "custom",    label: "自定义",       url: "", model: "", vision: true, maxTokens: 4096 },
+  { id: "custom",    label: "Custom",      url: "", model: "", vision: true, maxTokens: 4096 },
 ];
 
 // 自定义地址容错：填到域名或 /v1 都行，自动补全成完整的 chat/completions 端点

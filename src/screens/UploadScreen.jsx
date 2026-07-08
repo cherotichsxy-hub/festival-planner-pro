@@ -66,7 +66,7 @@ export default function UploadScreen({ onBack, onPublish, festivals = [], onOpen
       name: meta.name.trim(),
       year: Number(meta.year) || new Date().getFullYear(),
       location: meta.location?.trim() || "",
-      source: "AI 解析 + 人工校对",
+      source: t("upload.sourceParsed"),
       dates: dedup(meta.dates).filter(Boolean),
       stages: dedup(meta.stages).filter(Boolean),
       mainStageCount: dedup(meta.stages).filter(Boolean).length,
@@ -255,7 +255,7 @@ function ApiConfigSection({ onSaved }) {
   const hasKey = cfg.key.trim().length > 0;
   const isCustom = cfg.provider === "custom";
   const preset = PROVIDERS.find((p) => p.id === cfg.provider);
-  const providerLabel = preset?.label || "自定义";
+  const providerLabel = preset?.label || "Custom";
 
   function pickProvider(id) {
     setCfg((prev) => ({ ...prev, provider: id }));
@@ -431,11 +431,13 @@ function WishSection() {
   // 本地模式的兜底：mailto
   const subject = `[FP-WISH] ${name.trim()} ${year.trim()}`.trim();
   const mailBody = [
-    "想在 Festival Planner 里看到这个音乐节：",
+    t("upload.wishBodyIntro"),
     "",
-    `音乐节：${name.trim()}`,
-    `年份：${year.trim()}`,
-    `官方链接/购票页：${link.trim() || "（没有）"}`,
+    `${t("upload.wishBodyName")}: ${name.trim()}`,
+    `${t("upload.wishBodyYear")}: ${year.trim()}`,
+    `${t("upload.wishBodyLink")}: ${link.trim() || t("upload.wishBodyNone")}`,
+    "",
+    t("upload.wishBodyFrom"),
   ].join("\n");
   const mailtoHref = `mailto:${WISH_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`;
 
@@ -825,33 +827,32 @@ function ErrorView({ error, onRetry }) {
             className="upload-error-toggle u-mono"
             onClick={() => setShowRaw((v) => !v)}
           >
-            {showRaw ? "收起" : "展开"} 原始 API 返回
+            {showRaw ? t("upload.errHideRaw") : t("upload.errShowRaw")}
           </button>
           {showRaw && (
             <div className="upload-error-raw">
               {error.vision && (
                 <details open>
                   <summary className="u-mono">
-                    Vision 路径 · {error.vision.message}
+                    {t("upload.errVisionPath")} · {error.vision.message}
                     {error.vision.status && ` (HTTP ${error.vision.status})`}
                   </summary>
-                  <pre>{error.vision.raw || "(无 body)"}</pre>
+                  <pre>{error.vision.raw || t("upload.errNoBody")}</pre>
                 </details>
               )}
               {error.ocrChat && (
                 <details>
                   <summary className="u-mono">
-                    OCR + Chat 路径 · {error.ocrChat.message}
+                    {t("upload.errOcrPath")} · {error.ocrChat.message}
                     {error.ocrChat.status && ` (HTTP ${error.ocrChat.status})`}
                   </summary>
-                  <pre>{error.ocrChat.raw || "(无 body)"}</pre>
+                  <pre>{error.ocrChat.raw || t("upload.errNoBody")}</pre>
                 </details>
               )}
             </div>
           )}
           <p className="u-mono upload-error-hint">
-            💡 DeepSeek 现在的 deepseek-chat 是纯文本模型，不接收图片 · 视觉
-            模型走 SiliconFlow 等第三方
+            {t("upload.errDeepseek")}
           </p>
         </>
       )}

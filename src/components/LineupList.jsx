@@ -3,6 +3,7 @@ import { formatHM, formatMonthDay } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
 import { searchPreview, playPreview, stopPreview } from "../lib/preview.js";
 import { artistLink, isOfficialLink } from "../lib/artistLink.js";
+import LineupShareButton from "./ShareLineupPoster.jsx";
 import { useI18n } from "../lib/i18n.js";
 
 export default function LineupList({
@@ -133,7 +134,7 @@ export default function LineupList({
             type="button"
             className="lineup-search-clear"
             onClick={() => setQuery("")}
-            aria-label="清空搜索"
+            aria-label={t("aria.clearSearch")}
           >
             ✕
           </button>
@@ -150,8 +151,15 @@ export default function LineupList({
 
       {!searching && (
         <div className="lineup-legend">
-          <span><strong>★</strong> {t("lineup.must")}</span>
-          <span><strong>?</strong> {t("lineup.maybe")}</span>
+          <span className="lineup-legend-marks">
+            <span><strong>★</strong> {t("lineup.must")}</span>
+            <span><strong>?</strong> {t("lineup.maybe")}</span>
+          </span>
+          <LineupShareButton
+            festival={festival}
+            performances={performances}
+            activeDate={activeDate}
+          />
         </div>
       )}
 
@@ -300,7 +308,7 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
             type="button"
             className={`act act-must${status === "must" ? " on" : ""}`}
             onClick={() => onSetStatus(perf.id, status === "must" ? null : "must")}
-            aria-label={status === "must" ? "取消必看" : "标为必看"}
+            aria-label={status === "must" ? t("aria.unmarkMust") : t("aria.markMust")}
             aria-pressed={status === "must"}
           >
             ★
@@ -309,7 +317,7 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
             type="button"
             className={`act act-maybe${status === "maybe" ? " on" : ""}`}
             onClick={() => onSetStatus(perf.id, status === "maybe" ? null : "maybe")}
-            aria-label={status === "maybe" ? "取消待定" : "标为待定"}
+            aria-label={status === "maybe" ? t("aria.unmarkMaybe") : t("aria.markMaybe")}
             aria-pressed={status === "maybe"}
           >
             ?

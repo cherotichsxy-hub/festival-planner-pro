@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { formatHM } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
+import { useI18n } from "../lib/i18n.js";
 
 /**
  * 时间表视图 v2 · 主轴 + 备选
@@ -28,6 +29,7 @@ export default function TimetableView({
   conflictMap,
   onPickAxis,
 }) {
+  const { t } = useI18n();
   const items = useMemo(
     () =>
       performances
@@ -91,8 +93,8 @@ export default function TimetableView({
   if (items.length === 0) {
     return (
       <div className="timetable-empty">
-        <p className="u-mono">— EMPTY · 还没有标记任何演出 —</p>
-        <p>先去 Lineup 标几个必看 / 待定，再来这里看时间表</p>
+        <p className="u-mono">{t("tt.emptyTitle")}</p>
+        <p>{t("tt.emptyHint")}</p>
       </div>
     );
   }
@@ -207,8 +209,8 @@ export default function TimetableView({
                         onPickAxis(perf.id, siblingIds);
                       }
                     }}
-                    aria-label={`把 ${perf.artistName} 提到主轴`}
-                    title="点击 → 提到主轴"
+                    aria-label={perf.artistName + " · " + t("tt.promote")}
+                    title={t("tt.promote")}
                   >
                     <span className="tt-bubble-name">{perf.artistName}</span>
                     <span className="tt-bubble-meta u-mono">
