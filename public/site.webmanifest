@@ -1,0 +1,13 @@
+{
+  "name": "Encore",
+  "short_name": "Encore",
+  "description": "上传海报 → AI 解析 → 自定义你的音乐节日程",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf9f8",
+  "theme_color": "#fbf9f8",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
