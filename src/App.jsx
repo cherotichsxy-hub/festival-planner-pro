@@ -9,6 +9,7 @@ import {
   loadFestivals, saveFestivals,
   loadPerformances, savePerformances,
   loadSelections, saveSelections,
+  loadNotes, saveNotes,
   loadHeadliners, saveHeadliners,
   loadAxisChoice, saveAxisChoice,
   loadAttended, saveAttended,
@@ -60,6 +61,7 @@ export default function App() {
   }, []); // eslint-disable-line
 
   const [selections, setSelections] = useState(() => loadSelections());
+  const [notes, setNotes] = useState(() => loadNotes());
   const [headliners, setHeadliners] = useState(() => loadHeadliners());
   const [axisChoice, setAxisChoice] = useState(() => loadAxisChoice());
   const [attended, setAttended] = useState(() => loadAttended());
@@ -129,6 +131,7 @@ export default function App() {
       .pull()
       .then((cloud) => {
         if (cloud.selections) setSelections((p) => { const m = mergeNested(cloud.selections, p); saveSelections(m); return m; });
+        if (cloud.notes) setNotes((p) => { const m = mergeNested(cloud.notes, p); saveNotes(m); return m; });
         if (cloud.headliners) setHeadliners((p) => { const m = mergeNested(cloud.headliners, p); saveHeadliners(m); return m; });
         if (cloud.axisChoice) setAxisChoice((p) => { const m = mergeNested(cloud.axisChoice, p); saveAxisChoice(m); return m; });
         if (cloud.wanted) setWanted((p) => { const m = { ...cloud.wanted, ...p }; saveWanted(m); return m; });
@@ -144,11 +147,11 @@ export default function App() {
     clearTimeout(pushTimer.current);
     pushTimer.current = setTimeout(() => {
       backend.userData
-        .push({ selections, headliners, axisChoice, wanted, attended })
+        .push({ selections, notes, headliners, axisChoice, wanted, attended })
         .catch((e) => console.warn("[cloud] 推送个人数据失败:", e));
     }, 2000);
     return () => clearTimeout(pushTimer.current);
-  }, [selections, headliners, axisChoice, wanted, attended, session?.user?.id]); // eslint-disable-line
+  }, [selections, notes, headliners, axisChoice, wanted, attended, session?.user?.id]); // eslint-disable-line
 
   const screen = stack[stack.length - 1];
   const rootTab = stack[0].name; // "home" or "profile"
@@ -279,6 +282,22 @@ export default function App() {
     }
   }
 
+  // 每场演出的个人备注（hint）。空字符串 = 删除这条备注。
+  function setNote(festivalId, perfId, text) {
+    const clean = (text || "").trim();
+    setNotes((prev) => {
+      const current = prev[festivalId] || {};
+      const next = { ...current };
+      if (clean) next[perfId] = clean;
+      else delete next[perfId];
+      const nextNotes = { ...prev };
+      if (Object.keys(next).length === 0) delete nextNotes[festivalId];
+      else nextNotes[festivalId] = next;
+      saveNotes(nextNotes);
+      return nextNotes;
+    });
+  }
+
   function pickAxis(festivalId, perfId, siblingIds) {
     setAxisChoice((prev) => {
       const cur = prev[festivalId] || {};
@@ -376,11 +395,13 @@ export default function App() {
               festival={festival}
               performances={festivalPerfs}
               selections={selections[festival.id] || {}}
+              notes={notes[festival.id] || {}}
               headliners={headliners[festival.id] || []}
               axisChoice={axisChoice[festival.id] || {}}
               onSetStatus={(perfId, status) =>
                 setStatus(festival.id, perfId, status)
               }
+              onSetNote={(perfId, text) => setNote(festival.id, perfId, text)}
               onToggleHeadliner={(perfId) =>
                 toggleHeadliner(festival.id, perfId)
               }

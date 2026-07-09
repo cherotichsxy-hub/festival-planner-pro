@@ -7,6 +7,8 @@ const KEYS = {
   festivals: "community:festivals",
   performances: "community:performances",
   selections: "me:selections",
+  // 每场演出的个人备注（hint）：{ festivalId: { perfId: "文字" } }
+  notes: "me:notes",
   headliners: "me:headliners",
   // 用户在主轴/备选撞档冲突中点过的"主轴选择"：{ festivalId: { perfId: true } }
   axisChoice: "me:axisChoice",
@@ -67,6 +69,14 @@ export function loadSelections() {
 
 export function saveSelections(value) {
   save(KEYS.selections, value);
+}
+
+export function loadNotes() {
+  return load(KEYS.notes, {});
+}
+
+export function saveNotes(value) {
+  save(KEYS.notes, value);
 }
 
 export function loadHeadliners() {

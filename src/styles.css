@@ -2166,6 +2166,21 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   color: var(--conflict);
   letter-spacing: 0.08em;
 }
+/* My Plan 里的个人备注（hint） */
+.row-note {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-sans, inherit);
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(0, 0, 0, 0.55);
+  word-break: break-word;
+}
+.maybe-row .row-note {
+  flex: 0 0 100%;
+  margin-top: 2px;
+  padding-left: 26px;
+}
 
 /* 待定：小灰行 */
 .maybe-row {
@@ -2389,6 +2404,29 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   border-left: 1.5px solid #1e1506;
 }
 .share-preview-mode button:disabled {
+  cursor: wait;
+}
+/* 分享面板：是否把个人备注也画进图里 */
+.share-preview-notes-toggle {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e1506;
+  cursor: pointer;
+  user-select: none;
+}
+.share-preview-notes-toggle input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--bauhaus-red);
+  cursor: pointer;
+}
+.share-preview-notes-toggle input:disabled {
   cursor: wait;
 }
 .share-preview-days {
@@ -3164,6 +3202,25 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   height: 8px;
   border-radius: 50%;
   background: var(--stage-solid);
+}
+/* 分享图里的个人备注（hint） */
+.share-row-must .share-row-note {
+  grid-column: 4;
+  margin-top: 5px;
+  font-family: var(--font-sans, inherit);
+  font-size: 13px;
+  line-height: 1.35;
+  color: rgba(0, 0, 0, 0.58);
+  overflow-wrap: anywhere;
+}
+.share-row-maybe .share-row-note {
+  flex: 0 0 100%;
+  padding-left: 28px;
+  font-family: var(--font-sans, inherit);
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(0, 0, 0, 0.5);
+  overflow-wrap: anywhere;
 }
 
 /* ---------- 底部 ---------- */
@@ -4299,6 +4356,60 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   cursor: pointer;
 }
 .conflict-demote:active { transform: translate(1px, 1px); }
+
+/* ---- 演出卡备注（hint）：标记后可选填，写了就常驻显示 ---- */
+.lineup-card-note {
+  grid-column: 1 / -1;
+  margin: 0 10px 2px 16px;
+  padding: 6px 9px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  width: calc(100% - 26px);
+  text-align: left;
+  background: var(--bg-soft);
+  border: 1px dashed var(--line-strong);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-soft);
+  cursor: text;
+}
+.lineup-card-note:active { transform: translate(1px, 1px); }
+.lineup-card-note-icon {
+  flex: 0 0 auto;
+  color: var(--text-mute);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.lineup-card-note-text {
+  flex: 1 1 auto;
+  word-break: break-word;
+}
+.lineup-card-note-edit {
+  grid-column: 1 / -1;
+  margin: 0 10px 2px 16px;
+  padding: 5px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-phone);
+  border: 1px solid var(--bauhaus-red);
+}
+.lineup-card-note-field {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text);
+  padding: 2px 0;
+}
+.lineup-card-note-field::placeholder {
+  color: var(--text-mute);
+}
 
 /* 现场模式：NOW 锚点 + 正在演 + 已演完 */
 .lineup-hour-now {

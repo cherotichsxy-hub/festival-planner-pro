@@ -17,6 +17,7 @@ export default function MyPlanList({
   activeDate,
   stageFilter,
   selections,
+  notes = {},
   headliners,
   axisChoice,
   conflictMap,
@@ -26,6 +27,8 @@ export default function MyPlanList({
 }) {
   const { t, lang } = useI18n();
   const [pickerOpen, setPickerOpen] = useState(false);
+  // 分享图是否包含个人备注（默认关：备注可能是私人碎碎念，发图前主动勾选才带上）
+  const [includeNotes, setIncludeNotes] = useState(false);
   const paperRef = useRef(null);
   const shareCanvasRef = useRef(null);
   const [view, setView] = useState(() => {
@@ -44,6 +47,10 @@ export default function MyPlanList({
   const shareTimetableRef = useRef(null);
 
   async function handleShare(mode = shareMode, dayIdx = shareDayIndex) {
+    // 主分享按钮是 onClick={handleShare}，会把点击事件当 mode 传进来——
+    // 只认字符串，其余（事件对象等）回退到当前 shareMode，别把 state 写坏
+    if (mode !== "list" && mode !== "timetable") mode = shareMode;
+    if (typeof dayIdx !== "number") dayIdx = shareDayIndex;
     setShareState("working");
     setShareError(null);
     setShareMode(mode);
@@ -145,6 +152,20 @@ export default function MyPlanList({
 
   const dayIndex = festival.dates.indexOf(activeDate) + 1;
 
+  // 有没有任何"已标记且写了备注"的演出——没有就别在分享面板里摆这个开关
+  const hasNotes = useMemo(
+    () => performances.some((p) => selections[p.id] && notes[p.id]),
+    [performances, selections, notes],
+  );
+
+  // 分享面板里切换"包含备注"：改开关并重新生成预览图
+  function toggleIncludeNotes() {
+    setIncludeNotes((v) => !v);
+    if (shareState === "preview" || shareState === "working") {
+      handleShare(shareMode, shareDayIndex);
+    }
+  }
+
   // headliners: 数组 [perfId, perfId, perfId]，从 must-see 集合里取
   const headlinerList = (headliners || []).slice(0, 3);
   const mustSeePerfs = useMemo(
@@ -240,6 +261,7 @@ export default function MyPlanList({
                 perf={p}
                 festival={festival}
                 status={selections[p.id]}
+                note={notes[p.id] || ""}
                 showConflict={shouldShowConflict(p, selections[p.id], conflictMap, selections)}
                 onClear={() => onSetStatus(p.id, null)}
               />
@@ -289,6 +311,7 @@ export default function MyPlanList({
             festival={festival}
             performances={performances}
             selections={selections}
+            notes={includeNotes ? notes : {}}
             headliners={headlinerList}
             conflictMap={conflictMap}
           />
@@ -346,6 +369,18 @@ export default function MyPlanList({
                   {t("plan.shareModeTable")}
                 </button>
               </div>
+              {/* 备注只在行程式里排得下；时间表式是定高的时间网格，塞不进自由文字 */}
+              {hasNotes && shareMode === "list" && (
+                <label className="share-preview-notes-toggle">
+                  <input
+                    type="checkbox"
+                    checked={includeNotes}
+                    onChange={toggleIncludeNotes}
+                    disabled={shareState === "working"}
+                  />
+                  <span>{t("plan.shareIncludeNotes")}</span>
+                </label>
+              )}
               <div className="share-preview-img-wrap">
                 {shareState === "working" ? (
                   <div className="share-preview-loading">
@@ -508,7 +543,7 @@ function shouldShowConflict(perf, status, conflictMap, selections) {
   return list.some((c) => selections[c.id] === "must");
 }
 
-function MyPlanRow({ perf, festival, status, showConflict, onClear }) {
+function MyPlanRow({ perf, festival, status, note = "", showConflict, onClear }) {
   const { t } = useI18n();
   const color = getStageColor(festival, perf.stageName);
   const style = {
@@ -536,6 +571,7 @@ function MyPlanRow({ perf, festival, status, showConflict, onClear }) {
           {showConflict && (
             <span className="row-conflict">{t("plan.clashMustMust")}</span>
           )}
+          {note && <span className="row-note">✎ {note}</span>}
         </div>
         <button
           type="button"
@@ -562,6 +598,7 @@ function MyPlanRow({ perf, festival, status, showConflict, onClear }) {
         <span className="dot" />{perf.stageName}
       </span>
       {showConflict && <span className="maybe-conflict">{t("plan.clashMust")}</span>}
+      {note && <span className="row-note">✎ {note}</span>}
       <button
         type="button"
         className="row-remove"

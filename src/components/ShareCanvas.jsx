@@ -17,6 +17,7 @@ export default function ShareCanvas({
   festival,
   performances,
   selections,
+  notes = {},
   headliners = [],
   conflictMap,
 }) {
@@ -100,6 +101,7 @@ export default function ShareCanvas({
             festival={festival}
             conflictMap={conflictMap}
             selections={selections}
+            notes={notes}
           />
         ))}
       </div>
@@ -181,7 +183,7 @@ function Bolt({ mirror = false }) {
 
 /* ---------------- Day 列 ---------------- */
 
-function ShareDay({ date, dayIndex, items, festival, conflictMap, selections }) {
+function ShareDay({ date, dayIndex, items, festival, conflictMap, selections, notes = {} }) {
   const [, m, d] = date.split("-");
   const chineseDate = `${Number(m)}月${Number(d)}日`;
   return (
@@ -203,6 +205,7 @@ function ShareDay({ date, dayIndex, items, festival, conflictMap, selections }) 
               perf={perf}
               festival={festival}
               status={selections[perf.id]}
+              note={notes[perf.id] || ""}
               conflict={shouldShowConflict(perf, selections[perf.id], conflictMap, selections)}
             />
           ))}
@@ -219,7 +222,7 @@ function shouldShowConflict(perf, status, conflictMap, selections) {
   return list.some((c) => selections[c.id] === "must");
 }
 
-function ShareRow({ perf, festival, status, conflict }) {
+function ShareRow({ perf, festival, status, note = "", conflict }) {
   const color = getStageColor(festival, perf.stageName);
   if (status === "must") {
     return (
@@ -234,6 +237,7 @@ function ShareRow({ perf, festival, status, conflict }) {
         >
           <span className="dot" />{perf.stageName}
         </span>
+        {note && <span className="share-row-note">✎ {note}</span>}
       </li>
     );
   }
@@ -248,6 +252,7 @@ function ShareRow({ perf, festival, status, conflict }) {
       >
         <span className="dot" />{perf.stageName}
       </span>
+      {note && <span className="share-row-note">✎ {note}</span>}
     </li>
   );
 }

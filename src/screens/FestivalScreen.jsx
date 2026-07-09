@@ -15,9 +15,11 @@ export default function FestivalScreen({
   festival,
   performances,
   selections,
+  notes,
   headliners,
   axisChoice,
   onSetStatus,
+  onSetNote,
   onToggleHeadliner,
   onPickAxis,
   onBack,
@@ -196,8 +198,10 @@ export default function FestivalScreen({
             activeDate={activeDate}
             stageFilter={stageFilter}
             selections={festivalSelections}
+            notes={notes || {}}
             conflictMap={conflictMap}
             onSetStatus={onSetStatus}
+            onSetNote={onSetNote}
             initialQuery={initialQuery}
             isToday={activeDate === todayIso}
             onSearchingChange={setSearchActive}
@@ -210,6 +214,7 @@ export default function FestivalScreen({
             activeDate={activeDate}
             stageFilter="all"
             selections={festivalSelections}
+            notes={notes || {}}
             headliners={headliners}
             axisChoice={axisChoice || {}}
             conflictMap={conflictMap}

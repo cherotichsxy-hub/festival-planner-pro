@@ -17,8 +17,10 @@ export default function LineupList({
   activeDate,
   stageFilter,
   selections,
+  notes = {},
   conflictMap,
   onSetStatus,
+  onSetNote,
   initialQuery = "",
   isToday = false,
   onSearchingChange,
@@ -40,6 +42,9 @@ export default function LineupList({
   // 30 秒试听：记录正在播/加载的是哪一条（同一时间只播一首）
   const [preview, setPreview] = useState({ id: null, phase: null }); // phase: loading|playing|error
   useEffect(() => () => stopPreview(), []); // 离开列表时停掉
+
+  // 备注输入当前展开在哪张卡片上（标记后自动展开，可忽略；点已有备注也可重新编辑）
+  const [noteEditId, setNoteEditId] = useState(null);
 
   async function togglePreview(perf) {
     if (preview.id === perf.id && preview.phase === "playing") {
@@ -196,6 +201,11 @@ export default function LineupList({
               previewPhase={preview.id === p.id ? preview.phase : null}
               previewUnavailable={getCachedPreview(p.artistName) === null}
               onTogglePreview={() => togglePreview(p)}
+              note={notes[p.id] || ""}
+              noteEditing={noteEditId === p.id}
+              onOpenNote={() => setNoteEditId(p.id)}
+              onCloseNote={() => setNoteEditId((cur) => (cur === p.id ? null : cur))}
+              onSetNote={(text) => onSetNote?.(p.id, text)}
               showDate
             />
           ))}
@@ -231,6 +241,11 @@ export default function LineupList({
                   previewPhase={preview.id === p.id ? preview.phase : null}
                   previewUnavailable={getCachedPreview(p.artistName) === null}
                   onTogglePreview={() => togglePreview(p)}
+                  note={notes[p.id] || ""}
+                  noteEditing={noteEditId === p.id}
+                  onOpenNote={() => setNoteEditId(p.id)}
+                  onCloseNote={() => setNoteEditId((cur) => (cur === p.id ? null : cur))}
+                  onSetNote={(text) => onSetNote?.(p.id, text)}
                 />
               ))}
             </ul>
@@ -241,12 +256,18 @@ export default function LineupList({
   );
 }
 
-function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previewPhase, previewUnavailable, onTogglePreview, showDate }) {
+function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previewPhase, previewUnavailable, onTogglePreview, note = "", noteEditing = false, onOpenNote, onCloseNote, onSetNote, showDate }) {
   const { t } = useI18n();
   const color = getStageColor(festival, perf.stageName);
   const hasConflict = conflicts.length > 0;
   // 点冲突标签展开：撞了谁、几点、哪个台
   const [showConflicts, setShowConflicts] = useState(false);
+
+  // 标记（非取消）后顺势展开备注输入——想写就写，不写点别处/滑走即消失
+  function handleMark(nextStatus) {
+    onSetStatus(perf.id, nextStatus);
+    if (nextStatus != null) onOpenNote?.();
+  }
 
   // 现场模式：演完的压暗，正在演的标 LIVE
   const isPast = now ? new Date(perf.endAt) < now : false;
@@ -322,7 +343,7 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
           <button
             type="button"
             className={`act act-must${status === "must" ? " on" : ""}`}
-            onClick={() => onSetStatus(perf.id, status === "must" ? null : "must")}
+            onClick={() => handleMark(status === "must" ? null : "must")}
             aria-label={status === "must" ? t("aria.unmarkMust") : t("aria.markMust")}
             aria-pressed={status === "must"}
           >
@@ -331,7 +352,7 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
           <button
             type="button"
             className={`act act-maybe${status === "maybe" ? " on" : ""}`}
-            onClick={() => onSetStatus(perf.id, status === "maybe" ? null : "maybe")}
+            onClick={() => handleMark(status === "maybe" ? null : "maybe")}
             aria-label={status === "maybe" ? t("aria.unmarkMaybe") : t("aria.markMaybe")}
             aria-pressed={status === "maybe"}
           >
@@ -361,6 +382,25 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
         )}
       </div>
 
+      {/* 备注：标记后展开输入框；有备注时常驻显示，可点开重编辑 */}
+      {noteEditing ? (
+        <NoteInput
+          initial={note}
+          onCommit={(text) => onSetNote?.(text)}
+          onDone={() => onCloseNote?.()}
+        />
+      ) : note ? (
+        <button
+          type="button"
+          className="lineup-card-note"
+          onClick={() => onOpenNote?.()}
+          aria-label={t("lineup.noteEdit")}
+        >
+          <span className="lineup-card-note-icon" aria-hidden>✎</span>
+          <span className="lineup-card-note-text">{note}</span>
+        </button>
+      ) : null}
+
       {/* 展开后的冲突明细：撞了谁 + 一键把本场降为待定 */}
       {hasConflict && showConflicts && (
         <ul className="conflict-detail u-mono">
@@ -383,5 +423,45 @@ function LineupCard({ perf, festival, status, conflicts, onSetStatus, now, previ
         </ul>
       )}
     </li>
+  );
+}
+
+// 卡片内联备注输入：自动聚焦，失焦/回车即保存并收起（点别处就消失，纯标记不受影响）
+function NoteInput({ initial, onCommit, onDone }) {
+  const { t } = useI18n();
+  const [text, setText] = useState(initial || "");
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (el) {
+      el.focus();
+      el.setSelectionRange(el.value.length, el.value.length);
+    }
+  }, []);
+  return (
+    <div className="lineup-card-note-edit">
+      <span className="lineup-card-note-icon" aria-hidden>✎</span>
+      <input
+        ref={ref}
+        type="text"
+        className="lineup-card-note-field"
+        value={text}
+        maxLength={80}
+        placeholder={t("lineup.notePlaceholder")}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={() => {
+          onCommit?.(text);
+          onDone?.();
+        }}
+        onKeyDown={(e) => {
+          // 回车 = 保存收起；Esc = 收起（都走 blur 统一保存逻辑）
+          if (e.key === "Enter" || e.key === "Escape") {
+            e.preventDefault();
+            e.currentTarget.blur();
+          }
+        }}
+        aria-label={t("lineup.noteEdit")}
+      />
+    </div>
   );
 }
