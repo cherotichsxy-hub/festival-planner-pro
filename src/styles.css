@@ -69,6 +69,13 @@ body {
 }
 button { font: inherit; color: inherit; cursor: pointer; background: none; border: none; padding: 0; }
 
+/* iOS Safari 在输入框字号 <16px 时聚焦会强制放大整页。触屏设备上把表单控件
+   兜到 16px 消掉这个自动放大——桌面端(pointer:fine)不受影响，紧凑外观保留，
+   双指手动缩放也仍然可用（比改 viewport maximum-scale 更温和、不伤无障碍）。 */
+@media (pointer: coarse) {
+  input, textarea, select { font-size: 16px !important; }
+}
+
 /* ---------- 手机外壳 ---------- */
 .phone-frame {
   min-height: 100%;
