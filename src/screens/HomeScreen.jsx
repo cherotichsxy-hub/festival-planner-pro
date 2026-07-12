@@ -15,6 +15,15 @@ const CASSETTE_COLORS = [
   { color: "#6a7a8a", ink: "#fbf9f8" }, // slate
 ];
 
+// 音乐节的时间锚点：取最早的一天（YYYY-MM-DD，可直接字典序比较=时间序）；
+// 无日期回退到年份；全无日期返回空串，排序时沉到最底。
+function festivalStart(f) {
+  const ds = (f.dates || []).filter(Boolean).slice().sort();
+  if (ds.length) return ds[0];
+  if (f.year) return `${f.year}-01-01`;
+  return "";
+}
+
 export default function HomeScreen({
   festivals,
   performances,
@@ -56,9 +65,12 @@ export default function HomeScreen({
             f._perfs.some((p) => p.artistName.toLowerCase().includes(q))
           : true,
       )
+      // 按时间倒序：日期越晚（越新/越靠近未来）越靠上，越早的沉到底部。
+      // 名称做稳定并列兜底。
       .sort((a, b) => {
-        if (a.markedCount !== b.markedCount) return b.markedCount - a.markedCount;
-        return (b.year || 0) - (a.year || 0);
+        const t = festivalStart(b).localeCompare(festivalStart(a));
+        if (t !== 0) return t;
+        return (a.name || "").localeCompare(b.name || "");
       });
   }, [festivals, performances, selections, q]);
 
