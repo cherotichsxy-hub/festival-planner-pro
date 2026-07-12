@@ -147,6 +147,8 @@ const DICT = {
   "upload.dupNone": { zh: "— 还没人传过 · 往下走上传或许愿 —", en: "— Not added yet · upload or request below —" },
   "upload.added": { zh: "已收录 ↗", en: "Added ↗" },
   "upload.orUpload": { zh: "没有？上传海报识别", en: "No? Upload a poster" },
+  "upload.loginToUploadTitle": { zh: "登录后即可上传解析海报", en: "Sign in to upload & parse posters" },
+  "upload.loginToUploadSub": { zh: "点这里登录 · 解析结果会分享给其他人", en: "Tap to sign in · results are shared with others" },
   "upload.lockedTitle": { zh: "配好 API 后，AI 自动解析演出信息", en: "Set up API, AI parses the poster" },
   "upload.lockedSub": { zh: "在下方配置你的 API Key，快速生成演出 Lineup", en: "Add your API key below to generate the lineup" },
   "upload.pickPoster": { zh: "点这里选海报", en: "Pick a poster" },

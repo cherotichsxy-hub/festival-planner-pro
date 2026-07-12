@@ -447,6 +447,8 @@ export default function App() {
             onBack={pop}
             onPublish={publishFestival}
             festivals={festivals}
+            requireLogin={backend.mode !== "local" && !session}
+            onRequireLogin={() => setShowLogin(true)}
             onOpenFestival={(id) =>
               setStack((s) => [
                 ...s.slice(0, -1),

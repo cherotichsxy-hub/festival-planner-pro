@@ -16,7 +16,7 @@ const WISH_EMAIL = "axisxyxy@gmail.com";
 //                                ↓
 //                              error (含 raw response)
 
-export default function UploadScreen({ onBack, onPublish, festivals = [], onOpenFestival }) {
+export default function UploadScreen({ onBack, onPublish, festivals = [], onOpenFestival, requireLogin = false, onRequireLogin }) {
   const { t } = useI18n();
   const [phase, setPhase] = useState("idle");
   const [progress, setProgress] = useState("");
@@ -110,6 +110,8 @@ export default function UploadScreen({ onBack, onPublish, festivals = [], onOpen
             onPick={pickFile}
             festivals={festivals}
             onOpenFestival={onOpenFestival}
+            requireLogin={requireLogin}
+            onRequireLogin={onRequireLogin}
           />
         )}
         {phase === "parsing" && <ParsingView progress={progress} />}
@@ -132,7 +134,7 @@ export default function UploadScreen({ onBack, onPublish, festivals = [], onOpen
   );
 }
 
-function IdleView({ onPick, festivals, onOpenFestival }) {
+function IdleView({ onPick, festivals, onOpenFestival, requireLogin, onRequireLogin }) {
   const { t } = useI18n();
   // API 没配好就锁住上传入口（保存 key 后 ApiConfigSection 会通知刷新）
   const [, setCfgVersion] = useState(0);
@@ -147,7 +149,19 @@ function IdleView({ onPick, festivals, onOpenFestival }) {
         <span>{t("upload.orUpload")}</span>
       </div>
 
-      {hasKey ? (
+      {requireLogin ? (
+        // 登录门控：解析很慢，先要求登录，别让用户白等一场才发现要登录。
+        // 做成可点，点了直接弹登录窗。
+        <button
+          type="button"
+          className="dropzone dropzone-locked"
+          onClick={onRequireLogin}
+        >
+          <span className="dropzone-mark">🔑</span>
+          <span className="dropzone-title">{t("upload.loginToUploadTitle")}</span>
+          <span className="u-mono dropzone-sub">{t("upload.loginToUploadSub")}</span>
+        </button>
+      ) : hasKey ? (
         <label className="dropzone">
           <span className="dropzone-corner tl" />
           <span className="dropzone-corner tr" />
@@ -405,12 +419,6 @@ function WishSection() {
 
   // 云端模式：表单直接入库，站长后台可见，用户零操作成本
   async function submit() {
-    // 轻量防连点：一分钟一个愿望
-    const last = Number(localStorage.getItem("me:last_wish") || 0);
-    if (Date.now() - last < 60000) {
-      setErr(t("upload.wishTooSoon"));
-      return;
-    }
     setBusy(true);
     setErr("");
     try {
@@ -419,7 +427,6 @@ function WishSection() {
         year: year.trim(),
         link: link.trim(),
       });
-      localStorage.setItem("me:last_wish", String(Date.now()));
       setDone(true);
     } catch (e) {
       setErr(e.message || String(e));
