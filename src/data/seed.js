@@ -48,6 +48,16 @@ export const seedFestivals = [
     mainStageCount: 3,
     stages: ["旷野舞台", "战国舞台", "扑光舞台"],
   },
+  {
+    id: "moss-2026",
+    name: "MOSS 野苔音乐季 MOSS MUSIC SEASON",
+    year: 2026,
+    location: "武汉青山江滩 · 沙丁音乐秀场 SARDINEzone",
+    source: "官方时间表",
+    dates: ["2026-07-04", "2026-07-05", "2026-07-10", "2026-07-11", "2026-07-12", "2026-07-19"],
+    mainStageCount: 1,
+    stages: ["MOSS STAGE", "ROLLING STAGE"],
+  },
 ];
 
 // ============================================================
@@ -497,4 +507,67 @@ export const seedPerformances = [
   { id: "ns-d3-p4", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "迷心",                   stageName: "扑光舞台", startAt: "2026-07-26T17:20:00", endAt: "2026-07-26T18:00:00", confidence: 1 },
   { id: "ns-d3-p5", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "SinceTMRW始于明天",       stageName: "扑光舞台", startAt: "2026-07-26T18:20:00", endAt: "2026-07-26T19:00:00", confidence: 1 },
   { id: "ns-d3-p6", festivalId: "new-soil-2026", displayDate: "2026-07-26", artistName: "毛南",                   stageName: "扑光舞台", startAt: "2026-07-26T19:20:00", endAt: "2026-07-26T20:00:00", confidence: 1 },
+
+  // ============================================================
+  // MOSS 野苔音乐季 2026 · 官方时间表 (07.04–07.19)
+  // 6 个演出日；"21:00–LATE" 收尾场次结束时间为估计值
+  // ============================================================
+  // 07/04 洄声日 · MOSS STAGE
+  { id: "moss-0704-m1", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "v是兔子wishtoday",      stageName: "MOSS STAGE", startAt: "2026-07-04T14:00:00", endAt: "2026-07-04T14:40:00", confidence: 1 },
+  { id: "moss-0704-m2", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "琥珀",                  stageName: "MOSS STAGE", startAt: "2026-07-04T15:00:00", endAt: "2026-07-04T15:40:00", confidence: 1 },
+  { id: "moss-0704-m3", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "时过夏末",              stageName: "MOSS STAGE", startAt: "2026-07-04T16:00:00", endAt: "2026-07-04T16:40:00", confidence: 1 },
+  { id: "moss-0704-m4", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "Pompeya (Rus)",        stageName: "MOSS STAGE", startAt: "2026-07-04T17:00:00", endAt: "2026-07-04T17:40:00", confidence: 1 },
+  { id: "moss-0704-m5", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "PeaceHotel和平饭店",    stageName: "MOSS STAGE", startAt: "2026-07-04T18:00:00", endAt: "2026-07-04T18:40:00", confidence: 1 },
+  { id: "moss-0704-m6", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "蛙池",                  stageName: "MOSS STAGE", startAt: "2026-07-04T19:00:00", endAt: "2026-07-04T19:40:00", confidence: 1 },
+  { id: "moss-0704-m7", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "Carsick Cars",         stageName: "MOSS STAGE", startAt: "2026-07-04T20:00:00", endAt: "2026-07-04T20:40:00", confidence: 1 },
+  { id: "moss-0704-m8", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "Chinese Football",     stageName: "MOSS STAGE", startAt: "2026-07-04T21:00:00", endAt: "2026-07-04T22:00:00", confidence: 1 },
+  // 07/04 洄声日 · ROLLING STAGE
+  { id: "moss-0704-r1", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "Silly Function",       stageName: "ROLLING STAGE", startAt: "2026-07-04T17:30:00", endAt: "2026-07-04T18:10:00", confidence: 1 },
+  { id: "moss-0704-r2", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "甜又丧",                stageName: "ROLLING STAGE", startAt: "2026-07-04T18:30:00", endAt: "2026-07-04T19:10:00", confidence: 1 },
+  { id: "moss-0704-r3", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "浪味仙贝",              stageName: "ROLLING STAGE", startAt: "2026-07-04T19:30:00", endAt: "2026-07-04T20:10:00", confidence: 1 },
+  { id: "moss-0704-r4", festivalId: "moss-2026", displayDate: "2026-07-04", artistName: "白百EndlessWhite",      stageName: "ROLLING STAGE", startAt: "2026-07-04T20:30:00", endAt: "2026-07-04T21:10:00", confidence: 1 },
+  // 07/05 狂欢日 · MOSS STAGE
+  { id: "moss-0705-m1", festivalId: "moss-2026", displayDate: "2026-07-05", artistName: "沉默橙",                stageName: "MOSS STAGE", startAt: "2026-07-05T17:00:00", endAt: "2026-07-05T17:40:00", confidence: 1 },
+  { id: "moss-0705-m2", festivalId: "moss-2026", displayDate: "2026-07-05", artistName: "荒事",                  stageName: "MOSS STAGE", startAt: "2026-07-05T18:00:00", endAt: "2026-07-05T18:40:00", confidence: 1 },
+  { id: "moss-0705-m3", festivalId: "moss-2026", displayDate: "2026-07-05", artistName: "Chainhaha",            stageName: "MOSS STAGE", startAt: "2026-07-05T19:00:00", endAt: "2026-07-05T19:40:00", confidence: 1 },
+  { id: "moss-0705-m4", festivalId: "moss-2026", displayDate: "2026-07-05", artistName: "荷尔蒙小姐",            stageName: "MOSS STAGE", startAt: "2026-07-05T20:00:00", endAt: "2026-07-05T20:40:00", confidence: 1 },
+  { id: "moss-0705-m5", festivalId: "moss-2026", displayDate: "2026-07-05", artistName: "小狗的骨头",            stageName: "MOSS STAGE", startAt: "2026-07-05T21:00:00", endAt: "2026-07-05T22:00:00", confidence: 1 },
+  // 07/05 狂欢日 · ROLLING STAGE
+  { id: "moss-0705-r1", festivalId: "moss-2026", displayDate: "2026-07-05", artistName: "Manmama",              stageName: "ROLLING STAGE", startAt: "2026-07-05T16:30:00", endAt: "2026-07-05T17:10:00", confidence: 1 },
+  { id: "moss-0705-r2", festivalId: "moss-2026", displayDate: "2026-07-05", artistName: "NeverSayGoodbye",      stageName: "ROLLING STAGE", startAt: "2026-07-05T17:30:00", endAt: "2026-07-05T18:10:00", confidence: 1 },
+  { id: "moss-0705-r3", festivalId: "moss-2026", displayDate: "2026-07-05", artistName: "宇宙盲盒GalaxyBlind-box", stageName: "ROLLING STAGE", startAt: "2026-07-05T18:30:00", endAt: "2026-07-05T19:10:00", confidence: 1 },
+  { id: "moss-0705-r4", festivalId: "moss-2026", displayDate: "2026-07-05", artistName: "Deep Water",           stageName: "ROLLING STAGE", startAt: "2026-07-05T19:30:00", endAt: "2026-07-05T20:10:00", confidence: 1 },
+  // 07/10 专场日 · MOSS STAGE
+  { id: "moss-0710-m1", festivalId: "moss-2026", displayDate: "2026-07-10", artistName: "岛屿心情（限定专场）",  stageName: "MOSS STAGE", startAt: "2026-07-10T20:00:00", endAt: "2026-07-10T22:00:00", confidence: 1 },
+  // 07/11 洄声日 · MOSS STAGE
+  { id: "moss-0711-m1", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "GOINDOWN",             stageName: "MOSS STAGE", startAt: "2026-07-11T14:00:00", endAt: "2026-07-11T14:40:00", confidence: 1 },
+  { id: "moss-0711-m2", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "板砖The Brickska",      stageName: "MOSS STAGE", startAt: "2026-07-11T15:00:00", endAt: "2026-07-11T15:40:00", confidence: 1 },
+  { id: "moss-0711-m3", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "狗毛&乐队",             stageName: "MOSS STAGE", startAt: "2026-07-11T16:00:00", endAt: "2026-07-11T16:40:00", confidence: 1 },
+  { id: "moss-0711-m4", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "本能實業",              stageName: "MOSS STAGE", startAt: "2026-07-11T17:00:00", endAt: "2026-07-11T17:40:00", confidence: 1 },
+  { id: "moss-0711-m5", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "钢心",                  stageName: "MOSS STAGE", startAt: "2026-07-11T18:00:00", endAt: "2026-07-11T18:40:00", confidence: 1 },
+  { id: "moss-0711-m6", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "顶楼的马戏团",          stageName: "MOSS STAGE", startAt: "2026-07-11T19:00:00", endAt: "2026-07-11T19:40:00", confidence: 1 },
+  { id: "moss-0711-m7", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "Joyside",              stageName: "MOSS STAGE", startAt: "2026-07-11T20:00:00", endAt: "2026-07-11T20:40:00", confidence: 1 },
+  { id: "moss-0711-m8", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "Kawa乐队（管乐版）",     stageName: "MOSS STAGE", startAt: "2026-07-11T21:00:00", endAt: "2026-07-11T22:00:00", confidence: 1 },
+  // 07/11 洄声日 · ROLLING STAGE
+  { id: "moss-0711-r1", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "Kharstflux",           stageName: "ROLLING STAGE", startAt: "2026-07-11T17:30:00", endAt: "2026-07-11T18:10:00", confidence: 1 },
+  { id: "moss-0711-r2", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "佳非JahPhy",            stageName: "ROLLING STAGE", startAt: "2026-07-11T18:30:00", endAt: "2026-07-11T19:10:00", confidence: 1 },
+  { id: "moss-0711-r3", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "孤独的利里",            stageName: "ROLLING STAGE", startAt: "2026-07-11T19:30:00", endAt: "2026-07-11T20:10:00", confidence: 1 },
+  { id: "moss-0711-r4", festivalId: "moss-2026", displayDate: "2026-07-11", artistName: "Sky King Jack",        stageName: "ROLLING STAGE", startAt: "2026-07-11T20:30:00", endAt: "2026-07-11T21:10:00", confidence: 1 },
+  // 07/12 狂欢日 · MOSS STAGE
+  { id: "moss-0712-m1", festivalId: "moss-2026", displayDate: "2026-07-12", artistName: "春山后潮",              stageName: "MOSS STAGE", startAt: "2026-07-12T15:00:00", endAt: "2026-07-12T15:40:00", confidence: 1 },
+  { id: "moss-0712-m2", festivalId: "moss-2026", displayDate: "2026-07-12", artistName: "WHITE+",               stageName: "MOSS STAGE", startAt: "2026-07-12T16:00:00", endAt: "2026-07-12T16:40:00", confidence: 1 },
+  { id: "moss-0712-m3", festivalId: "moss-2026", displayDate: "2026-07-12", artistName: "跳山羊",                stageName: "MOSS STAGE", startAt: "2026-07-12T17:00:00", endAt: "2026-07-12T17:40:00", confidence: 1 },
+  { id: "moss-0712-m4", festivalId: "moss-2026", displayDate: "2026-07-12", artistName: "丢莱卡",                stageName: "MOSS STAGE", startAt: "2026-07-12T18:00:00", endAt: "2026-07-12T18:40:00", confidence: 1 },
+  { id: "moss-0712-m5", festivalId: "moss-2026", displayDate: "2026-07-12", artistName: "海皮威尔",              stageName: "MOSS STAGE", startAt: "2026-07-12T19:00:00", endAt: "2026-07-12T19:40:00", confidence: 1 },
+  { id: "moss-0712-m6", festivalId: "moss-2026", displayDate: "2026-07-12", artistName: "HYPER SLASH超级斩",     stageName: "MOSS STAGE", startAt: "2026-07-12T20:00:00", endAt: "2026-07-12T20:40:00", confidence: 1 },
+  { id: "moss-0712-m7", festivalId: "moss-2026", displayDate: "2026-07-12", artistName: "白纸扇",                stageName: "MOSS STAGE", startAt: "2026-07-12T21:00:00", endAt: "2026-07-12T22:00:00", confidence: 1 },
+  // 07/12 狂欢日 · ROLLING STAGE
+  { id: "moss-0712-r1", festivalId: "moss-2026", displayDate: "2026-07-12", artistName: "Kamerata卡梅拉塔",       stageName: "ROLLING STAGE", startAt: "2026-07-12T17:30:00", endAt: "2026-07-12T18:10:00", confidence: 1 },
+  { id: "moss-0712-r2", festivalId: "moss-2026", displayDate: "2026-07-12", artistName: "動物莊園AnimalFarm",     stageName: "ROLLING STAGE", startAt: "2026-07-12T18:30:00", endAt: "2026-07-12T19:10:00", confidence: 1 },
+  { id: "moss-0712-r3", festivalId: "moss-2026", displayDate: "2026-07-12", artistName: "云云",                  stageName: "ROLLING STAGE", startAt: "2026-07-12T19:30:00", endAt: "2026-07-12T20:10:00", confidence: 1 },
+  { id: "moss-0712-r4", festivalId: "moss-2026", displayDate: "2026-07-12", artistName: "阿依木",                stageName: "ROLLING STAGE", startAt: "2026-07-12T20:30:00", endAt: "2026-07-12T21:10:00", confidence: 1 },
+  // 07/19 洄声日 · MOSS STAGE
+  { id: "moss-0719-m1", festivalId: "moss-2026", displayDate: "2026-07-19", artistName: "SoulFa灵魂沙发",         stageName: "MOSS STAGE", startAt: "2026-07-19T19:00:00", endAt: "2026-07-19T19:40:00", confidence: 1 },
+  { id: "moss-0719-m2", festivalId: "moss-2026", displayDate: "2026-07-19", artistName: "陳嫻靜",                stageName: "MOSS STAGE", startAt: "2026-07-19T20:00:00", endAt: "2026-07-19T20:40:00", confidence: 1 },
+  { id: "moss-0719-m3", festivalId: "moss-2026", displayDate: "2026-07-19", artistName: "LÜCY",                  stageName: "MOSS STAGE", startAt: "2026-07-19T21:00:00", endAt: "2026-07-19T22:00:00", confidence: 1 },
 ];
