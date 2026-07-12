@@ -2,7 +2,7 @@
 
 产品名与 logo 资产。命名与图形均沿用 DESIGN.md 的视觉系统（复古音乐节海报 / 磁带语言），不引入新 hue、新字体。
 
-- **Slogan（对外宣传）**：`LIFE BRINGS PEOPLE TOGETHER` —— 不限于音乐（后续支持戏剧节等），mono 大写 + 正字距排版。
+- **Slogan（对外宣传）**：`LIVE BRINGS PEOPLE TOGETHER` —— live 泛指一切现场演出（音乐节 / 戏剧节等），mono 大写 + 正字距排版。2026-07-12 定稿 LIVE（此前短暂写作 LIFE，已废弃）。
 - **App 内 tagline（首页抬头）**：沿用 i18n `home.tagline`（"不错过每一个想看的现场" / "Never miss a set you wanted"），不用 slogan。
 
 ## 名字：Encore（安可）
