@@ -204,6 +204,23 @@ export default function App() {
   }
 
   function publishFestival(newFestival, newPerformances) {
+    const cloud = backend.mode !== "local";
+
+    // 拦截 1：同 id 已存在（多半是别人已经发过这个音乐节）→ 提示，不重复发。
+    // 校对页原地保留，用户可以改名或直接去看已有的那个。
+    if (festivals.some((f) => f.id === newFestival.id)) {
+      showToast(t("toast.festExists"));
+      return;
+    }
+
+    // 拦截 2：云端模式但没登录 → 分享必须登录，别静默只存本机让用户以为分享成功了。
+    // 弹登录窗，校对页原地保留，登录后再点一次 PUBLISH 即可真正发布。
+    if (cloud && !backend.auth.getSession()) {
+      showToast(t("toast.loginToShare"));
+      setShowLogin(true);
+      return;
+    }
+
     setFestivals((prev) => {
       const next = [...prev, newFestival];
       saveFestivals(next);
@@ -215,7 +232,7 @@ export default function App() {
       return next;
     });
     // 已登录 → 同步发布到社区（尽力而为，失败只影响共享不影响本机）
-    if (backend.mode !== "local" && backend.auth.getSession()) {
+    if (cloud && backend.auth.getSession()) {
       backend.community
         .publish(newFestival, newPerformances)
         .catch((e) => console.warn("[cloud] 发布到社区失败:", e));

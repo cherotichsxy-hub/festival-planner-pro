@@ -135,6 +135,8 @@ const DICT = {
   "toast.beenOff": { zh: "已取消去过", en: "Removed from been" },
   "toast.wantOn": { zh: "★ 已加想看", en: "★ Added to want" },
   "toast.wantOff": { zh: "已取消想看", en: "Removed from want" },
+  "toast.festExists": { zh: "这个音乐节已经有了 · 无需重复发布", en: "This festival already exists · no need to re-publish" },
+  "toast.loginToShare": { zh: "登录后即可发布分享 · 校对内容已为你保留", en: "Sign in to publish · your edits are kept" },
 
   // ---------- Upload ----------
   "upload.title1": { zh: "UPLOAD", en: "UPLOAD" },
