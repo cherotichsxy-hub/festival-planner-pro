@@ -21,7 +21,7 @@ const KEYS = {
 
 // 每次 seed 数据有意义改动就 bump 这个版本号，让用户浏览器里的旧缓存自动作废。
 // 不会影响 me:selections（用户的个人标记）—— 只清 community 数据。
-const SEED_VERSION = "pro-2026-multi-v4-moss";
+const SEED_VERSION = "pro-2026-multi-v5-eltempo-link";
 
 export function migrateIfStale() {
   if (typeof window === "undefined") return;
