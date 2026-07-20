@@ -256,6 +256,23 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   margin-bottom: 10px;
 }
 .rack-count { color: var(--text-mute); }
+.home-rack-section + .home-rack-section { margin-top: 26px; }
+.home-rack-section.is-upcoming .rack-title {
+  color: var(--text);
+  border-bottom-color: var(--bauhaus-red);
+}
+.home-rack-section.is-upcoming .rack-title::before {
+  content: "";
+  width: 16px;
+  height: 4px;
+  margin-right: 8px;
+  background: var(--bauhaus-red);
+  flex: 0 0 auto;
+}
+.home-rack-section.is-upcoming .rack-title > :first-child {
+  margin-right: auto;
+}
+.home-rack-section.is-upcoming .rack-count { color: var(--text); }
 .profile-section { padding: 0 16px; }
 .profile-section + .profile-section { margin-top: 28px; }
 .cassette-section + .cassette-section { margin-top: 22px; }

@@ -24,6 +24,17 @@ function festivalStart(f) {
   return "";
 }
 
+function festivalEnd(f) {
+  const ds = (f.dates || []).filter(Boolean).slice().sort();
+  if (ds.length) return ds[ds.length - 1];
+  if (f.year) return `${f.year}-12-31`;
+  return "";
+}
+
+function localIsoDate(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 export default function HomeScreen({
   festivals,
   performances,
@@ -73,6 +84,21 @@ export default function HomeScreen({
         return (a.name || "").localeCompare(b.name || "");
       });
   }, [festivals, performances, selections, q]);
+
+  const { upcoming, channels } = useMemo(() => {
+    const today = localIsoDate(new Date());
+    const upcomingItems = enriched
+      .filter((festival) => wanted[festival.id] && festivalEnd(festival) >= today)
+      .sort((a, b) => {
+        const dateOrder = festivalStart(a).localeCompare(festivalStart(b));
+        return dateOrder || (a.name || "").localeCompare(b.name || "");
+      });
+    const upcomingIds = new Set(upcomingItems.map((festival) => festival.id));
+    return {
+      upcoming: upcomingItems,
+      channels: enriched.filter((festival) => !upcomingIds.has(festival.id)),
+    };
+  }, [enriched, wanted]);
 
   return (
     <div className="screen-body">
@@ -149,88 +175,131 @@ export default function HomeScreen({
           <span className="upload-rack-arrow">→</span>
         </button>
 
-        <header className="rack-title">
-          <span className="u-mono">CHANNELS{lang === "zh" ? " / 频道" : ""}</span>
-          <span className="u-mono rack-count">
-            {String(enriched.length).padStart(2, "0")}
-          </span>
-        </header>
-
         {enriched.length === 0 ? (
           <p className="rack-empty u-mono">{t("home.noMatch")}</p>
         ) : (
-          <ul className="cassette-stack">
-            {enriched.map((f) => {
-              const cassette =
-                CASSETTE_COLORS[f.cassetteIdx % CASSETTE_COLORS.length];
-              const isWanted = !!wanted[f.id];
-              const isAttended = !!attended[f.id];
-              return (
-                <li key={f.id}>
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    className="cassette-card"
-                    style={{
-                      "--cassette-color": cassette.color,
-                      "--cassette-ink": cassette.ink,
-                    }}
-                    onClick={() => onOpenFestival(f.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") onOpenFestival(f.id);
-                    }}
-                  >
-                    <div className="cassette-strip">
-                      <span className="cassette-strip-label">
-                        FREQ · {f.year}
-                      </span>
-                      <span className="cassette-strip-actions">
-                        <button
-                          type="button"
-                          className={`cassette-chip${isWanted ? " on" : ""}`}
-                          aria-pressed={isWanted}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onToggleWanted?.(f.id);
-                          }}
-                        >
-                          {isWanted ? t("home.wantOn") : t("home.want")}
-                        </button>
-                        <button
-                          type="button"
-                          className={`cassette-chip${isAttended ? " on" : ""}`}
-                          aria-pressed={isAttended}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onToggleAttended?.(f.id);
-                          }}
-                        >
-                          {isAttended ? t("home.beenOn") : t("home.been")}
-                        </button>
-                      </span>
-                    </div>
-                    <div className="cassette-label">
-                      <strong className="cassette-name">{f.name}</strong>
-                      <span className="cassette-loc">{f.location}</span>
-                      <div className="cassette-stats">
-                        <span>
-                          {f.daysCount}D · {f.stagesCount} STAGES ·{" "}
-                          {f.setsCount} SETS
-                        </span>
-                        {f.markedCount > 0 && (
-                          <span className="cassette-marks">
-                            ● {f.markedCount} MARKED
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <>
+            {upcoming.length > 0 && (
+              <section className="home-rack-section is-upcoming">
+                <header className="rack-title">
+                  <span className="u-mono">UPCOMING{lang === "zh" ? " / 即将开始" : ""}</span>
+                  <span className="u-mono rack-count">
+                    {String(upcoming.length).padStart(2, "0")}
+                  </span>
+                </header>
+                <CassetteStack
+                  festivals={upcoming}
+                  wanted={wanted}
+                  attended={attended}
+                  onToggleWanted={onToggleWanted}
+                  onToggleAttended={onToggleAttended}
+                  onOpenFestival={onOpenFestival}
+                />
+              </section>
+            )}
+
+            <section className="home-rack-section">
+              <header className="rack-title">
+                <span className="u-mono">CHANNELS{lang === "zh" ? " / 频道" : ""}</span>
+                <span className="u-mono rack-count">
+                  {String(channels.length).padStart(2, "0")}
+                </span>
+              </header>
+              {channels.length > 0 && (
+                <CassetteStack
+                  festivals={channels}
+                  wanted={wanted}
+                  attended={attended}
+                  onToggleWanted={onToggleWanted}
+                  onToggleAttended={onToggleAttended}
+                  onOpenFestival={onOpenFestival}
+                />
+              )}
+            </section>
+          </>
         )}
       </div>
     </div>
+  );
+}
+
+function CassetteStack({
+  festivals,
+  wanted,
+  attended,
+  onToggleWanted,
+  onToggleAttended,
+  onOpenFestival,
+}) {
+  const { t } = useI18n();
+  return (
+    <ul className="cassette-stack">
+      {festivals.map((festival) => {
+        const cassette =
+          CASSETTE_COLORS[festival.cassetteIdx % CASSETTE_COLORS.length];
+        const isWanted = !!wanted[festival.id];
+        const isAttended = !!attended[festival.id];
+        return (
+          <li key={festival.id}>
+            <div
+              role="button"
+              tabIndex={0}
+              className="cassette-card"
+              style={{
+                "--cassette-color": cassette.color,
+                "--cassette-ink": cassette.ink,
+              }}
+              onClick={() => onOpenFestival(festival.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") onOpenFestival(festival.id);
+              }}
+            >
+              <div className="cassette-strip">
+                <span className="cassette-strip-label">FREQ · {festival.year}</span>
+                <span className="cassette-strip-actions">
+                  <button
+                    type="button"
+                    className={`cassette-chip${isWanted ? " on" : ""}`}
+                    aria-pressed={isWanted}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleWanted?.(festival.id);
+                    }}
+                  >
+                    {isWanted ? t("home.wantOn") : t("home.want")}
+                  </button>
+                  <button
+                    type="button"
+                    className={`cassette-chip${isAttended ? " on" : ""}`}
+                    aria-pressed={isAttended}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleAttended?.(festival.id);
+                    }}
+                  >
+                    {isAttended ? t("home.beenOn") : t("home.been")}
+                  </button>
+                </span>
+              </div>
+              <div className="cassette-label">
+                <strong className="cassette-name">{festival.name}</strong>
+                <span className="cassette-loc">{festival.location}</span>
+                <div className="cassette-stats">
+                  <span>
+                    {festival.daysCount}D · {festival.stagesCount} STAGES ·{" "}
+                    {festival.setsCount} SETS
+                  </span>
+                  {festival.markedCount > 0 && (
+                    <span className="cassette-marks">
+                      ● {festival.markedCount} MARKED
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
