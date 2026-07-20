@@ -88,7 +88,7 @@ export default function UploadScreen({ onBack, onPublish, festivals = [], onOpen
     phase === "review" && meta?.name?.trim() && perfs.length > 0;
 
   return (
-    <div className="screen-body">
+    <div className="screen-body upload-screen">
       <header className="upload-header">
         <button className="back-btn" onClick={onBack} aria-label={t("login.close")}>‹</button>
         <div className="upload-header-main">

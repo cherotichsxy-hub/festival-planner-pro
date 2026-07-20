@@ -63,7 +63,7 @@ export default function FestivalScreen({
   const dayIndex = festival.dates.indexOf(activeDate) + 1;
 
   return (
-    <>
+    <div className="screen-body festival-screen">
       <header className={`fest-header${compact ? " compact" : ""}`}>
         <div className="fest-header-top">
           {onBack && (
@@ -224,6 +224,6 @@ export default function FestivalScreen({
           />
         )}
       </main>
-    </>
+    </div>
   );
 }

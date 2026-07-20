@@ -45,7 +45,7 @@ export default function ProfileScreen({
   }
 
   return (
-    <div className="screen-body">
+    <div className="screen-body profile-screen">
       <header className="brand-bar">
         <div className="brand-bar-marker">
           <span className="brand-mark">ME</span>

@@ -468,6 +468,9 @@ export default function App() {
             点当前 tab = 回到该 tab 根部。「添加新演出」不在这里——
             它是首页里的一个动作，不该抬到和"规划/我的"平级 */}
         <nav className="root-nav">
+          <span className="root-nav-brand" aria-hidden="true">
+            ENCORE<span>.</span>
+          </span>
           <button
             className={rootTab === "home" ? "active" : ""}
             onClick={() => switchTab("home")}
