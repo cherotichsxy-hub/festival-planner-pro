@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toBlob } from "html-to-image";
 import { formatHM, formatChineseMonthDay, formatMonthDay } from "../lib/time.js";
@@ -7,6 +7,7 @@ import ShareCanvas from "./ShareCanvas.jsx";
 import ShareCanvasTimetable from "./ShareCanvasTimetable.jsx";
 import TimetableView from "./TimetableView.jsx";
 import { useI18n } from "../lib/i18n.js";
+import { buildPlanRoute } from "../lib/planRoute.js";
 
 // headliner 色块色板（5 种 dusty 变体轮换）
 const HEADLINER_COLORS = ["#8b1d1d", "#7e97a8", "#1e1506", "#b76060", "#afc0cd"];
@@ -31,13 +32,7 @@ export default function MyPlanList({
   const [includeNotes, setIncludeNotes] = useState(false);
   const paperRef = useRef(null);
   const shareCanvasRef = useRef(null);
-  const [view, setView] = useState(() => {
-    try { return localStorage.getItem("me:myplan_view") || "list"; } catch { return "list"; }
-  });
-  function switchView(v) {
-    setView(v);
-    try { localStorage.setItem("me:myplan_view", v); } catch {}
-  }
+  const [view, setView] = useState("list");
   const [shareState, setShareState] = useState("idle"); // idle | working | preview | done | error
   const [previewBlob, setPreviewBlob] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -150,6 +145,11 @@ export default function MyPlanList({
       .sort((a, b) => new Date(a.startAt) - new Date(b.startAt));
   }, [performances, selections, activeDate, stageFilter]);
 
+  const planRoute = useMemo(
+    () => buildPlanRoute(visible, selections, headliners || [], axisChoice || {}),
+    [visible, selections, headliners, axisChoice],
+  );
+
   const dayIndex = festival.dates.indexOf(activeDate) + 1;
 
   // 有没有任何"已标记且写了备注"的演出——没有就别在分享面板里摆这个开关
@@ -203,6 +203,8 @@ export default function MyPlanList({
           </div>
         </header>
 
+        <NowNext activeDate={activeDate} primaries={planRoute.primaries} />
+
         <div className="myplan-paper-summary u-mono">
           {summary.perDay.map((s, i) => (
             <React.Fragment key={s.date}>
@@ -220,7 +222,7 @@ export default function MyPlanList({
             role="tab"
             aria-selected={view === "list"}
             className={view === "list" ? "active" : ""}
-            onClick={() => switchView("list")}
+            onClick={() => setView("list")}
           >
             {t("plan.list")}
           </button>
@@ -229,7 +231,7 @@ export default function MyPlanList({
             role="tab"
             aria-selected={view === "table"}
             className={view === "table" ? "active" : ""}
-            onClick={() => switchView("table")}
+            onClick={() => setView("table")}
           >
             {t("plan.timetable")}
           </button>
@@ -250,22 +252,36 @@ export default function MyPlanList({
             selections={selections}
             headliners={headliners}
             axisChoice={axisChoice || {}}
-            conflictMap={conflictMap}
             onPickAxis={onPickAxis}
           />
         ) : (
           <ul className="myplan-rows">
-            {visible.map((p) => (
-              <MyPlanRow
-                key={p.id}
-                perf={p}
-                festival={festival}
-                status={selections[p.id]}
-                note={notes[p.id] || ""}
-                showConflict={shouldShowConflict(p, selections[p.id], conflictMap, selections)}
-                onClear={() => onSetStatus(p.id, null)}
-              />
-            ))}
+            {planRoute.primaries.map((perf) => {
+              const alternatives = planRoute.alternativesByPrimary[perf.id] || [];
+              return (
+                <React.Fragment key={perf.id}>
+                  <MyPlanPrimaryRow
+                    perf={perf}
+                    festival={festival}
+                    note={notes[perf.id] || ""}
+                    hasConflict={alternatives.length > 0}
+                    isMaybe={selections[perf.id] === "maybe"}
+                  />
+                  {alternatives.map(({ perf: alternative, conflictingPrimaryIds }) => (
+                    <ConflictAlternativeRow
+                      key={alternative.id}
+                      perf={alternative}
+                      festival={festival}
+                      onPick={() => onPickAxis?.(
+                        alternative.id,
+                        conflictingPrimaryIds,
+                      )}
+                    />
+                  ))}
+                  {alternatives.length > 0 && <li className="myplan-tail-rule" aria-hidden />}
+                </React.Fragment>
+              );
+            })}
           </ul>
         )}
 
@@ -536,14 +552,61 @@ function HeadlinerPicker({ festival, mustSeePerfs, headlinerList, onPick, onClos
   );
 }
 
-function shouldShowConflict(perf, status, conflictMap, selections) {
-  const list = conflictMap[perf.id];
-  if (!list || list.length === 0) return false;
-  if (status === "maybe") return true;
-  return list.some((c) => selections[c.id] === "must");
+function localIsoDate(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-function MyPlanRow({ perf, festival, status, note = "", showConflict, onClear }) {
+function NowNext({ activeDate, primaries }) {
+  const { t } = useI18n();
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    if (activeDate !== localIsoDate(new Date())) return undefined;
+    const timer = window.setInterval(() => setNow(new Date()), 60000);
+    return () => window.clearInterval(timer);
+  }, [activeDate]);
+
+  if (primaries.length === 0) return null;
+
+  const isToday = activeDate === localIsoDate(now);
+  const nowMs = now.getTime();
+  const current = isToday && primaries.find(
+    (perf) => new Date(perf.startAt).getTime() <= nowMs && nowMs < new Date(perf.endAt).getTime(),
+  );
+  const next = isToday
+    ? primaries.find((perf) => new Date(perf.startAt).getTime() > nowMs)
+    : primaries[0];
+  const minutesUntilNext = next && isToday
+    ? Math.max(0, Math.ceil((new Date(next.startAt).getTime() - nowMs) / 60000))
+    : null;
+
+  return (
+    <div className={`myplan-now-next u-mono${current ? " is-live" : ""}`} aria-live="polite">
+      <div className="myplan-now-next-row">
+        <span className="myplan-live-dot" aria-hidden />
+        <strong>
+          {current
+            ? `${t("plan.now")} · ${current.artistName} — ${current.stageName}`
+            : isToday && next
+              ? t("plan.inTransit")
+              : isToday
+                ? t("plan.doneToday")
+                : `${t("plan.next")} · ${next.artistName} — ${formatHM(next.startAt)} · ${next.stageName}`}
+        </strong>
+      </div>
+      {current && next && (
+        <div className="myplan-now-next-row is-next">
+          <span>
+            {t("plan.next")} · {next.artistName} {formatHM(next.startAt)}
+            {minutesUntilNext != null && `（${t("plan.minutesLater", { n: minutesUntilNext })}）`}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MyPlanPrimaryRow({ perf, festival, note = "", hasConflict, isMaybe }) {
   const { t } = useI18n();
   const color = getStageColor(festival, perf.stageName);
   const style = {
@@ -552,60 +615,46 @@ function MyPlanRow({ perf, festival, status, note = "", showConflict, onClear })
     "--stage-text": color.text,
   };
 
-  if (status === "must") {
-    return (
-      <li
-        className={`myplan-row must-row${showConflict ? " has-conflict" : ""}`}
-        style={style}
-      >
-        <span className="row-marker">★</span>
-        <div className="row-time">
-          <strong>{formatHM(perf.startAt)}</strong>
-          <small>—{formatHM(perf.endAt)}</small>
-        </div>
-        <div className="row-main">
-          <strong className="row-name">{perf.artistName}</strong>
-          <span className="row-stage">
-            <span className="dot" />{perf.stageName}
-          </span>
-          {showConflict && (
-            <span className="row-conflict">{t("plan.clashMustMust")}</span>
-          )}
-          {note && <span className="row-note">✎ {note}</span>}
-        </div>
-        <button
-          type="button"
-          className="row-remove"
-          onClick={onClear}
-          aria-label={t("plan.unmark")}
-        >
-          ✕
-        </button>
-      </li>
-    );
-  }
-
-  // 待定 行：紧凑灰行，冲突时变红
   return (
     <li
-      className={`myplan-row maybe-row${showConflict ? " has-conflict" : ""}`}
+      className={`myplan-primary-row${hasConflict ? " has-conflict" : ""}${isMaybe ? " is-maybe" : ""}`}
       style={style}
     >
-      <span className="row-marker">?</span>
-      <span className="maybe-time">{formatHM(perf.startAt)}</span>
-      <span className="maybe-name">{perf.artistName}</span>
-      <span className="maybe-stage">
-        <span className="dot" />{perf.stageName}
-      </span>
-      {showConflict && <span className="maybe-conflict">{t("plan.clashMust")}</span>}
-      {note && <span className="row-note">✎ {note}</span>}
-      <button
-        type="button"
-        className="row-remove"
-        onClick={onClear}
-        aria-label={t("plan.unmark")}
-      >
-        ✕
+      <div className="row-time">
+        <strong>{formatHM(perf.startAt)}</strong>
+        <small>—{formatHM(perf.endAt)}</small>
+      </div>
+      <div className="row-main">
+        <strong className="row-name">
+          {perf.artistName}
+          {isMaybe && <span className="myplan-maybe-label">{t("plan.maybe")}</span>}
+        </strong>
+        <span className="row-stage">
+          <span className="dot" />{perf.stageName}
+        </span>
+        {note && <span className="row-note">✎ {note}</span>}
+      </div>
+    </li>
+  );
+}
+
+function ConflictAlternativeRow({ perf, festival, onPick }) {
+  const { t } = useI18n();
+  const color = getStageColor(festival, perf.stageName);
+  return (
+    <li
+      className="myplan-conflict-row"
+      style={{ "--stage-solid": color.solid }}
+    >
+      <div className="myplan-conflict-info">
+        <strong className="myplan-conflict-name">{perf.artistName}</strong>
+        <span className="myplan-conflict-meta">
+          {t("plan.timeConflict")} · {formatHM(perf.startAt)}–{formatHM(perf.endAt)}
+          <span className="myplan-conflict-stage"> · {perf.stageName}</span>
+        </span>
+      </div>
+      <button type="button" className="myplan-conflict-swap" onClick={onPick}>
+        {t("plan.switchToThis")}
       </button>
     </li>
   );

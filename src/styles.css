@@ -1789,6 +1789,52 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   padding-top: 6px;
 }
 
+.myplan-now-next {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: rgba(0, 0, 0, 0.06);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+.myplan-now-next.is-live {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+}
+.myplan-now-next-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.myplan-now-next-row strong,
+.myplan-now-next-row span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.myplan-now-next-row.is-next {
+  padding-left: 15px;
+  color: rgba(0, 0, 0, 0.6);
+}
+.myplan-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bauhaus-red);
+  flex: 0 0 auto;
+}
+.myplan-now-next.is-live .myplan-live-dot {
+  animation: myplan-live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes myplan-live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
 .myplan-paper-summary {
   margin-top: 10px;
   padding: 6px 8px;
@@ -1850,7 +1896,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 .timetable-wrap {
   margin: 8px 0 16px;
   border: 1.5px solid var(--paper-ink);
-  background: var(--paper-bg);
+  background: var(--paper-cream);
   overflow: hidden;
 }
 .timetable-scroll {
@@ -1871,13 +1917,14 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   position: absolute;
   left: 0;
   right: 0;
-  text-align: right;
-  padding-right: 8px;
-  font-size: 13px;
+  text-align: left;
+  padding-left: 6px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: var(--paper-ink);
-  transform: translateY(-9px);
+  transform: translateY(-6px);
+  background: var(--paper-cream);
 }
 .timetable-lane {
   position: relative;
@@ -1902,55 +1949,55 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 }
 .timetable-axis-main {
   position: relative;
-  background: var(--paper-bg);
+  background: var(--paper-cream);
   border-left: 1px solid rgba(30, 21, 6, 0.18);
 }
 .timetable-axis-backup {
   position: relative;
-  background: var(--paper-bg);
+  background: var(--paper-cream);
   border-left: 1px solid rgba(30, 21, 6, 0.18);
 }
-/* 主轴块：铺满列、无边框（靠颜色和位置识别） */
+/* 主轴块：所有演出使用同一条黑色边框，Top Pick 只用星号区分。 */
 .tt-block.tt-axis {
   left: 0;
-  right: 0;
-  padding: 10px 12px;
-  border: none;
-  box-shadow: none;
+  right: 4px;
+  padding: 5px 10px;
+  background: var(--stage-solid);
+  color: #fff;
+  border: 1.5px solid var(--paper-ink);
+  box-shadow: 2px 2px 0 var(--paper-ink);
   font-size: 13px;
-  gap: 4px;
+  gap: 1px;
+  opacity: 1;
+  font-weight: 700;
   z-index: 2;
 }
 .tt-block.tt-axis .tt-block-name {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.01em;
   word-break: break-word;
   line-height: 1.15;
 }
-.tt-block.tt-axis.is-headliner {
-  outline: 2px solid var(--paper-ink);
-  outline-offset: -2px;
-}
 .tt-headliner-mark {
-  font-size: 14px;
-  margin-right: 4px;
+  font-size: 10px;
+  margin-right: 3px;
   line-height: 1;
 }
 /* 备选块（矩形，铺满备选列）*/
 .tt-bubble {
   position: absolute;
-  left: 0;
-  right: 0;
-  padding: 8px 8px;
-  background: var(--stage-solid);
-  color: #fff;
-  border: none;
+  left: 4px;
+  right: 4px;
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--paper-ink);
+  border: 1px dashed rgba(0, 0, 0, 0.45);
   border-radius: 0;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   overflow: hidden;
   text-align: left;
   font-family: inherit;
@@ -1960,20 +2007,8 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 .tt-bubble:active {
   transform: scale(0.98);
 }
-.tt-bubble.tt-maybe {
-  background: var(--paper-bg);
-  color: var(--paper-ink);
-  opacity: 0.7;
-}
-.tt-bubble.tt-maybe::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border: 1px dashed var(--paper-ink);
-  pointer-events: none;
-}
 .tt-bubble-name {
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 800;
   line-height: 1.15;
   word-break: break-word;
@@ -1983,13 +2018,21 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   overflow: hidden;
 }
 .tt-bubble-meta {
-  font-size: 9px;
+  font-size: 8px;
   letter-spacing: 0.04em;
   opacity: 0.85;
   margin-top: auto;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.tt-gap {
+  position: absolute;
+  left: 6px;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: rgba(0, 0, 0, 0.45);
+  z-index: 3;
 }
 
 /* 演出块 ===== 必看：实底色块 + 加粗 ===== */
@@ -2021,6 +2064,13 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   opacity: 0.55;
   font-weight: 500;
   z-index: 1;
+}
+.tt-block.tt-axis.tt-maybe {
+  background: var(--stage-solid);
+  color: #fff;
+  border: 1.5px solid var(--paper-ink);
+  opacity: 1;
+  font-weight: 700;
 }
 /* 块内的 stage chip ===== 小字 + 圆点 ===== */
 .tt-block-stage {
@@ -2102,24 +2152,26 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   gap: 0;
 }
 
-/* 必看：大行 */
-.must-row {
+/* 当前安排：干净的大行。状态不抢视觉层级。 */
+.myplan-primary-row {
   display: grid;
-  grid-template-columns: 18px 64px 1fr 22px;
+  grid-template-columns: 64px 1fr;
   gap: 10px;
   align-items: start;
   padding: 12px 0;
   border-bottom: 1px dotted rgba(0, 0, 0, 0.25);
 }
-.must-row .row-marker {
-  font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--paper-ink);
-  line-height: 1;
-  padding-top: 4px;
+.myplan-primary-row.has-conflict {
+  border-bottom: none;
+  padding-bottom: 8px;
 }
-.must-row.has-conflict .row-marker { color: var(--conflict); }
+.myplan-primary-row.is-maybe {
+  color: rgba(0, 0, 0, 0.62);
+}
+.myplan-primary-row.is-maybe .row-time strong,
+.myplan-primary-row.is-maybe .row-name {
+  color: rgba(0, 0, 0, 0.62);
+}
 .row-time {
   display: flex;
   flex-direction: column;
@@ -2147,6 +2199,19 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   line-height: 1.2;
   color: var(--paper-ink);
 }
+.myplan-maybe-label {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 2px 4px 1px;
+  border: 1px solid rgba(0, 0, 0, 0.32);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  vertical-align: 2px;
+  color: rgba(0, 0, 0, 0.5);
+}
 .row-stage {
   margin-top: 4px;
   display: inline-flex;
@@ -2164,15 +2229,6 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   background: var(--stage-solid);
   border-radius: 50%;
 }
-.row-conflict {
-  display: block;
-  margin-top: 6px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--conflict);
-  letter-spacing: 0.08em;
-}
 /* My Plan 里的个人备注（hint） */
 .row-note {
   display: block;
@@ -2183,89 +2239,55 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   color: rgba(0, 0, 0, 0.55);
   word-break: break-word;
 }
-.maybe-row .row-note {
-  flex: 0 0 100%;
-  margin-top: 2px;
-  padding-left: 26px;
-}
-
-/* 待定：小灰行 */
-.maybe-row {
+/* 时间冲突：紧贴主行的从属小行，唯一动作是改看这场。 */
+.myplan-conflict-row {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 4px 8px;
-  padding: 8px 4px 8px 0;
-  border-bottom: 1px dotted rgba(0, 0, 0, 0.18);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: rgba(0, 0, 0, 0.55);
+  gap: 8px;
+  margin-left: 74px;
+  padding: 7px 10px;
+  border: 1px dashed rgba(0, 0, 0, 0.4);
+  border-bottom: none;
+  background: rgba(0, 0, 0, 0.035);
 }
-.maybe-row .row-marker {
-  width: 18px;
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(0, 0, 0, 0.45);
-  text-align: center;
-}
-.maybe-row.has-conflict {
-  color: var(--conflict);
-  background: rgba(216, 58, 50, 0.08);
-}
-.maybe-row.has-conflict .row-marker { color: var(--conflict); }
-.maybe-time {
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--paper-ink);
-}
-.maybe-row.has-conflict .maybe-time { color: var(--conflict); }
-.maybe-name {
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--paper-ink);
+.myplan-conflict-info {
   flex: 1 1 auto;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.myplan-conflict-name {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.maybe-row.has-conflict .maybe-name { color: var(--conflict); }
-.maybe-stage {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  letter-spacing: 0.05em;
-  color: rgba(0, 0, 0, 0.5);
+.myplan-conflict-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.maybe-row.has-conflict .maybe-stage { color: var(--conflict); opacity: 0.9; }
-.maybe-stage .dot {
-  width: 6px;
-  height: 6px;
-  background: var(--stage-solid);
-  border-radius: 50%;
-}
-.maybe-conflict {
-  font-weight: 800;
-  color: var(--conflict);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-}
-
-.row-remove {
-  width: 22px;
-  height: 22px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  color: rgba(0, 0, 0, 0.45);
+.myplan-conflict-swap {
   flex: 0 0 auto;
-  margin-left: auto;
+  padding: 4px 9px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  background: transparent;
+  color: rgba(0, 0, 0, 0.75);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
 }
-.row-remove:hover { color: var(--paper-ink); background: rgba(0, 0, 0, 0.08); }
+.myplan-conflict-swap:active { background: rgba(0, 0, 0, 0.08); }
+.myplan-tail-rule {
+  height: 0;
+  border-bottom: 1px dotted rgba(0, 0, 0, 0.25);
+}
 
 /* ---------- 票据 footer ---------- */
 .myplan-paper-foot {
