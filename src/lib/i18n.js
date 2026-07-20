@@ -53,7 +53,7 @@ const DICT = {
   "plan.topPick": { zh: "My Top Pick", en: "My Top Pick" },
   "plan.slot": { zh: "SLOT", en: "SLOT" },
   "plan.runOfShow": { zh: "RUN-OF-SHOW", en: "RUN-OF-SHOW" },
-  "plan.list": { zh: "列表", en: "List" },
+  "plan.list": { zh: "行程", en: "Itinerary" },
   "plan.timetable": { zh: "时间表", en: "Timetable" },
   "plan.noQueued": { zh: "— NO SETS QUEUED FOR THIS DAY —", en: "— NO SETS QUEUED FOR THIS DAY —" },
   "plan.goMark": { zh: "到「LINEUP」点 ★ 或 ? 标记演出", en: "Mark ★ or ? in LINEUP" },
@@ -86,6 +86,14 @@ const DICT = {
   "plan.cancel": { zh: "取消", en: "Cancel" },
   "plan.download": { zh: "↗ 下载 / 分享", en: "↗ Download / Share" },
   "plan.done": { zh: "完成", en: "Done" },
+  "plan.timeConflict": { zh: "时间冲突", en: "Time conflict" },
+  "plan.switchToThis": { zh: "改看这场", en: "See this instead" },
+  "plan.maybe": { zh: "待定", en: "Maybe" },
+  "plan.now": { zh: "正在演出", en: "Now playing" },
+  "plan.next": { zh: "下一场", en: "Next" },
+  "plan.inTransit": { zh: "转场中", en: "Between sets" },
+  "plan.doneToday": { zh: "今日演出结束", en: "Your day is complete" },
+  "plan.minutesLater": { zh: "{n} 分钟后", en: "in {n} min" },
 
   // ---------- Profile ----------
   "profile.sub": { zh: "想看 · 待看 · 看过", en: "Want · Planned · Been" },

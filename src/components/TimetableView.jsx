@@ -2,21 +2,20 @@ import React, { useMemo } from "react";
 import { formatHM } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
 import { useI18n } from "../lib/i18n.js";
+import { buildPlanRoute } from "../lib/planRoute.js";
 
 /**
- * 时间表视图 v2 · 主轴 + 备选
+ * 时间表视图 · 当前安排 + 冲突备选
  *
  * 布局：
  *  - 时间轴 (左)
  *  - 主轴 (中, 占大宽度)：每个时段一个 main block，体现"我的行程主线"
  *  - 备选 (右, 占小宽度)：撞档时同时段的其他候选浮现成 bubble，可点击切换到主轴
  *
- * 撞档优先级（决定 main 是谁）：
- *  1. Headliner > 用户固定 (axisChoice) > 时间最早
- *
- * 待定永远在备选 bubble 里。
+ * Pairwise overlaps are resolved by buildPlanRoute, so compatible sets on
+ * either side of a chain conflict can both remain in the primary route.
  */
-const HOUR_PX = 88;
+const HOUR_PX = 56;
 const DAY_START_HOUR = 10;
 
 export default function TimetableView({
@@ -26,7 +25,6 @@ export default function TimetableView({
   selections,
   headliners = [],
   axisChoice = {},
-  conflictMap,
   onPickAxis,
 }) {
   const { t } = useI18n();
@@ -38,40 +36,10 @@ export default function TimetableView({
     [performances, activeDate, selections],
   );
 
-  // 切冲突组（sweep line：startAt < curEnd → 同组）
-  const groups = useMemo(() => {
-    const result = [];
-    let cur = null;
-    let curEnd = 0;
-    for (const p of items) {
-      const s = new Date(p.startAt).getTime();
-      const e = new Date(p.endAt).getTime();
-      if (cur && s < curEnd) {
-        cur.push(p);
-        if (e > curEnd) curEnd = e;
-      } else {
-        cur = [p];
-        curEnd = e;
-        result.push(cur);
-      }
-    }
-    return result;
-  }, [items]);
-
-  // 每组选 main + backups
-  const slots = useMemo(() => {
-    return groups.map((group) => {
-      if (group.length === 1) return { main: group[0], backups: [] };
-      // 优先级：用户点过的 > headliner > 必看里时间最早 > 时间最早
-      const pinned = group.find((p) => axisChoice[p.id]);
-      const headliner = group.find((p) => headliners.includes(p.id));
-      const mustOnly = group.filter((p) => selections[p.id] === "must");
-      const fallback = mustOnly[0] || group[0];
-      const main = pinned || headliner || fallback;
-      const backups = group.filter((p) => p.id !== main.id);
-      return { main, backups };
-    });
-  }, [groups, headliners, axisChoice, selections]);
+  const { primaries, alternativesByPrimary } = useMemo(
+    () => buildPlanRoute(items, selections, headliners, axisChoice),
+    [items, selections, headliners, axisChoice],
+  );
 
   // 时间范围
   const range = useMemo(() => {
@@ -105,7 +73,9 @@ export default function TimetableView({
   for (let m = range.minM; m <= range.maxM; m += 60) hours.push(m);
 
   const dayStart = new Date(`${activeDate}T${pad(DAY_START_HOUR)}:00:00`);
-  const hasAnyBackup = slots.some((s) => s.backups.length > 0);
+  const hasAnyBackup = Object.values(alternativesByPrimary).some(
+    (alternatives) => alternatives.length > 0,
+  );
 
   return (
     <div className="timetable-wrap">
@@ -113,8 +83,8 @@ export default function TimetableView({
         className="timetable-grid v2"
         style={{
           gridTemplateColumns: hasAnyBackup
-            ? "60px 1fr 104px"
-            : "60px 1fr",
+            ? "52px 1fr 86px"
+            : "52px 1fr",
           height: `${totalHeight}px`,
         }}
       >
@@ -140,12 +110,12 @@ export default function TimetableView({
               style={{ top: `${((m - range.minM) / 60) * HOUR_PX}px` }}
             />
           ))}
-          {slots.map(({ main }) => {
+          {primaries.map((main) => {
             const color = getStageColor(festival, main.stageName);
             const startMin = (new Date(main.startAt) - dayStart) / 60000;
             const endMin = (new Date(main.endAt) - dayStart) / 60000;
             const top = ((startMin - range.minM) / 60) * HOUR_PX;
-            const height = ((endMin - startMin) / 60) * HOUR_PX;
+            const height = Math.max(((endMin - startMin) / 60) * HOUR_PX - 4, 18);
             const status = selections[main.id];
             const isHeadliner = headliners.includes(main.id);
             return (
@@ -163,10 +133,21 @@ export default function TimetableView({
                   {main.artistName}
                 </div>
                 <div className="tt-block-stage u-mono">
-                  <span className="tt-block-dot" />
-                  {main.stageName}
+                  {formatHM(main.startAt)}–{formatHM(main.endAt)} · {main.stageName}
                 </div>
               </article>
+            );
+          })}
+          {primaries.slice(0, -1).map((main, index) => {
+            const next = primaries[index + 1];
+            const gap = Math.floor((new Date(next.startAt) - new Date(main.endAt)) / 60000);
+            if (gap < 30) return null;
+            const endMin = (new Date(main.endAt) - dayStart) / 60000;
+            const top = ((endMin - range.minM) / 60) * HOUR_PX + 4;
+            return (
+              <span key={`gap-${main.id}-${next.id}`} className="tt-gap u-mono" style={{ top: `${top}px` }}>
+                · {gap} MIN ·
+              </span>
             );
           })}
         </div>
@@ -181,23 +162,21 @@ export default function TimetableView({
                 style={{ top: `${((m - range.minM) / 60) * HOUR_PX}px` }}
               />
             ))}
-            {slots.map(({ main, backups }) =>
-              backups.map((perf) => {
+            {primaries.flatMap((main) =>
+              (alternativesByPrimary[main.id] || []).map(({ perf, conflictingPrimaryIds }) => {
                 const color = getStageColor(festival, perf.stageName);
                 const startMin = (new Date(perf.startAt) - dayStart) / 60000;
                 const endMin = (new Date(perf.endAt) - dayStart) / 60000;
                 const top = ((startMin - range.minM) / 60) * HOUR_PX;
                 const height = Math.max(
-                  ((endMin - startMin) / 60) * HOUR_PX,
-                  46,
+                  ((endMin - startMin) / 60) * HOUR_PX - 4,
+                  18,
                 );
-                const status = selections[perf.id];
-                const isHeadliner = headliners.includes(perf.id);
                 return (
                   <button
                     key={perf.id}
                     type="button"
-                    className={`tt-bubble tt-${status}${isHeadliner ? " is-headliner" : ""}`}
+                    className="tt-bubble"
                     style={{
                       top: `${top}px`,
                       height: `${height}px`,
@@ -205,8 +184,7 @@ export default function TimetableView({
                     }}
                     onClick={() => {
                       if (onPickAxis) {
-                        const siblingIds = [main, ...backups].map((p) => p.id);
-                        onPickAxis(perf.id, siblingIds);
+                        onPickAxis(perf.id, conflictingPrimaryIds);
                       }
                     }}
                     aria-label={perf.artistName + " · " + t("tt.promote")}
@@ -214,7 +192,7 @@ export default function TimetableView({
                   >
                     <span className="tt-bubble-name">{perf.artistName}</span>
                     <span className="tt-bubble-meta u-mono">
-                      {formatHM(perf.startAt)} · {shortStage(perf.stageName)}
+                      {formatHM(perf.startAt)}–{formatHM(perf.endAt)}
                     </span>
                   </button>
                 );
@@ -236,17 +214,4 @@ function formatMinuteLabel(m) {
   const h = Math.floor(totalMin / 60) % 24;
   const mm = totalMin % 60;
   return `${pad(h)}:${pad(mm)}`;
-}
-
-function shortStage(s) {
-  return s
-    .replace(/\s*STAGE$/, "")
-    .replace(/\s*MARQUEE$/, "")
-    .replace(/^FIELD OF HEAVEN$/, "FOH")
-    .replace(/^NAEBA SHOKUDOU$/, "苗場")
-    .replace(/^GYPSY AVALON$/, "AVALON")
-    .replace(/^CRYSTAL PALACE$/, "CRYSTAL")
-    .replace(/^ROOKIE A GO-GO$/, "ROOKIE")
-    .replace(/^PYRAMID GARDEN$/, "PYRAMID")
-    .replace(/^PALACE AREA$/, "PALACE");
 }
