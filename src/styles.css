@@ -4723,14 +4723,14 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
     border-radius: 0;
     box-shadow: none;
     display: grid;
-    grid-template-columns: 92px minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 68px minmax(0, 1fr);
     background: var(--bg-page);
   }
 
   .phone > .screen-body {
-    grid-column: 2;
-    grid-row: 1;
+    grid-column: 1;
+    grid-row: 2;
     min-width: 0;
     min-height: 0;
   }
@@ -4738,27 +4738,30 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   .root-nav {
     grid-column: 1;
     grid-row: 1;
-    min-height: 0;
-    flex-direction: column;
+    min-height: 68px;
+    flex-direction: row;
     justify-content: flex-end;
-    gap: 8px;
-    padding: 24px 10px;
+    align-items: stretch;
+    gap: 0;
+    padding: 0 clamp(24px, 4vw, 64px);
     border-top: 0;
-    border-right: 1.5px solid var(--text);
+    border-bottom: 1.5px solid var(--text);
     background-color: var(--bg-phone);
     background-image: var(--noise-bg-soft);
+    z-index: 20;
   }
 
   .root-nav-brand {
-    display: block;
-    margin-bottom: auto;
-    width: 100%;
-    padding-top: 2px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    margin-right: auto;
+    width: auto;
+    padding-right: 36px;
+    text-align: left;
     font-family: var(--font-display);
-    font-size: 12px;
+    font-size: 18px;
     font-weight: 900;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.04em;
     color: var(--text);
   }
 
@@ -4766,38 +4769,41 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
 
   .root-nav button {
     flex: 0 0 auto;
-    width: 100%;
-    min-height: 66px;
-    padding: 10px 4px;
+    width: auto;
+    min-width: 112px;
+    min-height: 68px;
+    padding: 0 24px;
     justify-content: center;
-    gap: 7px;
-    border: 1px solid transparent;
+    gap: 9px;
+    border: 0;
+    border-left: 1px solid var(--line);
+    position: relative;
   }
 
   .root-nav button:hover {
     color: var(--text);
-    border-color: var(--line-strong);
     background: var(--bg-soft);
   }
 
   .root-nav button.active {
     color: var(--bauhaus-red);
-    border-color: var(--bauhaus-red);
-    background: var(--bg-phone);
+    background: var(--bg-soft);
   }
 
   .root-nav button.active::before {
-    top: 50%;
-    left: -11px;
-    width: 4px;
-    height: 28px;
-    transform: translateY(-50%);
+    top: auto;
+    left: 20px;
+    right: 20px;
+    bottom: 0;
+    width: auto;
+    height: 4px;
+    transform: none;
   }
 
-  .root-nav button .nav-icon { font-size: 22px; }
+  .root-nav button .nav-icon { font-size: 18px; }
 
   .toast {
-    left: calc(50% + 46px);
+    left: 50%;
     bottom: 24px;
   }
 
@@ -4814,64 +4820,83 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
     box-shadow: 8px 8px 0 var(--text);
   }
 
-  /* Home: brand poster at left, searchable archive at right. */
+  /* Home: conventional page header, utility row, then the archive. */
   .home-screen {
     display: grid;
-    grid-template-columns: minmax(286px, 340px) minmax(0, 1fr);
-    grid-template-rows: 78px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 68px minmax(0, 1fr);
     background: var(--bg-page);
+    position: relative;
   }
 
   .home-screen .brand-bar,
   .profile-screen .brand-bar {
     grid-column: 1;
-    grid-row: 1 / -1;
-    padding: 40px 32px;
-    border-right: 1px solid var(--line);
-    border-bottom: 0;
+    grid-row: 1;
+    min-height: 156px;
+    padding: 28px clamp(32px, 5vw, 72px) 30px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
     background-color: var(--bg-phone);
     background-image: var(--noise-bg-soft);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 18px;
+    align-content: center;
   }
 
   .home-screen .brand-bar-marker,
-  .profile-screen .brand-bar-marker { margin-bottom: 34px; }
+  .profile-screen .brand-bar-marker {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    margin: 2px 0 0;
+    align-self: start;
+  }
 
   .home-screen .brand-title,
   .profile-screen .brand-title {
-    max-width: 270px;
-    margin-top: 0;
-    font-size: clamp(54px, 5vw, 78px);
-    line-height: 0.88;
-    letter-spacing: -0.055em;
+    grid-column: 2;
+    grid-row: 1;
+    max-width: none;
+    margin: 0;
+    font-size: clamp(42px, 4.2vw, 66px);
+    line-height: 0.92;
+    letter-spacing: -0.05em;
   }
 
   .home-screen .brand-tagline,
   .profile-screen .brand-tagline {
-    max-width: 240px;
-    margin-top: 18px;
+    grid-column: 2;
+    grid-row: 2;
+    max-width: 620px;
+    margin: 10px 0 0;
     font-size: 12px;
     line-height: 1.6;
   }
 
   .home-screen .search-bar {
-    grid-column: 2;
-    grid-row: 1;
+    grid-column: 1;
+    grid-row: 2;
     min-width: 0;
-    padding: 0 300px 0 36px;
+    padding: 0 clamp(32px, 5vw, 72px);
     border-bottom: 1px solid var(--line);
+    background: var(--bg-phone);
   }
 
   .home-screen .search-bar input { font-size: 16px; }
 
   .home-screen .top-chips {
-    top: 24px;
-    right: 32px;
+    position: absolute;
+    top: 28px;
+    right: clamp(32px, 5vw, 72px);
+    z-index: 5;
   }
 
   .home-screen .home-body {
-    grid-column: 2;
-    grid-row: 2;
-    padding: 32px 36px 64px;
+    grid-column: 1;
+    grid-row: 3;
+    padding: 32px clamp(32px, 5vw, 72px) 64px;
     overscroll-behavior: contain;
   }
 
@@ -4897,21 +4922,21 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   .home-screen .cassette-name { font-size: 26px; }
   .home-screen .home-rack-section + .home-rack-section { margin-top: 40px; }
 
-  /* Profile: archive overview with three real desktop columns. */
+  /* Profile: page title above the account and archive columns. */
   .profile-screen {
     display: grid;
-    grid-template-columns: minmax(286px, 340px) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .profile-screen .home-body {
-    grid-column: 2;
-    grid-row: 1;
+    grid-column: 1;
+    grid-row: 2;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     align-content: start;
     gap: 28px;
-    padding: 40px;
+    padding: 36px clamp(32px, 5vw, 72px) 64px;
     overflow-y: auto;
   }
 
@@ -4926,46 +4951,54 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   .profile-screen .my-fest-list { gap: 12px; }
   .profile-screen .my-fest-card { min-height: 108px; }
 
-  /* Festival: permanent identity rail plus a wide planning surface. */
+  /* Festival: identity lives in the page header, controls follow below. */
   .festival-screen {
     display: grid;
-    grid-template-columns: minmax(286px, 340px) minmax(0, 1fr);
-    grid-template-rows: auto auto auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto minmax(0, 1fr);
     background: var(--bg-soft);
   }
 
   .festival-screen .fest-header {
     grid-column: 1;
-    grid-row: 1 / -1;
-    padding: 36px 30px;
-    border-right: 1px solid var(--line);
-    border-bottom: 0;
+    grid-row: 1;
+    min-height: 142px;
+    padding: 24px clamp(32px, 5vw, 72px) 26px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
     background-color: var(--bg-phone);
     background-image: var(--noise-bg-soft);
   }
 
-  .festival-screen .fest-header-top { margin-bottom: 36px; }
+  .festival-screen .fest-header-top { margin-bottom: 14px; }
 
   .festival-screen .fest-header-name {
-    font-size: clamp(38px, 4vw, 62px);
-    line-height: 0.92;
+    max-width: 1120px;
+    font-size: clamp(36px, 4vw, 58px);
+    line-height: 0.95;
     letter-spacing: -0.045em;
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
+    text-wrap: balance;
   }
 
-  .festival-screen .fest-header-rule { margin: 24px 0 16px; }
+  .festival-screen .fest-header-rule { margin: 16px 0 12px; }
   .festival-screen .fest-header-loc { line-height: 1.55; }
 
-  .festival-screen .fest-header.compact { padding: 36px 30px; }
+  .festival-screen .fest-header.compact { padding: 24px clamp(32px, 5vw, 72px) 26px; }
   .festival-screen .fest-header.compact .fest-header-full {
     max-height: none;
     opacity: 1;
   }
 
+  .festival-screen .fest-header-full {
+    max-height: none;
+    overflow: visible;
+  }
+
   .festival-screen .seg-bar {
-    grid-column: 2;
-    grid-row: 1;
-    margin: 20px 30px 8px;
+    grid-column: 1;
+    grid-row: 2;
+    margin: 20px clamp(32px, 5vw, 72px) 8px;
   }
 
   .festival-screen .seg-bar .seg {
@@ -4974,22 +5007,22 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   }
 
   .festival-screen .date-bar {
-    grid-column: 2;
-    grid-row: 2;
-    margin: 0 30px 10px;
+    grid-column: 1;
+    grid-row: 3;
+    margin: 0 clamp(32px, 5vw, 72px) 10px;
   }
 
   .festival-screen .date-bar button { flex: 0 1 160px; }
 
   .festival-screen .stage-chips-bar {
-    grid-column: 2;
-    grid-row: 3;
-    padding: 10px 30px;
+    grid-column: 1;
+    grid-row: 4;
+    padding: 10px clamp(32px, 5vw, 72px);
   }
 
   .festival-screen .fest-body {
-    grid-column: 2;
-    grid-row: 4;
+    grid-column: 1;
+    grid-row: 5;
     overscroll-behavior: contain;
   }
 
@@ -5044,34 +5077,36 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
     border: 1.5px solid var(--text);
   }
 
-  /* Upload: the poster intake becomes a two-pane desktop tool. */
+  /* Upload: a normal page header above a wide working surface. */
   .upload-screen {
     display: grid;
-    grid-template-columns: minmax(286px, 340px) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .upload-screen .upload-header {
     grid-column: 1;
     grid-row: 1;
-    min-height: 0;
-    padding: 36px 30px;
-    flex-direction: column;
-    align-items: stretch;
-    border-right: 1px solid var(--line);
-    border-bottom: 0;
+    min-height: 132px;
+    padding: 24px clamp(32px, 5vw, 72px);
+    flex-direction: row;
+    align-items: center;
+    gap: 22px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
     background-color: var(--bg-phone);
     background-image: var(--noise-bg-soft);
   }
 
-  .upload-screen .upload-header-main { flex: 0 0 auto; }
-  .upload-screen .upload-title { margin-top: 28px; font-size: 52px; }
-  .upload-screen .publish-btn { margin-top: auto; padding: 12px 16px; }
+  .upload-screen .upload-header-main { flex: 1 1 auto; }
+  .upload-screen .upload-title { margin-top: 8px; font-size: 46px; line-height: 0.95; }
+  .upload-screen .upload-title br { display: none; }
+  .upload-screen .publish-btn { margin: 0 0 0 auto; padding: 12px 16px; }
 
   .upload-screen .upload-body {
-    grid-column: 2;
-    grid-row: 1;
-    padding: 40px clamp(36px, 6vw, 88px) 64px;
+    grid-column: 1;
+    grid-row: 2;
+    padding: 40px clamp(32px, 6vw, 88px) 64px;
   }
 
   .upload-screen .upload-body > * { max-width: 980px; margin-inline: auto; }
@@ -5081,13 +5116,6 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
 }
 
 @media (min-width: 1440px) {
-  .phone { grid-template-columns: 104px minmax(0, 1fr); }
-  .home-screen,
-  .profile-screen,
-  .festival-screen,
-  .upload-screen { grid-template-columns: 360px minmax(0, 1fr); }
-  .home-screen .home-body { padding-inline: 48px; }
   .home-screen .cassette-stack { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .home-screen .is-upcoming .cassette-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .profile-screen .home-body { padding: 48px; }
 }

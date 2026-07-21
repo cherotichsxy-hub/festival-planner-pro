@@ -94,7 +94,7 @@ export default function UploadScreen({ onBack, onPublish, festivals = [], onOpen
         <div className="upload-header-main">
           <span className="u-mono upload-channel">FESTIVAL · NEW</span>
           <h1 className="upload-title">
-            UPLOAD<br />POSTER<span className="brand-title-dot">.</span>
+            UPLOAD<br />{" "}POSTER<span className="brand-title-dot">.</span>
           </h1>
         </div>
         {canPublish && (
