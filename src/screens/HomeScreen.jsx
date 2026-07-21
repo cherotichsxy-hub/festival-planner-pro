@@ -101,7 +101,7 @@ export default function HomeScreen({
   }, [enriched, wanted]);
 
   return (
-    <div className="screen-body">
+    <div className="screen-body home-screen">
       {/* 右上角常驻：语言切换 + 登录入口 + 联系 */}
       <div className="top-chips">
         <button

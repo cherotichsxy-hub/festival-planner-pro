@@ -88,13 +88,13 @@ export default function UploadScreen({ onBack, onPublish, festivals = [], onOpen
     phase === "review" && meta?.name?.trim() && perfs.length > 0;
 
   return (
-    <div className="screen-body">
+    <div className="screen-body upload-screen">
       <header className="upload-header">
         <button className="back-btn" onClick={onBack} aria-label={t("login.close")}>‹</button>
         <div className="upload-header-main">
           <span className="u-mono upload-channel">FESTIVAL · NEW</span>
           <h1 className="upload-title">
-            UPLOAD<br />POSTER<span className="brand-title-dot">.</span>
+            UPLOAD<br />{" "}POSTER<span className="brand-title-dot">.</span>
           </h1>
         </div>
         {canPublish && (
