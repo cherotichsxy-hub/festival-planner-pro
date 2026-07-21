@@ -37,6 +37,10 @@
   --conflict-soft: #efe1e0;       /* 去粉味，更中性 */
   --maybe-on: #7e97a8;
   --maybe-soft: #dde5ea;
+  /* My Plan: 待定是次级意向，统一以约 55% 的暖墨强度呈现。 */
+  --plan-maybe-ink: rgba(30, 21, 6, 0.55);
+  --plan-maybe-detail: rgba(30, 21, 6, 0.46);
+  --plan-maybe-line: rgba(30, 21, 6, 0.2);
 
   --font-mono: "SF Mono", "Menlo", "PT Mono", "Courier New", monospace;
   --font-display: -apple-system, "Helvetica Neue", "Helvetica", "PingFang SC",
@@ -2186,11 +2190,20 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   padding-bottom: 8px;
 }
 .myplan-primary-row.is-maybe {
-  color: rgba(0, 0, 0, 0.62);
+  color: var(--plan-maybe-ink);
+  border-bottom-color: var(--plan-maybe-line);
 }
 .myplan-primary-row.is-maybe .row-time strong,
 .myplan-primary-row.is-maybe .row-name {
-  color: rgba(0, 0, 0, 0.62);
+  color: var(--plan-maybe-ink);
+}
+.myplan-primary-row.is-maybe .row-time small,
+.myplan-primary-row.is-maybe .row-stage,
+.myplan-primary-row.is-maybe .row-note {
+  color: var(--plan-maybe-detail);
+}
+.myplan-primary-row.is-maybe .row-stage .dot {
+  opacity: 0.55;
 }
 .row-time {
   display: flex;
@@ -2223,14 +2236,14 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   display: inline-block;
   margin-left: 7px;
   padding: 2px 4px 1px;
-  border: 1px solid rgba(0, 0, 0, 0.32);
+  border: 1px solid var(--plan-maybe-line);
   font-family: var(--font-mono);
   font-size: 8px;
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.06em;
   vertical-align: 2px;
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--plan-maybe-ink);
 }
 .row-stage {
   margin-top: 4px;
