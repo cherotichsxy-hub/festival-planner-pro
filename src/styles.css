@@ -1019,6 +1019,9 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.fest-header-channel-compact { display: none; }
+.fest-header-channel.is-name .fest-header-channel-default { display: none; }
+.fest-header-channel.is-name .fest-header-channel-compact { display: inline; }
 .fest-header-name {
   margin: 0;
   font-family: var(--font-display);
@@ -4704,7 +4707,8 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
 /* becomes a full browser workspace instead of a phone mockup.   */
 /* ============================================================ */
 
-.root-nav-brand { display: none; }
+.root-nav-brand,
+.desktop-utils { display: none; }
 
 @media (min-width: 960px) {
   html, body, #root { min-width: 960px; }
@@ -4724,7 +4728,7 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
     box-shadow: none;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: 68px minmax(0, 1fr);
+    grid-template-rows: 60px minmax(0, 1fr);
     background: var(--bg-page);
   }
 
@@ -4738,9 +4742,9 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   .root-nav {
     grid-column: 1;
     grid-row: 1;
-    min-height: 68px;
+    min-height: 60px;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-items: stretch;
     gap: 0;
     padding: 0 clamp(24px, 4vw, 64px);
@@ -4754,25 +4758,41 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   .root-nav-brand {
     display: flex;
     align-items: center;
-    margin-right: auto;
+    gap: 10px;
+    margin-right: 18px;
     width: auto;
-    padding-right: 36px;
+    padding-right: 20px;
     text-align: left;
     font-family: var(--font-display);
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 900;
     letter-spacing: -0.04em;
     color: var(--text);
   }
 
-  .root-nav-brand span { color: var(--bauhaus-red); }
+  .root-nav-brand-mark {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--text);
+    color: var(--bg-phone);
+    font-size: 11px;
+    letter-spacing: 0;
+  }
 
-  .root-nav button {
+  .root-nav-brand-word b {
+    color: var(--bauhaus-red);
+    font-weight: inherit;
+  }
+
+  .root-nav > button {
     flex: 0 0 auto;
     width: auto;
     min-width: 112px;
-    min-height: 68px;
-    padding: 0 24px;
+    min-height: 60px;
+    padding: 0 20px;
     justify-content: center;
     gap: 9px;
     border: 0;
@@ -4780,17 +4800,17 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
     position: relative;
   }
 
-  .root-nav button:hover {
+  .root-nav > button:hover {
     color: var(--text);
     background: var(--bg-soft);
   }
 
-  .root-nav button.active {
+  .root-nav > button.active {
     color: var(--bauhaus-red);
     background: var(--bg-soft);
   }
 
-  .root-nav button.active::before {
+  .root-nav > button.active::before {
     top: auto;
     left: 20px;
     right: 20px;
@@ -4800,7 +4820,32 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
     transform: none;
   }
 
-  .root-nav button .nav-icon { font-size: 18px; }
+  .root-nav > button .nav-icon { font-size: 17px; }
+
+  .desktop-utils {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .root-nav .desktop-utils button {
+    flex: 0 0 auto;
+    min-height: 28px;
+    width: auto;
+    padding: 0 9px;
+    flex-direction: row;
+    gap: 5px;
+    border: 1.5px solid var(--text);
+    color: var(--text);
+    background: var(--bg-phone);
+  }
+
+  .root-nav .desktop-utils .contact-chip {
+    width: 30px;
+    min-width: 30px;
+    padding: 0;
+  }
 
   .toast {
     left: 50%;
@@ -4820,21 +4865,22 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
     box-shadow: 8px 8px 0 var(--text);
   }
 
-  /* Home: conventional page header, utility row, then the archive. */
+  /* Home: the global header owns the brand; search and archive begin immediately. */
   .home-screen {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto 68px minmax(0, 1fr);
+    grid-template-rows: 58px minmax(0, 1fr);
     background: var(--bg-page);
     position: relative;
   }
 
-  .home-screen .brand-bar,
+  .home-screen .brand-bar { display: none; }
+
   .profile-screen .brand-bar {
     grid-column: 1;
     grid-row: 1;
-    min-height: 156px;
-    padding: 28px clamp(32px, 5vw, 72px) 30px;
+    min-height: 102px;
+    padding: 18px clamp(32px, 5vw, 72px) 20px;
     border-right: 0;
     border-bottom: 1px solid var(--line);
     background-color: var(--bg-phone);
@@ -4846,7 +4892,6 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
     align-content: center;
   }
 
-  .home-screen .brand-bar-marker,
   .profile-screen .brand-bar-marker {
     grid-column: 1;
     grid-row: 1 / -1;
@@ -4854,18 +4899,16 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
     align-self: start;
   }
 
-  .home-screen .brand-title,
   .profile-screen .brand-title {
     grid-column: 2;
     grid-row: 1;
     max-width: none;
     margin: 0;
-    font-size: clamp(42px, 4.2vw, 66px);
-    line-height: 0.92;
+    font-size: clamp(34px, 3.2vw, 48px);
+    line-height: 0.96;
     letter-spacing: -0.05em;
   }
 
-  .home-screen .brand-tagline,
   .profile-screen .brand-tagline {
     grid-column: 2;
     grid-row: 2;
@@ -4877,7 +4920,7 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
 
   .home-screen .search-bar {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 1;
     min-width: 0;
     padding: 0 clamp(32px, 5vw, 72px);
     border-bottom: 1px solid var(--line);
@@ -4886,16 +4929,11 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
 
   .home-screen .search-bar input { font-size: 16px; }
 
-  .home-screen .top-chips {
-    position: absolute;
-    top: 28px;
-    right: clamp(32px, 5vw, 72px);
-    z-index: 5;
-  }
+  .home-screen .top-chips { display: none; }
 
   .home-screen .home-body {
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 2;
     padding: 32px clamp(32px, 5vw, 72px) 64px;
     overscroll-behavior: contain;
   }
@@ -4954,37 +4992,54 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   /* Festival: identity lives in the page header, controls follow below. */
   .festival-screen {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto minmax(0, 1fr);
+    grid-template-columns: auto auto minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
     background: var(--bg-soft);
   }
 
   .festival-screen .fest-header {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 1;
-    min-height: 142px;
-    padding: 24px clamp(32px, 5vw, 72px) 26px;
+    min-height: 0;
+    padding: 16px clamp(32px, 5vw, 72px) 18px;
     border-right: 0;
     border-bottom: 1px solid var(--line);
     background-color: var(--bg-phone);
     background-image: var(--noise-bg-soft);
+    display: grid;
+    grid-template-columns: minmax(170px, 0.3fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
   }
 
-  .festival-screen .fest-header-top { margin-bottom: 14px; }
+  .festival-screen .fest-header-top { margin: 0; }
+  .festival-screen .fest-header-channel-default { display: inline; }
+  .festival-screen .fest-header-channel-compact { display: none; }
+
+  .festival-screen .fest-header-full {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 20px;
+  }
 
   .festival-screen .fest-header-name {
     max-width: 1120px;
-    font-size: clamp(36px, 4vw, 58px);
-    line-height: 0.95;
+    font-size: clamp(28px, 3vw, 42px);
+    line-height: 1;
     letter-spacing: -0.045em;
     overflow-wrap: normal;
     text-wrap: balance;
   }
 
-  .festival-screen .fest-header-rule { margin: 16px 0 12px; }
-  .festival-screen .fest-header-loc { line-height: 1.55; }
+  .festival-screen .fest-header-rule { display: none; }
+  .festival-screen .fest-header-loc {
+    flex: 0 1 auto;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
 
-  .festival-screen .fest-header.compact { padding: 24px clamp(32px, 5vw, 72px) 26px; }
+  .festival-screen .fest-header.compact { padding: 16px clamp(32px, 5vw, 72px) 18px; }
   .festival-screen .fest-header.compact .fest-header-full {
     max-height: none;
     opacity: 1;
@@ -4998,31 +5053,38 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   .festival-screen .seg-bar {
     grid-column: 1;
     grid-row: 2;
-    margin: 20px clamp(32px, 5vw, 72px) 8px;
+    margin: 0;
+    padding-left: clamp(32px, 5vw, 72px);
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-phone);
   }
 
   .festival-screen .seg-bar .seg {
-    min-height: 44px;
+    min-height: 48px;
     font-size: 12px;
   }
 
   .festival-screen .date-bar {
-    grid-column: 1;
-    grid-row: 3;
-    margin: 0 clamp(32px, 5vw, 72px) 10px;
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-phone);
   }
 
   .festival-screen .date-bar button { flex: 0 1 160px; }
 
   .festival-screen .stage-chips-bar {
-    grid-column: 1;
-    grid-row: 4;
-    padding: 10px clamp(32px, 5vw, 72px);
+    grid-column: 3;
+    grid-row: 2;
+    justify-content: flex-end;
+    padding: 8px clamp(32px, 5vw, 72px) 8px 12px;
   }
 
   .festival-screen .fest-body {
-    grid-column: 1;
-    grid-row: 5;
+    grid-column: 1 / -1;
+    grid-row: 3;
     overscroll-behavior: contain;
   }
 
@@ -5035,13 +5097,13 @@ button.wish-send:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none;
   .festival-screen .lineup-search { margin-inline: 12px; }
   .festival-screen .lineup-cards {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
   }
 
   .festival-screen .lineup-cards-flat {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
     padding-inline: 12px;
   }

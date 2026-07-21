@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import HomeScreen from "./screens/HomeScreen.jsx";
 import LoginSheet from "./components/LoginSheet.jsx";
+import ContactSheet from "./components/ContactSheet.jsx";
 import FestivalScreen from "./screens/FestivalScreen.jsx";
 import ProfileScreen from "./screens/ProfileScreen.jsx";
 import UploadScreen from "./screens/UploadScreen.jsx";
@@ -70,7 +71,8 @@ export default function App() {
   const [session, setSession] = useState(() => backend.auth.getSession());
   useEffect(() => backend.auth.onChange(setSession), []);
 
-  const { t } = useI18n();
+  const { t, lang, setLang } = useI18n();
+  const [desktopContactOpen, setDesktopContactOpen] = useState(false);
 
   // 轻量操作反馈：底部小黑条，1.8 秒自动消失
   const [toast, setToast] = useState(null);
@@ -459,6 +461,7 @@ export default function App() {
         )}
 
         {showLogin && <LoginSheet onClose={() => setShowLogin(false)} />}
+        {desktopContactOpen && <ContactSheet onClose={() => setDesktopContactOpen(false)} />}
 
         {toast && (
           <div className="toast u-mono" role="status">{toast}</div>
@@ -469,7 +472,8 @@ export default function App() {
             它是首页里的一个动作，不该抬到和"规划/我的"平级 */}
         <nav className="root-nav">
           <span className="root-nav-brand" aria-hidden="true">
-            ENCORE<span>.</span>
+            <span className="root-nav-brand-mark">EN</span>
+            <span className="root-nav-brand-word">ENCORE<b>.</b></span>
           </span>
           <button
             className={rootTab === "home" ? "active" : ""}
@@ -485,6 +489,40 @@ export default function App() {
             <span className="nav-icon">◎</span>
             {t("nav.mine")}
           </button>
+          <div className="desktop-utils">
+            <button
+              type="button"
+              className="lang-chip"
+              onClick={() => setLang(lang === "zh" ? "en" : "zh")}
+              aria-label="switch language"
+            >
+              {lang === "zh" ? "EN" : "中"}
+            </button>
+            <button
+              type="button"
+              className={`login-chip${session ? " on" : ""}`}
+              onClick={openAccount}
+            >
+              {session ? (
+                <>
+                  <span className="login-chip-avatar">
+                    {(session.user?.email || "?")[0].toUpperCase()}
+                  </span>
+                  {t("home.synced")}
+                </>
+              ) : (
+                <>◎ {t("home.login")}</>
+              )}
+            </button>
+            <button
+              type="button"
+              className="contact-chip"
+              onClick={() => setDesktopContactOpen(true)}
+              aria-label={t("contact.title")}
+            >
+              ✉
+            </button>
+          </div>
         </nav>
       </div>
     </div>

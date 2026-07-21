@@ -69,10 +69,11 @@ export default function FestivalScreen({
           {onBack && (
             <button className="back-btn" onClick={onBack} aria-label={t("login.close")}>‹</button>
           )}
-          <span className={`fest-header-channel${compact ? " is-name" : " u-mono"}`}>
-            {compact
-              ? festival.name
-              : `FREQ · ${festival.year} · DAY ${dayIndex}`}
+          <span className={`fest-header-channel${compact ? " is-name" : ""}`}>
+            <span className="fest-header-channel-default u-mono">
+              FREQ · {festival.year} · DAY {dayIndex}
+            </span>
+            <span className="fest-header-channel-compact">{festival.name}</span>
           </span>
         </div>
         <div className="fest-header-full">
