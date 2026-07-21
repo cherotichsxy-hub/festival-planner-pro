@@ -107,26 +107,27 @@ export default function FestivalScreen({
         </button>
       </div>
 
-      {/* 日期紧跟在视图切换下面：两个视图共用，放一起才找得到。
-          日期随时要切，收起头部时它不跟着收 */}
-      <div className={`date-bar${searchActive ? " pills-muted" : ""}`}>
-        {festival.dates.map((d) => (
-          <button
-            key={d}
-            type="button"
-            className={activeDate === d ? "active" : ""}
-            onClick={() => setActiveDate(d)}
-          >
-            {formatMonthDay(d)}
-          </button>
-        ))}
-      </div>
+      <div className="festival-toolbar">
+        {/* 日期紧跟在视图切换下面：两个视图共用，放一起才找得到。
+            日期随时要切，收起头部时它不跟着收 */}
+        <div className={`date-bar${searchActive ? " pills-muted" : ""}`}>
+          {festival.dates.map((d) => (
+            <button
+              key={d}
+              type="button"
+              className={activeDate === d ? "active" : ""}
+              onClick={() => setActiveDate(d)}
+            >
+              {formatMonthDay(d)}
+            </button>
+          ))}
+        </div>
 
-      {/* 舞台筛选只属于 LINEUP；MY PLAN 永远显示完整计划，不被它悄悄过滤 */}
-      {tab === "lineup" && (
-      <div className="stage-chips-bar">
-        <span className="u-mono stage-chips-label">STAGE</span>
-        <div className="stage-chips">
+        {/* 舞台筛选只属于 LINEUP；MY PLAN 永远显示完整计划，不被它悄悄过滤 */}
+        {tab === "lineup" && (
+        <div className="stage-chips-bar">
+          <span className="u-mono stage-chips-label">STAGE</span>
+          <div className="stage-chips">
           <button
             type="button"
             className={`chip${stageFilter === "all" ? " active" : ""}`}
@@ -187,9 +188,10 @@ export default function FestivalScreen({
               {showOtherStages ? t("fest.collapse") : t("fest.more", { n: otherStages.length })}
             </button>
           )}
+          </div>
         </div>
+        )}
       </div>
-      )}
 
       <main className="fest-body" onScroll={handleBodyScroll}>
         {tab === "lineup" && (
