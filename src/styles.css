@@ -3318,8 +3318,8 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   grid-column: 4;
   margin-top: 5px;
   font-family: var(--font-sans, inherit);
-  font-size: 13px;
-  line-height: 1.35;
+  font-size: 11px;
+  line-height: 1.4;
   color: rgba(0, 0, 0, 0.58);
   overflow-wrap: anywhere;
 }
@@ -3327,8 +3327,8 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   flex: 0 0 100%;
   padding-left: 28px;
   font-family: var(--font-sans, inherit);
-  font-size: 12px;
-  line-height: 1.35;
+  font-size: 11px;
+  line-height: 1.4;
   color: rgba(0, 0, 0, 0.5);
   overflow-wrap: anywhere;
 }
