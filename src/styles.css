@@ -2607,7 +2607,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 }
 
 /* ========================================================== */
-/* 分享画布 · 时间表式 v4 (3 天合一张图，每天主看+必看双列)     */
+/* 分享画布 · 时间表式 v5 (3 天合一张图，每天必看+待定/冲突双列) */
 /* 复用行程式的蓝灰底 + 半圆 + 唱片/音符/麦克风装饰               */
 /* ========================================================== */
 .share-tt-canvas {
@@ -2632,7 +2632,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   letter-spacing: 0.1em;
 }
 
-/* 列头：DAY 1/2/3 + 必看 */
+/* 列头：每一天横跨自己的宽窄双列，不再重复“主看 / 必看”。 */
 .share-tt-day-heads {
   display: grid;
   align-items: end;
@@ -2657,32 +2657,6 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   letter-spacing: 0.06em;
   opacity: 0.7;
 }
-.share-tt-day-head.backup-side {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: rgba(30, 21, 6, 0.5);
-  text-transform: uppercase;
-  align-self: end;
-  padding: 0 8px 2px;
-}
-
-/* 子列头：主看 */
-.share-tt-sub-heads {
-  display: grid;
-  border-bottom: 1px solid rgba(30, 21, 6, 0.25);
-  padding: 6px 0;
-  margin-bottom: 0;
-}
-.share-tt-sub-head {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: rgba(30, 21, 6, 0.5);
-  text-transform: uppercase;
-  padding: 0 12px;
-}
-
 /* 时间表主体 */
 .share-tt-grid {
   display: grid;
@@ -2723,7 +2697,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   pointer-events: none;
 }
 
-/* 主看块：红=headliner / 绿=普通必看 / 米黄虚框=待定 */
+/* 宽列只放必看：红=headliner / 绿=普通必看 */
 .share-tt-block {
   position: absolute;
   left: 3px;
@@ -2745,23 +2719,6 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   background: var(--bauhaus-red);   /* Headliner：crimson 红 */
   color: #fbf9f8;
 }
-.share-tt-block.share-tt-maybe {
-  background: rgba(251, 249, 248, 0.85);
-  color: #1e1506;
-}
-.share-tt-block.share-tt-maybe::after {
-  content: "";
-  position: absolute;
-  inset: 2px;
-  border: 1.5px dashed #1e1506;
-  border-radius: 4px;
-  pointer-events: none;
-}
-.share-tt-h-mark {
-  font-size: 15px;
-  margin-right: 4px;
-  vertical-align: -1px;
-}
 .share-tt-block-name {
   font-size: 17px;
   font-weight: 900;
@@ -2779,27 +2736,30 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.share-tt-block.share-tt-maybe .share-tt-block-name { opacity: 0.78; }
-
-/* 必看 bubble (备选列内) — 同样的红/绿/虚线三色 */
+/* 窄列：待定用虚框；从必看主线挤出的演出明确标为时间冲突。 */
 .share-tt-bubble {
   position: absolute;
   left: 3px;
   right: 3px;
   padding: 6px 8px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 3px;
   overflow: hidden;
   z-index: 2;
   border-radius: 6px;
 }
 .share-tt-bubble.share-tt-must {
-  background: #5e6a4e;
-  color: #fbf9f8;
+  background: rgba(251, 249, 248, 0.9);
+  color: #1e1506;
+  border: 1px solid rgba(30, 21, 6, 0.5);
 }
 .share-tt-bubble.share-tt-must.is-h {
   background: var(--bauhaus-red);
   color: #fbf9f8;
+  border-color: var(--bauhaus-red);
 }
 .share-tt-bubble.share-tt-maybe {
   background: rgba(251, 249, 248, 0.85);
@@ -2823,6 +2783,13 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.share-tt-bubble-meta {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  opacity: 0.72;
+  white-space: nowrap;
+}
 
 /* footer + legend */
 .share-tt-foot {
@@ -2845,9 +2812,16 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   gap: 14px;
   color: rgba(30, 21, 6, 0.78);
 }
+.share-tt-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
 .share-tt-foot-legend .legend-h,
 .share-tt-foot-legend .legend-must,
-.share-tt-foot-legend .legend-maybe {
+.share-tt-foot-legend .legend-maybe,
+.share-tt-foot-legend .legend-conflict {
   display: inline-block;
   width: 14px;
   height: 14px;
@@ -2860,6 +2834,18 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 .share-tt-foot-legend .legend-maybe {
   background: #fbf9f8;
   border: 1.5px dashed #1e1506;
+}
+.share-tt-foot-legend .legend-conflict {
+  position: relative;
+  background: transparent;
+  border: 1px solid rgba(30, 21, 6, 0.62);
+}
+.share-tt-foot-legend .legend-conflict::after {
+  content: "";
+  position: absolute;
+  inset: 3px -4px -4px 3px;
+  border: 1px solid rgba(30, 21, 6, 0.42);
+  border-radius: 3px;
 }
 .share-canvas {
   background-color: #d6dfde;
@@ -3118,7 +3104,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 /* 必看大行 */
 .share-row-must {
   display: grid;
-  grid-template-columns: 28px auto auto 1fr;
+  grid-template-columns: 38px auto auto 1fr;
   grid-template-areas:
     "marker time end name"
     "marker time end stage";
@@ -3129,14 +3115,14 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 }
 .share-row-must .share-row-marker {
   grid-area: marker;
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 900;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
   line-height: 1;
+  letter-spacing: 0.08em;
   align-self: start;
-  padding-top: 4px;
+  padding-top: 7px;
 }
-.share-row-must.has-conflict .share-row-marker { color: var(--conflict); }
 .share-row-must .share-row-time {
   grid-area: time;
   font-family: var(--font-display);
@@ -3183,6 +3169,18 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   border-radius: 50%;
   background: var(--stage-solid);
 }
+.share-row-conflict {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 5px;
+  border: 1px solid rgba(30, 21, 6, 0.45);
+  color: rgba(30, 21, 6, 0.72);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
 
 /* 待定小行 */
 .share-row-maybe {
@@ -3190,35 +3188,30 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 10px;
-  padding: 8px 0 8px 4px;
+  padding: 9px 0 9px 4px;
   border-bottom: 1px dotted rgba(0, 0, 0, 0.2);
   font-family: var(--font-mono);
   font-size: 13px;
-  color: rgba(0, 0, 0, 0.6);
-}
-.share-row-maybe.has-conflict {
-  color: var(--conflict);
-  background: rgba(216, 58, 50, 0.06);
+  color: rgba(30, 21, 6, 0.55);
 }
 .share-row-maybe .share-row-marker {
-  width: 18px;
+  width: 34px;
   text-align: center;
+  font-size: 9px;
   font-weight: 700;
+  letter-spacing: 0.05em;
 }
-.share-row-maybe.has-conflict .share-row-marker { color: var(--conflict); }
 .share-row-maybe .share-row-time {
   font-weight: 700;
-  color: var(--paper-ink);
+  color: rgba(30, 21, 6, 0.58);
   font-variant-numeric: tabular-nums;
 }
-.share-row-maybe.has-conflict .share-row-time { color: var(--conflict); }
 .share-row-maybe .share-row-name {
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--paper-ink);
+  color: rgba(30, 21, 6, 0.62);
 }
-.share-row-maybe.has-conflict .share-row-name { color: var(--conflict); }
 .share-row-maybe .share-row-stage {
   display: inline-flex;
   align-items: center;

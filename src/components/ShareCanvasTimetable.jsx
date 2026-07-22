@@ -1,10 +1,11 @@
 import React, { useMemo } from "react";
 import { useI18n } from "../lib/i18n.js";
+import { buildPlanRoute } from "../lib/planRoute.js";
 import ShareWatermark from "./ShareWatermark.jsx";
 
 /**
  * 时间表式分享卡 v4 · 3 天合一张图。
- * 每天 = 主看 (主轴) + 必看 (备选) 双列 = 6 列总。
+ * 每天 = 必看主线（宽列）+ 待定/冲突（窄列）双列 = 6 列总。
  * 全 3 天共享一个时间轴（从最早 startAt 到最晚 endAt）。
  * 视觉对齐 PORTOLA 海报：整点 dashed 线引导，块铺满列，无重边框。
  */
@@ -24,41 +25,31 @@ export default function ShareCanvasTimetable({
   const { t } = useI18n();
   const dates = festival.dates;
 
-  // 每天计算 slots（沿用 TimetableView 的 sweep-line 算法）
+  // 分享图的宽列只放必看：先在 must 集合里算一条无冲突主线。
+  // 其余 must 是时间冲突备选；maybe 一律留在窄列，以免混入“确定行程”。
   const daysData = useMemo(() => {
     return dates.map((date, dayIdx) => {
       const items = performances
         .filter((p) => p.displayDate === date && selections[p.id])
         .sort((a, b) => new Date(a.startAt) - new Date(b.startAt));
 
-      const groups = [];
-      let cur = null;
-      let curEnd = 0;
-      for (const p of items) {
-        const s = new Date(p.startAt).getTime();
-        const e = new Date(p.endAt).getTime();
-        if (cur && s < curEnd) {
-          cur.push(p);
-          if (e > curEnd) curEnd = e;
-        } else {
-          cur = [p];
-          curEnd = e;
-          groups.push(cur);
-        }
-      }
+      const mustItems = items.filter((p) => selections[p.id] === "must");
+      const { primaries } = buildPlanRoute(
+        mustItems,
+        selections,
+        headliners,
+        axisChoice,
+      );
+      const primaryIds = new Set(primaries.map((p) => p.id));
+      const secondary = items
+        .filter((p) => !primaryIds.has(p.id))
+        .map((perf) => ({
+          perf,
+          isConflict: selections[perf.id] === "must",
+        }))
+        .sort((a, b) => new Date(a.perf.startAt) - new Date(b.perf.startAt));
 
-      const slots = groups.map((group) => {
-        if (group.length === 1) return { main: group[0], backups: [] };
-        const pinned = group.find((p) => axisChoice[p.id]);
-        const headliner = group.find((p) => headliners.includes(p.id));
-        const mustOnly = group.filter((p) => selections[p.id] === "must");
-        const fallback = mustOnly[0] || group[0];
-        const main = pinned || headliner || fallback;
-        const backups = group.filter((p) => p.id !== main.id);
-        return { main, backups };
-      });
-
-      return { date, dayIdx, items, slots };
+      return { date, dayIdx, items, primaries, secondary };
     });
   }, [dates, performances, selections, headliners, axisChoice]);
 
@@ -130,7 +121,7 @@ export default function ShareCanvasTimetable({
         </div>
       ) : (
         <>
-          {/* 列头：DAY 1 / 2 / 3 */}
+          {/* 每天只保留一个标题，不再额外解释“主看 / 必看”。 */}
           <div
             className="share-tt-day-heads"
             style={{
@@ -141,33 +132,14 @@ export default function ShareCanvasTimetable({
           >
             <div />
             {daysData.map((d) => (
-              <React.Fragment key={d.date}>
-                <div className="share-tt-day-head main-side">
-                  <strong>DAY {d.dayIdx + 1}</strong>
-                  <span className="share-tt-day-date">{chineseDateOf(d.date)}</span>
-                </div>
-                <div className="share-tt-day-head backup-side u-mono">
-                  必看
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
-
-          {/* 子列头：主看 */}
-          <div
-            className="share-tt-sub-heads u-mono"
-            style={{
-              gridTemplateColumns: `${TIME_AXIS_WIDTH}px ${dates
-                .map(() => `${MAIN_COL_WIDTH}px ${BACKUP_COL_WIDTH}px`)
-                .join(" ")}`,
-            }}
-          >
-            <div />
-            {daysData.map((d) => (
-              <React.Fragment key={d.date}>
-                <div className="share-tt-sub-head">{t("share.main")}</div>
-                <div />
-              </React.Fragment>
+              <div
+                key={d.date}
+                className="share-tt-day-head main-side"
+                style={{ gridColumn: "span 2" }}
+              >
+                <strong>DAY {d.dayIdx + 1}</strong>
+                <span className="share-tt-day-date">{chineseDateOf(d.date)}</span>
+              </div>
             ))}
           </div>
 
@@ -213,7 +185,7 @@ export default function ShareCanvasTimetable({
                         style={{ top: `${((m - range.minM) / 60) * HOUR_PX}px` }}
                       />
                     ))}
-                    {d.slots.map(({ main }) => {
+                    {d.primaries.map((main) => {
                       const sm = (new Date(main.startAt) - dayStart) / 60000;
                       const em = (new Date(main.endAt) - dayStart) / 60000;
                       const top = ((sm - range.minM) / 60) * HOUR_PX;
@@ -230,7 +202,6 @@ export default function ShareCanvasTimetable({
                           }}
                         >
                           <div className="share-tt-block-name">
-                            {isH && <span className="share-tt-h-mark">★</span>}
                             {main.artistName}
                           </div>
                           <div className="share-tt-block-stage u-mono">
@@ -241,7 +212,7 @@ export default function ShareCanvasTimetable({
                     })}
                   </div>
 
-                  {/* 必看（备选）列 */}
+                  {/* 待定 / 与必看主线冲突的演出 */}
                   <div
                     className="share-tt-axis-backup"
                     style={{ height: `${gridHeight}px` }}
@@ -253,31 +224,33 @@ export default function ShareCanvasTimetable({
                         style={{ top: `${((m - range.minM) / 60) * HOUR_PX}px` }}
                       />
                     ))}
-                    {d.slots.map(({ backups }) =>
-                      backups.map((perf) => {
-                        const sm = (new Date(perf.startAt) - dayStart) / 60000;
-                        const em = (new Date(perf.endAt) - dayStart) / 60000;
-                        const top = ((sm - range.minM) / 60) * HOUR_PX;
-                        const height = ((em - sm) / 60) * HOUR_PX;
-                        const status = selections[perf.id];
-                        const isH = headliners.includes(perf.id);
-                        return (
-                          <article
-                            key={perf.id}
-                            className={`share-tt-bubble share-tt-${status}${isH ? " is-h" : ""}`}
-                            style={{
-                              top: `${top}px`,
-                              height: `${height}px`,
-                            }}
-                          >
-                            <div className="share-tt-bubble-name">
-                              {isH && <span className="share-tt-h-mark">★</span>}
-                              {perf.artistName}
+                    {d.secondary.map(({ perf, isConflict }) => {
+                      const sm = (new Date(perf.startAt) - dayStart) / 60000;
+                      const em = (new Date(perf.endAt) - dayStart) / 60000;
+                      const top = ((sm - range.minM) / 60) * HOUR_PX;
+                      const height = ((em - sm) / 60) * HOUR_PX;
+                      const status = selections[perf.id];
+                      const isH = headliners.includes(perf.id);
+                      return (
+                        <article
+                          key={perf.id}
+                          className={`share-tt-bubble share-tt-${status}${isH ? " is-h" : ""}${isConflict ? " is-conflict" : ""}`}
+                          style={{
+                            top: `${top}px`,
+                            height: `${height}px`,
+                          }}
+                        >
+                          <div className="share-tt-bubble-name">
+                            {perf.artistName}
+                          </div>
+                          {isConflict && (
+                            <div className="share-tt-bubble-meta u-mono">
+                              {t("plan.timeConflict")}
                             </div>
-                          </article>
-                        );
-                      }),
-                    )}
+                          )}
+                        </article>
+                      );
+                    })}
                   </div>
                 </React.Fragment>
               );
@@ -295,9 +268,18 @@ export default function ShareCanvasTimetable({
           {festival.name} · {festival.year}
         </span>
         <span className="share-tt-foot-legend">
-          <span className="legend-h" />★ {t("share.legendTop")}
-          <span className="legend-must" /> {t("lineup.must")}
-          <span className="legend-maybe" /> {t("lineup.maybe")}
+          <span className="share-tt-legend-item">
+            <span className="legend-h" />{t("share.legendTop")}
+          </span>
+          <span className="share-tt-legend-item">
+            <span className="legend-must" />{t("lineup.must")}
+          </span>
+          <span className="share-tt-legend-item">
+            <span className="legend-maybe" />{t("lineup.maybe")}
+          </span>
+          <span className="share-tt-legend-item">
+            <span className="legend-conflict" />{t("plan.timeConflict")}
+          </span>
         </span>
       </footer>
     </div>
