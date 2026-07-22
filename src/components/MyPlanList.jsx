@@ -21,7 +21,6 @@ export default function MyPlanList({
   notes = {},
   headliners,
   axisChoice,
-  conflictMap,
   onSetStatus,
   onToggleHeadliner,
   onPickAxis,
@@ -329,7 +328,7 @@ export default function MyPlanList({
             selections={selections}
             notes={includeNotes ? notes : {}}
             headliners={headlinerList}
-            conflictMap={conflictMap}
+            axisChoice={axisChoice || {}}
           />
         </div>,
         document.body,

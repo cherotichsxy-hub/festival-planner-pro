@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { formatHM } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
 import { useI18n } from "../lib/i18n.js";
+import { buildPlanRoute } from "../lib/planRoute.js";
 import ShareWatermark from "./ShareWatermark.jsx";
 
 /**
@@ -20,17 +21,40 @@ export default function ShareCanvas({
   selections,
   notes = {},
   headliners = [],
-  conflictMap,
+  axisChoice = {},
 }) {
   const days = useMemo(() => {
-    return festival.dates.map((date, i) => ({
-      date,
-      dayIndex: i + 1,
-      items: performances
+    return festival.dates.map((date, i) => {
+      const items = performances
         .filter((p) => p.displayDate === date && selections[p.id])
-        .sort((a, b) => new Date(a.startAt) - new Date(b.startAt)),
-    }));
-  }, [festival.dates, performances, selections]);
+        .sort((a, b) => new Date(a.startAt) - new Date(b.startAt));
+      const { primaries, alternativesByPrimary } = buildPlanRoute(
+        items,
+        selections,
+        headliners,
+        axisChoice,
+      );
+      const primaryIds = new Set(primaries.map((perf) => perf.id));
+      const alternativeIds = new Set();
+      const conflictingPrimaryIds = new Set();
+
+      for (const alternatives of Object.values(alternativesByPrimary)) {
+        for (const { perf, conflictingPrimaryIds: conflicts } of alternatives) {
+          alternativeIds.add(perf.id);
+          conflicts.forEach((id) => conflictingPrimaryIds.add(id));
+        }
+      }
+
+      return {
+        date,
+        dayIndex: i + 1,
+        items,
+        primaryIds,
+        alternativeIds,
+        conflictingPrimaryIds,
+      };
+    });
+  }, [festival.dates, performances, selections, headliners, axisChoice]);
 
   const totalMarks = days.reduce((s, d) => s + d.items.length, 0);
   const cols = days.length;
@@ -93,16 +117,18 @@ export default function ShareCanvas({
       )}
 
       <div className="share-grid">
-        {days.map(({ date, dayIndex, items }) => (
+        {days.map(({ date, dayIndex, items, primaryIds, alternativeIds, conflictingPrimaryIds }) => (
           <ShareDay
             key={date}
             date={date}
             dayIndex={dayIndex}
             items={items}
             festival={festival}
-            conflictMap={conflictMap}
             selections={selections}
             notes={notes}
+            primaryIds={primaryIds}
+            alternativeIds={alternativeIds}
+            conflictingPrimaryIds={conflictingPrimaryIds}
           />
         ))}
       </div>
@@ -184,7 +210,17 @@ function Bolt({ mirror = false }) {
 
 /* ---------------- Day 列 ---------------- */
 
-function ShareDay({ date, dayIndex, items, festival, conflictMap, selections, notes = {} }) {
+function ShareDay({
+  date,
+  dayIndex,
+  items,
+  festival,
+  selections,
+  notes = {},
+  primaryIds,
+  alternativeIds,
+  conflictingPrimaryIds,
+}) {
   const [, m, d] = date.split("-");
   const chineseDate = `${Number(m)}月${Number(d)}日`;
   return (
@@ -207,7 +243,9 @@ function ShareDay({ date, dayIndex, items, festival, conflictMap, selections, no
               festival={festival}
               status={selections[perf.id]}
               note={notes[perf.id] || ""}
-              conflict={shouldShowConflict(perf, selections[perf.id], conflictMap, selections)}
+              primary={primaryIds.has(perf.id)}
+              conflict={alternativeIds.has(perf.id)}
+              primaryHasConflict={conflictingPrimaryIds.has(perf.id)}
             />
           ))}
         </ul>
@@ -216,20 +254,24 @@ function ShareDay({ date, dayIndex, items, festival, conflictMap, selections, no
   );
 }
 
-function shouldShowConflict(perf, status, conflictMap, selections) {
-  const list = conflictMap[perf.id];
-  if (!list || list.length === 0) return false;
-  if (status === "maybe") return true;
-  return list.some((c) => selections[c.id] === "must");
-}
-
-function ShareRow({ perf, festival, status, note = "", conflict }) {
+function ShareRow({
+  perf,
+  festival,
+  status,
+  note = "",
+  primary,
+  conflict,
+  primaryHasConflict,
+}) {
   const { t } = useI18n();
   const color = getStageColor(festival, perf.stageName);
-  if (status === "must") {
+  const prominent = primary && (status === "must" || primaryHasConflict);
+  if (prominent) {
     return (
-      <li className={`share-row share-row-must${conflict ? " has-conflict" : ""}`}>
-        <span className="share-row-marker">{t("lineup.must")}</span>
+      <li className="share-row share-row-must">
+        <span className="share-row-marker">
+          {t(status === "must" ? "lineup.must" : "lineup.maybe")}
+        </span>
         <span className="share-row-time">{formatHM(perf.startAt)}</span>
         <span className="share-row-end">→ {formatHM(perf.endAt)}</span>
         <strong className="share-row-name">{perf.artistName}</strong>
@@ -238,18 +280,19 @@ function ShareRow({ perf, festival, status, note = "", conflict }) {
           style={{ "--stage-solid": color.solid, "--stage-text": color.text }}
         >
           <span className="dot" />{perf.stageName}
-          {conflict && (
-            <span className="share-row-conflict">{t("plan.timeConflict")}</span>
-          )}
         </span>
         {note && <span className="share-row-note">✎ {note}</span>}
       </li>
     );
   }
+  const rowClass = status === "must" ? "share-row-must" : "share-row-maybe";
   return (
-    <li className={`share-row share-row-maybe${conflict ? " has-conflict" : ""}`}>
-      <span className="share-row-marker">{t("lineup.maybe")}</span>
+    <li className={`share-row ${rowClass}${conflict ? " has-conflict" : ""}`}>
+      <span className="share-row-marker">
+        {t(status === "must" ? "lineup.must" : "lineup.maybe")}
+      </span>
       <span className="share-row-time">{formatHM(perf.startAt)}</span>
+      {status === "must" && <span className="share-row-end">→ {formatHM(perf.endAt)}</span>}
       <span className="share-row-name">{perf.artistName}</span>
       <span
         className="share-row-stage"

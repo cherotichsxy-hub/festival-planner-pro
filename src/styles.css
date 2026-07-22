@@ -3134,7 +3134,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   flex-direction: column;
 }
 
-/* 必看大行 */
+/* 主路线大行：必看始终使用；待定仅在冲突组中胜出时使用。 */
 .share-row-must {
   display: grid;
   grid-template-columns: 38px auto auto 1fr;
@@ -3203,7 +3203,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   background: var(--stage-solid);
 }
 
-/* 必看但与另一场必看冲突：降为次级红字，避免和“确定行程”同层。 */
+/* 未进入主路线的必看：降为次级红字，避免和确定行程同层。 */
 .share-row-must.has-conflict {
   display: flex;
   flex-wrap: wrap;
