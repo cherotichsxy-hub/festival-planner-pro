@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { formatHM } from "../lib/time.js";
 import { getStageColor } from "../lib/stages.js";
+import { useI18n } from "../lib/i18n.js";
 import ShareWatermark from "./ShareWatermark.jsx";
 
 /**
@@ -223,11 +224,12 @@ function shouldShowConflict(perf, status, conflictMap, selections) {
 }
 
 function ShareRow({ perf, festival, status, note = "", conflict }) {
+  const { t } = useI18n();
   const color = getStageColor(festival, perf.stageName);
   if (status === "must") {
     return (
       <li className={`share-row share-row-must${conflict ? " has-conflict" : ""}`}>
-        <span className="share-row-marker">★</span>
+        <span className="share-row-marker">{t("lineup.must")}</span>
         <span className="share-row-time">{formatHM(perf.startAt)}</span>
         <span className="share-row-end">→ {formatHM(perf.endAt)}</span>
         <strong className="share-row-name">{perf.artistName}</strong>
@@ -236,6 +238,9 @@ function ShareRow({ perf, festival, status, note = "", conflict }) {
           style={{ "--stage-solid": color.solid, "--stage-text": color.text }}
         >
           <span className="dot" />{perf.stageName}
+          {conflict && (
+            <span className="share-row-conflict">{t("plan.timeConflict")}</span>
+          )}
         </span>
         {note && <span className="share-row-note">✎ {note}</span>}
       </li>
@@ -243,7 +248,7 @@ function ShareRow({ perf, festival, status, note = "", conflict }) {
   }
   return (
     <li className={`share-row share-row-maybe${conflict ? " has-conflict" : ""}`}>
-      <span className="share-row-marker">?</span>
+      <span className="share-row-marker">{t("lineup.maybe")}</span>
       <span className="share-row-time">{formatHM(perf.startAt)}</span>
       <span className="share-row-name">{perf.artistName}</span>
       <span
@@ -251,6 +256,9 @@ function ShareRow({ perf, festival, status, note = "", conflict }) {
         style={{ "--stage-solid": color.solid, "--stage-text": color.text }}
       >
         <span className="dot" />{perf.stageName}
+        {conflict && (
+          <span className="share-row-conflict">{t("plan.timeConflict")}</span>
+        )}
       </span>
       {note && <span className="share-row-note">✎ {note}</span>}
     </li>
